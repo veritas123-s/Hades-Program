@@ -1,3 +1,4 @@
+import { launchAuthenticated } from "./account-test-fixture.mjs";
 import { _electron as electron } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
@@ -63,7 +64,7 @@ let app;
 const checks = [];
 const errors = [];
 const launch = () =>
-  electron.launch(
+  launchAuthenticated(
     process.argv[2]
       ? { executablePath: path.resolve(process.argv[2]), args: [], env }
       : { args: [process.cwd()], env },

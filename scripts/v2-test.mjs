@@ -1,3 +1,4 @@
+import { launchAuthenticated } from "./account-test-fixture.mjs";
 import { _electron as electron } from "playwright";
 import fs from "node:fs";
 import os from "node:os";
@@ -6,7 +7,7 @@ import assert from "node:assert/strict";
 const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades-v2-ui-"));
 const env = { ...process.env, VERITAS_TEST: "1", VERITAS_TEST_DATA: directory };
 delete env.ELECTRON_RUN_AS_NODE;
-const app = await electron.launch(
+const app = await launchAuthenticated(
   process.argv[2]
     ? { executablePath: path.resolve(process.argv[2]), args: [], env }
     : { args: [process.cwd()], env },

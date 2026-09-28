@@ -11,10 +11,16 @@ export function publicUser(data) {
 
 // Only a public HTTPS origin is packaged. SecretStore encrypts session tokens.
 export class SelfHostedProvider {
-  constructor(config, secrets, { fetcher = fetch } = {}) {
+  constructor(
+    config,
+    secrets,
+    { fetcher = fetch, timeoutMs = 20000, mailTimeoutMs = 45000 } = {},
+  ) {
     this.config = config;
     this.secrets = secrets;
     this.fetcher = fetcher;
+    this.timeoutMs = timeoutMs;
+    this.mailTimeoutMs = mailTimeoutMs;
     this.pending = null;
     this.token = null;
     this.origin = "";
@@ -45,10 +51,51 @@ export class SelfHostedProvider {
       return null;
     }
   }
-  async call(
+  async call(route, body, options = {}) {
+    const controller = new AbortController();
+    this.controller = controller;
+    const timeout = setTimeout(
+      () =>
+        controller.abort(
+          new Error(
+            "账号服务响应超时。若已收到验证码，可继续验证；未收到可重新发送。",
+          ),
+        ),
+      options.mail ? this.mailTimeoutMs : this.timeoutMs,
+    );
+    try {
+      return await Promise.race([
+        this.performCall(route, body, {
+          ...options,
+          signal: controller.signal,
+        }),
+        new Promise((_, reject) =>
+          controller.signal.addEventListener(
+            "abort",
+            () => reject(controller.signal.reason),
+            { once: true },
+          ),
+        ),
+      ]);
+    } finally {
+      clearTimeout(timeout);
+      if (this.controller === controller) this.controller = null;
+    }
+  }
+  cancel() {
+    this.controller?.abort(
+      new Error("已停止等待；如果邮箱已收到验证码，仍可继续验证。"),
+    );
+  }
+  invalidate() {
+    this.token = null;
+    this.secrets.save({ tokens: null });
+    this.onInvalidSession?.();
+  }
+  async performCall(
     route,
     body,
-    { authenticated = false, requireToken = false } = {},
+    { authenticated = false, requireToken = false, signal } = {},
   ) {
     if (!this.available)
       throw Error("账号服务尚未配置，当前数据继续保存在本机。");
@@ -62,11 +109,12 @@ export class SelfHostedProvider {
           ...(authenticated ? { Authorization: "Bearer " + this.token } : {}),
         },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-        signal: AbortSignal.timeout(15000),
+        signal,
         redirect: "error",
         credentials: "omit",
       });
     } catch {
+      signal?.throwIfAborted();
       throw Error("暂时无法连接账号服务，请检查网络。");
     }
     let raw = "",
@@ -77,6 +125,7 @@ export class SelfHostedProvider {
     try {
       while (true) {
         const { done, value } = await reader.read();
+        signal?.throwIfAborted();
         if (done) break;
         size += value.length;
         if (size > 2 * 1024 * 1024) {
@@ -96,6 +145,7 @@ export class SelfHostedProvider {
       throw Error("账号服务返回格式无效");
     }
     if (!response.ok || data?.error) {
+      if (authenticated && response.status === 401) this.invalidate();
       const error = Error(
         response.status === 429
           ? "请求太频繁，请稍后再试。"
@@ -103,11 +153,19 @@ export class SelfHostedProvider {
             ? "邮箱或密码不正确，或登录已过期。"
             : data?.code === "EMAIL_NOT_VERIFIED"
               ? "请先完成邮箱验证。"
-              : "账号操作未成功，请检查输入后重试。",
+              : [
+                    "USER_ALREADY_EXISTS",
+                    "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL",
+                  ].includes(data?.code)
+                ? "这个邮箱已有账号。可登录，或点击重新发送完成邮箱验证。"
+                : response.status >= 500
+                  ? "账号服务暂时未能完成请求。若未收到邮件，请稍后重新发送验证码。"
+                  : "账号操作未成功，请检查输入后重试。",
       );
       error.code = data?.code || data?.error;
       throw error;
     }
+    signal?.throwIfAborted();
     const token = response.headers.get("set-auth-token");
     if (requireToken && !token) throw Error("账号服务未返回登录会话");
     if (token) {
@@ -127,16 +185,39 @@ export class SelfHostedProvider {
     );
   }
   async send(email, kind, password) {
-    this.pending = null;
-    if (kind === "reset")
-      await this.call("/api/auth/email-otp/request-password-reset", { email });
-    else
-      await this.call("/api/auth/sign-up/email", {
-        email,
-        password,
-        name: "Hades 用户",
-      });
     this.pending = { email, kind, expires: Date.now() + 600000 };
+    if (kind === "reset")
+      await this.call(
+        "/api/auth/email-otp/request-password-reset",
+        { email },
+        { mail: true },
+      );
+    else
+      await this.call(
+        "/api/auth/sign-up/email",
+        {
+          email,
+          password,
+          name: "Hades 用户",
+        },
+        { mail: true },
+      );
+  }
+  async resend(email, kind) {
+    if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ||
+      email.length > 254 ||
+      !["register", "reset"].includes(kind)
+    )
+      throw Error("请输入有效邮箱和验证方式");
+    this.pending = { email, kind, expires: Date.now() + 600000 };
+    await this.call(
+      kind === "reset"
+        ? "/api/auth/email-otp/request-password-reset"
+        : "/api/auth/email-otp/send-verification-otp",
+      kind === "reset" ? { email } : { email, type: "email-verification" },
+      { mail: true },
+    );
   }
   async verify(code, password) {
     const pending = this.pending;
@@ -163,11 +244,14 @@ export class SelfHostedProvider {
     return user;
   }
   async current() {
-    return publicUser(
-      await this.call("/api/auth/get-session", undefined, {
-        authenticated: true,
-      }),
-    );
+    const result = await this.call("/api/auth/get-session", undefined, {
+      authenticated: true,
+    });
+    if (!result?.user?.id) {
+      this.invalidate();
+      throw Error("登录已过期，请重新登录");
+    }
+    return publicUser(result);
   }
   async nickname(name) {
     await this.call("/api/auth/update-user", { name }, { authenticated: true });

@@ -2,9 +2,16 @@
 
 A tool to bridge the gaps between those complicated apps of SHSMU
 
-## Hades V3.0 · Poseidon（测试版）
+## Hades V3.0.5 · Poseidon（测试版）
 
 Windows 校园与专注工作台：任务清单、四象限、年/月/日日历、校园课表、番茄钟、时间记录、可切换主题，以及可配置模型服务的 Poseidon 助手。
+
+### V3.0.5
+
+- 登录后才能查看或使用个人功能；后台命令、状态快照、背景图片与自动同步采用同一登录限制。
+- 注册增加完整响应超时、停止等待、验证码重发和已收验证码继续验证；发信失败不会显示为发送成功。
+- 首次登录可明确选择迁移旧版数据及本机加密配置，保留原文件；各账号独立，API 密钥不上传账号服务器。
+- 继续使用现有受信任 HTTPS 地址，私人域名待审批完成后另行接入。
 
 ### V3.0
 
@@ -39,7 +46,7 @@ npm start
 npm run dist:installer
 ```
 
-目标输出为 `release-v3.0/Hades-Setup-3.0.0-x64.exe`；32 位使用 `npm run dist:installer:ia32`。同学只需安装包，不需要 Node.js 或开发环境。当前提供测试版；源码仓库不存放个人配置与安装包。
+目标输出为 `release-v3.0.5/Hades-Setup-3.0.5-x64.exe`；32 位使用 `npm run dist:installer:ia32`。同学只需安装包，不需要 Node.js 或开发环境。当前提供测试版；源码仓库不存放个人配置与安装包。
 
 ### 使用与数据
 

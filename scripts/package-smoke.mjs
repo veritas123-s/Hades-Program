@@ -1,3 +1,4 @@
+import { launchAuthenticated } from "./account-test-fixture.mjs";
 import { _electron as electron } from "playwright";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -17,7 +18,7 @@ const executablePath = process.argv[2]
       "win-unpacked",
       pkg.build.productName + ".exe",
     );
-const app = await electron.launch({ executablePath, args: [], env });
+const app = await launchAuthenticated({ executablePath, args: [], env });
 try {
   const page = await app.firstWindow();
   await page.getByRole("heading", { name: "今天的安排" }).waitFor();

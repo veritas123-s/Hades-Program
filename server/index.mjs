@@ -27,25 +27,77 @@ const mail = nodemailer.createTransport({
   auth: { user: config.smtp.user, pass: config.smtp.password },
   logger: false,
   debug: false,
+  connectionTimeout: 12000,
+  greetingTimeout: 10000,
+  socketTimeout: 20000,
 });
+// Check connectivity under the actual service identity; never send a test email here.
+mail
+  .verify()
+  .then(() =>
+    console.log(JSON.stringify({ event: "smtp_connection", ok: true })),
+  )
+  .catch(() =>
+    console.log(JSON.stringify({ event: "smtp_connection", ok: false })),
+  );
 const backend = await createBackend({
   database: path.join(directory, "hades.sqlite"),
   baseURL: config.baseURL,
   secret: config.secret,
   sendEmail: async ({ email, otp, type }) => {
-    await mail.sendMail({
-      from: config.smtp.from,
-      to: email,
-      subject:
-        type === "forget-password"
-          ? "Hades 密码重置验证码"
-          : "Hades 邮箱验证码",
-      text: `你的 Hades 验证码是 ${otp}，10分钟内有效。如非本人操作，请忽略此邮件。`,
-    });
+    const started = Date.now();
+    try {
+      await mail.sendMail({
+        from: config.smtp.from,
+        to: email,
+        subject:
+          type === "forget-password"
+            ? "Hades 密码重置验证码"
+            : "Hades 邮箱验证码",
+        text: `你的 Hades 验证码是 ${otp}，10分钟内有效。如非本人操作，请忽略此邮件。`,
+      });
+      console.log(
+        JSON.stringify({
+          event: "verification_delivery",
+          ok: true,
+          ms: Date.now() - started,
+        }),
+      );
+    } catch {
+      console.log(
+        JSON.stringify({
+          event: "verification_delivery",
+          ok: false,
+          ms: Date.now() - started,
+        }),
+      );
+      throw Error("Verification delivery unavailable");
+    }
   },
 });
 const counts = new Map();
 const server = http.createServer(async (req, res) => {
+  const started = Date.now();
+  const route = String(req.url || "").split("?")[0];
+  if (
+    [
+      "/api/auth/sign-up/email",
+      "/api/auth/sign-in/email",
+      "/api/auth/email-otp/send-verification-otp",
+      "/api/auth/email-otp/verify-email",
+    ].includes(route)
+  ) {
+    res.once("finish", () =>
+      console.log(
+        JSON.stringify({
+          event: "auth_response",
+          route,
+          status: res.statusCode,
+          ms: Date.now() - started,
+        }),
+      ),
+    );
+  }
   const headers = {
     "Cache-Control": "no-store",
     "X-Content-Type-Options": "nosniff",

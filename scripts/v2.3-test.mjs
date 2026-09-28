@@ -1,3 +1,4 @@
+import { launchAuthenticated } from "./account-test-fixture.mjs";
 import { _electron as electron } from 'playwright';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -24,7 +25,7 @@ const pass=x=>{checks.push(x);console.log('PASS '+x)};
 const call=(a,p={})=>page.evaluate(([a,p])=>window.veritas.call(a,p),[a,p]);
 const button=name=>page.getByRole('button',{name,exact:true});
 const visible=title=>page.locator('.notification-list').getByRole('heading',{name:title,exact:true});
-async function launch(){app=await electron.launch(process.argv[2]?{executablePath:path.resolve(process.argv[2]),args:[],env}:{args:[process.cwd()],env});page=await app.firstWindow();page.on('pageerror',e=>errors.push(e.message));await page.getByRole('heading',{name:'今天的安排'}).waitFor();await page.emulateMedia({reducedMotion:'reduce'});await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1440,1000));await button('打开通知中心').click();await page.getByRole('heading',{name:'日程与通知',exact:true}).waitFor();}
+async function launch(){app=await launchAuthenticated(process.argv[2]?{executablePath:path.resolve(process.argv[2]),args:[],env}:{args:[process.cwd()],env});page=await app.firstWindow();page.on('pageerror',e=>errors.push(e.message));await page.getByRole('heading',{name:'今天的安排'}).waitFor();await page.emulateMedia({reducedMotion:'reduce'});await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].setSize(1440,1000));await button('打开通知中心').click();await page.getByRole('heading',{name:'日程与通知',exact:true}).waitFor();}
 try{
  await launch();
  await visible('合成近期作业').waitFor();

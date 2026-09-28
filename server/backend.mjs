@@ -1,4 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
+import { AsyncLocalStorage } from "node:async_hooks";
 import { betterAuth } from "better-auth";
 import { emailOTP, bearer } from "better-auth/plugins";
 import { getMigrations } from "better-auth/db/migration";
@@ -17,6 +18,7 @@ export async function createBackend({
   if (url.protocol !== "https:" && !(testMode && url.hostname === "localhost"))
     throw Error("A public HTTPS origin is required");
   const db = new DatabaseSync(database);
+  const delivery = new AsyncLocalStorage();
   db.exec(
     "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON;",
   );
@@ -51,7 +53,15 @@ export async function createBackend({
         expiresIn: 600,
         allowedAttempts: 3,
         disableSignUp: true,
-        sendVerificationOTP: sendEmail,
+        sendVerificationOTP: async (message) => {
+          try {
+            await sendEmail(message);
+          } catch {
+            const request = delivery.getStore();
+            if (request) request.failed = true;
+            throw Error("Verification delivery unavailable");
+          }
+        },
       }),
     ],
   });
@@ -95,12 +105,19 @@ export async function createBackend({
     try {
       const u = new URL(request.url);
       if (u.pathname === "/health" && request.method === "GET")
-        return reply({ ok: true, version: "3.0.0" });
+        return reply({ ok: true, version: "3.0.5" });
       if (u.pathname.startsWith("/api/auth/")) {
         const route = u.pathname.slice("/api/auth".length);
         if (routes.get(route) !== request.method)
           return reply({ error: "NOT_FOUND" }, 404);
-        return auth.handler(request);
+        return delivery.run({ failed: false }, async () => {
+          const response = await auth.handler(request);
+          // The authentication library deliberately catches mail callback errors.
+          // Do not report a successful delivery when SMTP failed for this request.
+          return delivery.getStore().failed
+            ? reply({ error: "DELIVERY_UNAVAILABLE" }, 503)
+            : response;
+        });
       }
       if (u.pathname !== "/api/sync" || request.method !== "POST")
         return reply({ error: "NOT_FOUND" }, 404);

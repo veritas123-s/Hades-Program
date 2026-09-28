@@ -1,7 +1,7 @@
 {
   "name": "ai-veritas",
   "productName": "Hades",
-  "version": "3.0.0",
+  "version": "3.0.5",
   "private": true,
   "description": "MySHSMU 校园与专注工作台",
   "author": "AI VERITAS local project",
@@ -43,7 +43,7 @@
     "appId": "local.ai.veritas",
     "productName": "Hades",
     "directories": {
-      "output": "release-v3.0"
+      "output": "release-v3.0.5"
     },
     "files": [
       "dist/**/*",

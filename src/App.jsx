@@ -18,6 +18,7 @@ import { useTheme } from "./themes/useTheme.jsx";
 import { agenda } from "./agenda.mjs";
 import AssistantPanel from "./modules/assistant/AssistantPanel.jsx";
 import ListManager from "./shared/ListManager.jsx";
+import AccountPage from "./modules/accounts/AccountPage.jsx";
 
 export default function App() {
   const [state, setState] = useState(null),
@@ -36,7 +37,20 @@ export default function App() {
     const t = setInterval(() => setClock((x) => x + 1), 30000);
     return () => clearInterval(t);
   }, []);
-  useTheme(state?.workspace);
+  useTheme(
+    state?.locked
+      ? {
+          theme: "paper",
+          appearance: {
+            image: "none",
+            opacity: 0,
+            blur: 0,
+            position: "center",
+            fit: "cover",
+          },
+        }
+      : state?.workspace,
+  );
   const accept = (next) => {
     if (next?.schemaVersion)
       setState((old) =>
@@ -80,6 +94,7 @@ export default function App() {
   }, [toast]);
   useEffect(() => {
     const handler = (e) => {
+      if (!state?.account?.authenticated || state?.locked) return;
       if ((e.ctrlKey || e.metaKey) && e.key === "n") {
         e.preventDefault();
         setEditor({});
@@ -91,12 +106,12 @@ export default function App() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, []);
+  }, [state?.account?.authenticated, state?.locked]);
   useEffect(() => {
     if (
       state &&
       project !== "全部清单" &&
-      !state.lists.some((l) => l.name === project && !l.deletedAt)
+      !state.lists?.some((l) => l.name === project && !l.deletedAt)
     )
       setProject("全部清单");
   }, [state?.lists, project]);
@@ -104,7 +119,7 @@ export default function App() {
     return (
       <div className="loading">
         <div className="brand-symbol">H</div>
-        <h1>Hades V3.0</h1>
+        <h1>Hades V3.0.5</h1>
         <p>
           {window.veritas
             ? "正在打开你的工作空间…"
@@ -112,6 +127,24 @@ export default function App() {
         </p>
         {toast && <p className="error">{toast}</p>}
       </div>
+    );
+  if (state.locked || !state.account?.authenticated)
+    return (
+      <main className="auth-shell">
+        <div className="auth-brand">
+          <div className="brand-symbol">H</div>
+          <div>
+            <h1>Hades</h1>
+            <p>登录，打开你的个人空间</p>
+          </div>
+        </div>
+        <AccountPage state={state} call={call} toast={setToast} locked />
+        {toast && (
+          <div className="toast" role="status">
+            {toast}
+          </div>
+        )}
+      </main>
     );
   const active = state.tasks.filter((t) => !t.deletedAt && !t.completedAt),
     projects = state.lists.filter((l) => !l.deletedAt).map((l) => l.name),
@@ -166,7 +199,7 @@ export default function App() {
           <div className="brand-symbol">H</div>
           <div>
             <b>
-              Hades<span>3.0</span>
+              Hades<span>3.0.5</span>
             </b>
             <small>任务 · 课程 · 专注</small>
           </div>
@@ -176,53 +209,57 @@ export default function App() {
           新建任务<kbd>Ctrl N</kbd>
         </button>
         <div className="sidebar-scroll">
-        <p className="nav-label">我的工作空间</p>
-        <nav>
-          {NAV.map(([id, label, Icon]) => (
-            <button
-              key={id}
-              className={page === id ? "active" : ""}
-              onClick={() => setPage(id)}
-            >
-              <Icon size={18} />
-              <span>{label}</span>
-              {id === "tasks" && <small>{active.length}</small>}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-projects">
-          <p className="nav-label">
-            我的清单{" "}
-            <button
-              aria-label="新建清单"
-              onClick={() => {
-                setListsOpen(true);
-              }}
-            >
-              <Plus size={14} />
-            </button>
-          </p>
-          {projects.map((p, i) => (
-            <button
-              key={p}
-              className={page === "tasks" && project === p ? "selected" : ""}
-              onClick={() => {
-                setProject(p);
-                setPage("tasks");
-                setFilter("active");
-              }}
-            >
-              <i style={{ background: QUADRANTS[i % 4].color }} />
-              {p}
-              <small>{active.filter((t) => t.project === p).length}</small>
-            </button>
-          ))}
-        </div>
+          <p className="nav-label">我的工作空间</p>
+          <nav>
+            {NAV.map(([id, label, Icon]) => (
+              <button
+                key={id}
+                className={page === id ? "active" : ""}
+                onClick={() => setPage(id)}
+              >
+                <Icon size={18} />
+                <span>{label}</span>
+                {id === "tasks" && <small>{active.length}</small>}
+              </button>
+            ))}
+          </nav>
+          <div className="sidebar-projects">
+            <p className="nav-label">
+              我的清单{" "}
+              <button
+                aria-label="新建清单"
+                onClick={() => {
+                  setListsOpen(true);
+                }}
+              >
+                <Plus size={14} />
+              </button>
+            </p>
+            {projects.map((p, i) => (
+              <button
+                key={p}
+                className={page === "tasks" && project === p ? "selected" : ""}
+                onClick={() => {
+                  setProject(p);
+                  setPage("tasks");
+                  setFilter("active");
+                }}
+              >
+                <i style={{ background: QUADRANTS[i % 4].color }} />
+                {p}
+                <small>{active.filter((t) => t.project === p).length}</small>
+              </button>
+            ))}
+          </div>
         </div>
         <div className="sidebar-bottom">
           <div className="local-status">
             <i />
-            {state.account?.sync?.phase==='synced'?'已同步到云端':state.account?.sync?.enabled?'云同步已开启':'保存在这台电脑'}
+            {state.account?.sync?.phase === "synced"
+              ? "已同步到云端"
+              : state.account?.sync?.enabled
+                ? "云同步已开启"
+                : "保存在这台电脑"}
           </div>
           <button
             onClick={() => setPage("settings")}
@@ -237,7 +274,11 @@ export default function App() {
         <header className="topbar">
           <div className="breadcrumb">
             个人空间 <ChevronRight size={13} />
-            <span>{page==='account'?'账号与同步':NAV.find((n) => n[0] === page)?.[1] || "设置与数据"}</span>
+            <span>
+              {page === "account"
+                ? "账号与同步"
+                : NAV.find((n) => n[0] === page)?.[1] || "设置与数据"}
+            </span>
           </div>
           <div className="search">
             <Search size={16} />
@@ -253,7 +294,15 @@ export default function App() {
                 setProject("全部清单");
               }}
             />
-            {query&&<button className="search-clear" aria-label="清空搜索" onClick={()=>setQuery('')}><X size={15}/></button>}
+            {query && (
+              <button
+                className="search-clear"
+                aria-label="清空搜索"
+                onClick={() => setQuery("")}
+              >
+                <X size={15} />
+              </button>
+            )}
             <kbd>Ctrl K</kbd>
           </div>
           <button
@@ -286,7 +335,13 @@ export default function App() {
               }
             </span>
           </button>
-          <button className="avatar" aria-label="账号与同步" onClick={()=>setPage('account')}>{state.account?.user?.nickname?.slice(0,1)||'H'}</button>
+          <button
+            className="avatar"
+            aria-label="账号与同步"
+            onClick={() => setPage("account")}
+          >
+            {state.account?.user?.nickname?.slice(0, 1) || "H"}
+          </button>
         </header>
         <main>
           {state.lastNotice && (
@@ -335,7 +390,7 @@ export default function App() {
             }}
           />
           <footer className="page-footer">
-            <span>Hades V3.0</span>
+            <span>Hades V3.0.5</span>
             <span>保存在这台电脑</span>
           </footer>
         </main>

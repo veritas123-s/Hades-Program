@@ -1,3 +1,7 @@
+import {
+  launchAuthenticated,
+  fixtureProfile,
+} from "./account-test-fixture.mjs";
 import { _electron as electron } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
@@ -12,7 +16,7 @@ const executablePath = process.argv[2];
 let app, page;
 const errors = [];
 async function start() {
-  app = await electron.launch({
+  app = await launchAuthenticated({
     ...(executablePath
       ? { executablePath, args: [] }
       : { args: [process.cwd()] }),
@@ -111,7 +115,9 @@ try {
       .evaluate((el) => el.scrollWidth <= el.clientWidth + 1),
     true,
   );
-  const vault = fs.readFileSync(path.join(directory, "cloud-setup-vault.bin"));
+  const vault = fs.readFileSync(
+    path.join(fixtureProfile(directory), "cloud-setup-vault.bin"),
+  );
   assert.ok(!vault.includes(Buffer.from("syntheticClassmatePush")));
   assert.ok(!vault.includes(Buffer.from("synthetic-cloud-secret")));
   await app.close();

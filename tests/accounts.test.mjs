@@ -52,7 +52,7 @@ test("账号各有独立目录，复制不覆盖已有账号，也不移动原�
   const a = { id: "../synthetic-a" },
     b = { id: "b" };
   const ad = profiles.prepare(a, s);
-  profiles.prepare(b, initialState());
+  profiles.prepare(b, null);
   assert.ok(ad.startsWith(path.join(dir, "accounts")));
   assert.notEqual(ad, profiles.directory(b));
   profiles.prepare(a, initialState());
@@ -179,7 +179,7 @@ test("切换前要求保存计时，不允许把一个账号的数据复制给�
     changed: () => {},
   });
   service.pendingUser = { id: "A" };
-  store.state.timer.status = "paused";
+  store.state.timer.status = "running";
   await assert.rejects(() =>
     service.execute("account.activate", { mode: "copy" }),
   );

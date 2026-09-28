@@ -1,3 +1,7 @@
+import {
+  launchAuthenticated,
+  fixtureProfile,
+} from "./account-test-fixture.mjs";
 import { _electron as electron } from "playwright";
 import fs from "node:fs";
 import os from "node:os";
@@ -22,7 +26,7 @@ const ok = (name) => {
   console.log("PASS " + name);
 };
 async function start() {
-  app = await electron.launch({ args: [root], env });
+  app = await launchAuthenticated({ args: [root], env });
   page = await app.firstWindow();
   page.on("pageerror", (e) => errors.push(e.message));
   await page.getByRole("heading", { name: "今天的安排" }).waitFor();
@@ -141,7 +145,7 @@ try {
   assert.equal(
     JSON.parse(
       fs.readFileSync(
-        path.join(directory, "briefing", "veritas-feed.json"),
+        path.join(fixtureProfile(directory), "briefing", "veritas-feed.json"),
         "utf8",
       ),
     ).tasks.length,
@@ -166,7 +170,9 @@ try {
       .click();
   }
   ok("助手与同步页面沿用三套主题，无横向溢出");
-  const vault = fs.readFileSync(path.join(directory, "assistant-vault.bin"));
+  const vault = fs.readFileSync(
+    path.join(fixtureProfile(directory), "assistant-vault.bin"),
+  );
   assert.equal(
     vault.includes(Buffer.from("synthetic-api-key-never-real")),
     false,

@@ -1,3 +1,4 @@
+import { launchAuthenticated } from "./account-test-fixture.mjs";
 import { _electron as electron } from "playwright";
 import fs from "node:fs";
 import os from "node:os";
@@ -32,7 +33,7 @@ delete env.ELECTRON_RUN_AS_NODE;
 const executablePath = process.argv[2]
   ? path.resolve(process.argv[2])
   : undefined;
-const app = await electron.launch({
+const app = await launchAuthenticated({
   executablePath,
   args: executablePath && !process.argv.includes("--runtime") ? [] : ["."],
   env,
@@ -73,14 +74,8 @@ try {
   await page
     .getByRole("heading", { name: "账号与同步", exact: true })
     .waitFor();
-  assert.equal(
-    await page.getByRole("button", { name: "登录", exact: true }).isEnabled(),
-    true,
-  );
-  await page.getByRole("button", { name: "注册账号", exact: true }).click();
-  await page.getByRole("heading", { name: "创建云端账号" }).waitFor();
-  await page.getByRole("button", { name: "忘记密码", exact: true }).click();
-  await page.getByRole("heading", { name: "找回密码" }).waitFor();
+  await page.getByRole("button", { name: "保存昵称", exact: true }).waitFor();
+  assert.equal((await call("state")).account.authenticated, true);
   await page.screenshot({ path: "test-results/v3-account.png" });
   assert.equal((await call("state")).account.ready, true);
   assert.equal(
@@ -91,7 +86,7 @@ try {
       .count(),
     0,
   );
-  console.log("PASS 账号入口、注册找回界面、已配置云服务可用");
+  console.log("PASS 已登录账号资料设置；未登录流程由 account-gate-test 覆盖");
   await page.getByRole("button", { name: "日程日历", exact: true }).click();
   await page.getByRole("button", { name: "导入 / 导出日历" }).click();
   await page.getByRole("button", { name: "导入日历", exact: true }).click();

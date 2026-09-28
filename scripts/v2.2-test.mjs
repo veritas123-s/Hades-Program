@@ -1,3 +1,4 @@
+import { launchAuthenticated } from "./account-test-fixture.mjs";
 import { _electron as electron } from "playwright";
 import fs from "node:fs";
 import path from "node:path";
@@ -43,7 +44,7 @@ const go = (name) => page.getByRole("button", { name, exact: true }).click();
 const close = () =>
   page.getByRole("button", { name: "关闭", exact: true }).click();
 const launch = async () => {
-  app = await electron.launch(
+  app = await launchAuthenticated(
     process.argv[2]
       ? { executablePath: path.resolve(process.argv[2]), args: [], env }
       : { args: [process.cwd()], env },

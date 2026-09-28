@@ -17,7 +17,7 @@ const {
 const path = require("node:path");
 const fs = require("node:fs");
 const { pathToFileURL } = require("node:url");
-app.setName("Hades V3.0");
+app.setName("Hades V3.0.5");
 app.setAppUserModelId("local.ai.veritas");
 const testMode = process.env.VERITAS_TEST === "1";
 if (testMode && process.env.VERITAS_TEST_DATA)
@@ -43,19 +43,26 @@ let win,
   workflows,
   accounts,
   accountSync,
+  requireAccount,
+  lockedSnapshot,
+  personalReady = false,
+  connectorInitialization,
   commandRouter,
   authFlushed = false,
   quitting = false,
   sequence = 0;
-const snapshot = () => ({
-  ...store.state,
-  learning: learning?.status(),
-  workflows: workflows?.data,
-  campusAuth: auth?.status(),
-  account: accounts?.status(),
-  briefingStatus: { ...bridge?.status, sync: bridge?.sync?.status() },
-  revision: ++sequence,
-});
+const snapshot = () =>
+  !accounts?.authenticated || !personalReady
+    ? lockedSnapshot(accounts?.status(), ++sequence)
+    : {
+        ...store.state,
+        learning: learning?.status(),
+        workflows: workflows?.data,
+        campusAuth: auth?.status(),
+        account: accounts?.status(),
+        briefingStatus: { ...bridge?.status, sync: bridge?.sync?.status() },
+        revision: ++sequence,
+      };
 const broadcast = () => {
   if (win && !win.isDestroyed())
     win.webContents.send("veritas:state", snapshot());
@@ -86,7 +93,7 @@ function createWindow() {
     minHeight: 730,
     backgroundColor: "#f7f7f4",
     icon: path.join(__dirname, "../assets/icon.png"),
-    title: "Hades V3.0",
+    title: "Hades V3.0.5",
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
@@ -112,9 +119,12 @@ function createWindow() {
   win.loadURL("veritas://app/index.html");
 }
 async function handle(action, p = {}) {
+  requireAccount(accounts, action);
   if (action === "state") return snapshot();
   if (action.startsWith("account.")) return accounts.execute(action, p);
+  if (!personalReady) throw Error("正在打开账号空间，请稍候");
   const result = await commandRouter.execute(action, p);
+  requireAccount(accounts, action);
   if (result !== undefined) return result;
   try {
     bridge?.export(store.state);
@@ -152,6 +162,8 @@ else {
       const { SelfHostedProvider } = await import("./accounts/self-hosted.mjs");
       const { AccountSync } = await import("./accounts/sync.mjs");
       const { Accounts } = await import("./accounts/service.mjs");
+      ({ requireAccount, lockedSnapshot } =
+        await import("./accounts/access.mjs"));
       const accountVault = new SecretStore(
         app.getPath("userData"),
         "account-vault.bin",
@@ -169,6 +181,7 @@ else {
       const accountProvider = new SelfHostedProvider(
         accountConfig,
         accountVault,
+        { fetcher: (...args) => net.fetch(...args) },
       );
       accountSync = profiles.active
         ? new AccountSync({
@@ -184,7 +197,9 @@ else {
         provider: accountProvider,
         sync: accountSync,
         store,
-        changed: broadcast,
+        changed: () => {
+          refreshAccess().catch(() => broadcast());
+        },
         restart: () => {
           if (!testMode) {
             app.relaunch();
@@ -193,7 +208,42 @@ else {
           }
         },
       });
-      store.onCommit = () => accountSync?.changedLocal();
+      accountProvider.onInvalidSession = () => {
+        accounts.authenticated = false;
+        personalReady = false;
+        accountSync?.stop();
+        bridge?.sync?.stop();
+        bridge?.onboarding?.stop();
+        assistant?.cancel();
+        if (learning) {
+          learning.disconnected = true;
+          learning.generation++;
+          clearTimeout(learning.pending);
+          clearTimeout(learning.loginSync);
+          learning.window?.destroy();
+        }
+        if (auth) {
+          auth.generation++;
+          auth.window?.destroy();
+        }
+        store.change((s) => domain.timerAction(s, "pause"));
+        broadcast();
+      };
+      async function refreshAccess() {
+        if (accounts.authenticated) {
+          connectorInitialization ||= Promise.all([
+            auth.initialize(),
+            learning.initialize(),
+          ]);
+          await connectorInitialization;
+          learning.disconnected = false;
+          personalReady = accounts.authenticated;
+        }
+        broadcast();
+      }
+      store.onCommit = () => {
+        if (accounts.authenticated) accountSync?.changedLocal();
+      };
       const { ThemeAssets } = await import("./theme-assets.mjs");
       const themeAssets = new ThemeAssets(dataDirectory, nativeImage);
       protocol.handle("veritas", async (request) => {
@@ -201,13 +251,15 @@ else {
         const relative =
           decodeURIComponent(u.pathname).replace(/^\/+/, "") || "index.html";
         if (u.host === "app" && relative.startsWith("user-backgrounds/")) {
+          if (!accounts.authenticated || !personalReady)
+            return new Response("Unauthorized", { status: 401 });
           try {
             return new Response(
               themeAssets.read(relative.slice("user-backgrounds/".length)),
               {
                 headers: {
                   "Content-Type": "image/png",
-                  "Cache-Control": "private, max-age=31536000",
+                  "Cache-Control": "no-store",
                 },
               },
             );
@@ -278,7 +330,6 @@ else {
         vault: new Vault(dataDirectory, safeStorage),
         changed: broadcast,
       });
-      await auth.initialize();
       bridge = new BriefingBridge(dataDirectory);
       const { AssistantService } = await import("./assistant-service.mjs");
       assistant = new AssistantService({
@@ -308,6 +359,7 @@ else {
         ),
         changed: broadcast,
         onSynced: () => {
+          if (!accounts.authenticated || !personalReady) return;
           workflows.importLearning(
             learningSelection(
               { ...store.state, workflows: workflows.data },
@@ -319,7 +371,6 @@ else {
           broadcast();
         },
       });
-      await learning.initialize();
       bridge.sync = new CloudSync({
         secrets: new SecretStore(dataDirectory, "cloud-vault.bin", safeStorage),
         fetcher: (...args) => net.fetch(...args),
@@ -340,7 +391,8 @@ else {
         changed: broadcast,
       });
       try {
-        bridge.export(store.state, true);
+        if (accounts.authenticated && personalReady)
+          bridge.export(store.state, true);
       } catch {
         bridge.status.message = "快报文件未能写入，请检查连接目录。";
         bridge.status.local = "error";
@@ -367,11 +419,25 @@ else {
       createWindow();
       accounts
         .initialize()
-        .then(broadcast)
+        .then(refreshAccess)
         .catch(() => broadcast());
+      setInterval(() => {
+        if (!accounts.authenticated || accounts.busy) return;
+        accountProvider
+          .current()
+          .then((user) => {
+            if (user.id !== profiles.active?.id) accountProvider.invalidate();
+          })
+          .catch(() => {});
+      }, 5 * 60000).unref();
       if (!testMode) {
         const syncLearning = () => {
-          if (learning.status().connected) learning.sync().catch(() => {});
+          if (
+            accounts.authenticated &&
+            personalReady &&
+            learning.status().connected
+          )
+            learning.sync().catch(() => {});
         };
         setTimeout(syncLearning, 15000).unref();
         setInterval(syncLearning, 30 * 60000).unref();
@@ -381,14 +447,15 @@ else {
           .createFromPath(path.join(__dirname, "../assets/icon.png"))
           .resize({ width: 32, height: 32 }),
       );
-      tray.setToolTip("Hades V3.0");
+      tray.setToolTip("Hades V3.0.5");
       tray.on("click", show);
       tray.setContextMenu(
         Menu.buildFromTemplate([
-          { label: "打开 Hades V3.0", click: show },
+          { label: "打开 Hades V3.0.5", click: show },
           {
             label: "暂停计时",
             click: () => {
+              if (!accounts.authenticated || !personalReady) return show();
               store.change((s) => domain.timerAction(s, "pause"));
               broadcast();
             },
@@ -405,6 +472,7 @@ else {
       );
       let ticks = 0;
       setInterval(() => {
+        if (!accounts.authenticated || !personalReady) return;
         try {
           if (ticks % 60 === 0) {
             try {
@@ -451,6 +519,7 @@ else {
         }
       }, 1000).unref();
       powerMonitor.on("suspend", () => {
+        if (!accounts.authenticated || !personalReady) return;
         store.change((s) => {
           domain.timerAction(s, "pause");
           s.lastNotice = "电脑进入休眠，专注计时已自动暂停。";
@@ -469,7 +538,7 @@ else {
     quitting = true;
     bridge?.sync?.stop();
     assistant?.cancel();
-    if (auth && !authFlushed) {
+    if (auth && connectorInitialization && !authFlushed) {
       event.preventDefault();
       authFlushed = true;
       auth

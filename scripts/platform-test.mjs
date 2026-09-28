@@ -1,3 +1,4 @@
+import { launchAuthenticated } from "./account-test-fixture.mjs";
 import { _electron as electron } from "playwright";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -25,7 +26,7 @@ const call = (name, payload = {}) =>
   );
 const state = () => call("state");
 async function start() {
-  app = await electron.launch({ args: [root], env, timeout: 30000 });
+  app = await launchAuthenticated({ args: [root], env, timeout: 30000 });
   page = await app.firstWindow();
   page.on("pageerror", (e) => errors.push(e.message));
   await page.getByRole("heading", { name: "今天的安排" }).waitFor();

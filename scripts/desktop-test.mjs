@@ -1,3 +1,7 @@
+import {
+  launchAuthenticated,
+  fixtureProfile,
+} from "./account-test-fixture.mjs";
 import { _electron as electron } from "playwright";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -17,7 +21,7 @@ const ok = (name) => {
   console.log(`PASS ${name}`);
 };
 try {
-  app = await electron.launch({ args: [root], env, timeout: 30000 });
+  app = await launchAuthenticated({ args: [root], env, timeout: 30000 });
   let page = await app.firstWindow();
   await page.getByRole("heading", { name: "今天的安排" }).waitFor();
   const errors = [];
@@ -203,7 +207,7 @@ try {
   assert.ok(!JSON.stringify(state).includes("synthetic-password"));
   assert.ok(
     !fs
-      .readFileSync(path.join(dataDir, "campus-vault.bin"))
+      .readFileSync(path.join(fixtureProfile(dataDir), "campus-vault.bin"))
       .includes("synthetic-password"),
   );
   ok("真实 Windows 加密保存，界面状态不泄露账号密码");
@@ -227,7 +231,9 @@ try {
     fullPage: true,
   });
   const feed = JSON.parse(
-    fs.readFileSync(path.join(dataDir, "briefing", "veritas-feed.json")),
+    fs.readFileSync(
+      path.join(fixtureProfile(dataDir), "briefing", "veritas-feed.json"),
+    ),
   );
   assert.equal(feed.tasks.length, 1);
   assert.equal(feed.tasks[0].due_time, "17:30");
@@ -249,7 +255,9 @@ try {
     dialog.showMessageBox = async () => ({ response: 1 });
   }, exported);
   await page.evaluate(() => window.veritas.call("import.backup"));
-  assert.ok(fs.readdirSync(dataDir).some((f) => /^backup-/.test(f)));
+  assert.ok(
+    fs.readdirSync(fixtureProfile(dataDir)).some((f) => /^backup-/.test(f)),
+  );
   ok("完整备份导出与恢复，恢复前自动备份");
   await page.locator(".sidebar-bottom>button").click();
   await page.getByLabel("每日专注目标（分钟）").fill("180");
@@ -282,7 +290,7 @@ try {
   );
   ok("页面无未捕获错误、无横向溢出");
   await app.close();
-  app = await electron.launch({ args: [root], env, timeout: 30000 });
+  app = await launchAuthenticated({ args: [root], env, timeout: 30000 });
   page = await app.firstWindow();
   await page.getByRole("heading", { name: "今天的安排" }).waitFor();
   state = await page.evaluate(() => window.veritas.call("state"));
@@ -297,7 +305,10 @@ try {
   );
   assert.equal(restoredCookies[0]?.value, "synthetic-session");
   await page.evaluate(() => window.veritas.call("school.logout"));
-  assert.equal(fs.existsSync(path.join(dataDir, "campus-vault.bin")), false);
+  assert.equal(
+    fs.existsSync(path.join(fixtureProfile(dataDir), "campus-vault.bin")),
+    false,
+  );
   ok("关闭与重启后任务、记录、设置保持");
   fs.writeFileSync(
     path.join(output, "desktop-results.json"),
