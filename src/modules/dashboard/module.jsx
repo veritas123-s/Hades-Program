@@ -1,0 +1,71 @@
+import { lazy } from "react";
+import { LayoutDashboard } from "lucide-react";
+import {
+  PriorityWidget,
+  FocusWidget,
+  WeekWidget,
+  CoursesWidget,
+} from "./BuiltinWidgets.jsx";
+export default {
+  id: "dashboard",
+  title: "今日概览",
+  description: "把今天的重要信息放在一起。",
+  apiVersion: 1,
+  version: "1.2.0",
+  order: 0,
+  routes: [
+    {
+      id: "today",
+      title: "今日概览",
+      icon: LayoutDashboard,
+      Component: lazy(() => import("./DashboardPage.jsx")),
+      hiddenNav: false,
+    },
+  ],
+  widgets: [
+    {
+      id: "priority",
+      title: "接下来做什么",
+      description: "按优先级查看未完成任务，直接开始专注。",
+      apiVersion: 1,
+      stateVersion: 1,
+      data: ["tasks"],
+      commands: ["task.complete", "task.delete"],
+      uiActions: ["navigate", "addTask", "editTask", "focusTask"],
+      Component: PriorityWidget,
+    },
+    {
+      id: "focus",
+      title: "专注时钟",
+      description: "查看当前计时，随时回到专注空间。",
+      apiVersion: 1,
+      stateVersion: 1,
+      data: ["timer", "settings"],
+      commands: [],
+      uiActions: ["navigate"],
+      Component: FocusWidget,
+    },
+    {
+      id: "week",
+      title: "本周投入",
+      description: "查看每天的有效工作时间。",
+      apiVersion: 1,
+      stateVersion: 1,
+      data: ["logs"],
+      commands: [],
+      uiActions: ["navigate"],
+      Component: WeekWidget,
+    },
+    {
+      id: "courses",
+      title: "今日课程",
+      description: "把今天的校园安排放到首页。",
+      apiVersion: 1,
+      stateVersion: 1,
+      data: ["courses", "courseRanges"],
+      commands: [],
+      uiActions: ["navigate"],
+      Component: CoursesWidget,
+    },
+  ],
+};

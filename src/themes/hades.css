@@ -1,0 +1,464 @@
+/* Hades 2: shared geometry and typography; palettes remain theme-controlled. */
+.archive-course-option {
+  grid-column: 1/-1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+}
+.archive-course-option input {
+  width: 16px;
+}
+:root[data-theme] .panel :is(h2, h3) {
+  font-family: "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  letter-spacing: 0;
+}
+:root[data-theme] .panel,
+:root[data-theme] .stat,
+:root[data-theme] .quadrant {
+  border-radius: 20px;
+}
+:root[data-theme] .button,
+:root[data-theme] .new-task,
+:root[data-theme] .sidebar nav button,
+:root[data-theme] input,
+:root[data-theme] select,
+:root[data-theme] textarea {
+  border-radius: 11px;
+}
+:root[data-theme] .page-heading h1,
+:root[data-theme] h2,
+:root[data-theme] h3,
+:root[data-theme] .panel,
+:root[data-theme] button,
+:root[data-theme] input,
+:root[data-theme] select {
+  font-family:
+    "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", system-ui,
+    sans-serif;
+  letter-spacing: 0;
+}
+:root,
+:root[data-theme="monument"],
+:root[data-theme="midnight"] {
+  --panel-radius: 20px;
+}
+body,
+button,
+input,
+textarea,
+select,
+:root[data-theme="monument"] h1,
+:root[data-theme="monument"] h2,
+:root[data-theme="monument"] h3 {
+  font-family:
+    "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", system-ui,
+    sans-serif;
+  letter-spacing: 0;
+}
+body {
+  font-size: 14px;
+  line-height: 1.6;
+}
+h1 {
+  font-size: 29px;
+  font-weight: 650;
+  letter-spacing: -0.5px;
+}
+h2 {
+  font-weight: 650;
+}
+h3 {
+  font-weight: 600;
+}
+:root .panel,
+:root .stat,
+:root .quadrant {
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 5px 22px var(--shadow);
+}
+:root .button,
+:root button.new-task,
+:root input,
+:root select,
+:root textarea {
+  border-radius: 11px;
+}
+:root .sidebar nav button,
+:root .sidebar-bottom button {
+  border-radius: 12px;
+}
+:root .sidebar .brand-symbol {
+  border-radius: 15px;
+  transform: none;
+  font-family: Georgia, serif;
+  font-size: 29px;
+}
+:root .sidebar .brand b {
+  font-family: Georgia, serif;
+  font-size: 28px;
+  letter-spacing: 0.4px;
+}
+:root .sidebar .brand b span {
+  font-family: system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 1px;
+  margin-left: 7px;
+}
+:root .sidebar .brand small {
+  letter-spacing: 1px;
+  font-size: 10px;
+  margin-top: 3px;
+}
+:root .sidebar {
+  padding-top: 25px;
+}
+:root .sidebar:before {
+  border-radius: 20px;
+}
+:root .eyebrow {
+  letter-spacing: 1.5px;
+  font-size: 10px;
+  font-family: inherit;
+}
+:root .page-heading h1 {
+  font-family: inherit;
+  letter-spacing: 0;
+  font-weight: 650;
+  font-size: 29px;
+}
+:root .stat:before,
+:root .stat:after {
+  display: none;
+}
+:root .stat {
+  padding: 20px;
+}
+:root .task-card {
+  border-radius: 12px;
+}
+:root .topbar {
+  gap: 13px;
+}
+:root .search {
+  max-width: 290px;
+}
+.notification-bell {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  padding: 8px 11px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.notification-bell span {
+  background: var(--accent);
+  color: var(--on-accent);
+  min-width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  display: grid;
+  place-items: center;
+}
+.agenda-hero {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 20px;
+  margin: 0 0 24px;
+}
+.next-action {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--surface), var(--surface-soft));
+  padding: 27px 28px;
+}
+.next-action h2 {
+  font-size: 24px;
+  line-height: 1.45;
+  max-width: 80%;
+  margin: 8px 0;
+}
+.next-action > p {
+  max-width: 80%;
+  color: var(--muted);
+}
+.next-action > small {
+  display: block;
+  margin-top: 20px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.agenda-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.orbit-art {
+  position: absolute;
+  width: 125px;
+  height: 125px;
+  right: -15px;
+  top: -16px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  opacity: 0.4;
+}
+.orbit-art span {
+  position: absolute;
+  inset: 14px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+}
+.orbit-art i {
+  position: absolute;
+  inset: 30px;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+}
+.orbit-art b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: italic 42px Georgia;
+  color: var(--accent);
+}
+.today-inbox {
+  padding: 21px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+}
+.today-inbox header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.today-inbox h3 {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  font-size: 15px;
+  margin: 0;
+}
+.agenda-mini {
+  width: 100%;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  color: var(--text);
+  padding: 12px 0;
+}
+.agenda-mini + .agenda-mini {
+  border-top: 1px solid var(--border);
+}
+.agenda-mini b {
+  font-weight: 550;
+  display: block;
+}
+.agenda-mini small {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: 3px;
+}
+.agenda-kind {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--surface-soft);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+}
+.agenda-kind.course {
+  color: var(--green);
+}
+.learning-connect {
+  margin: 0 0 22px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px 20px;
+}
+.learning-connect h3 {
+  margin: 0 0 6px;
+}
+.learning-connect p {
+  margin: 0 0 5px;
+}
+.learning-connect > small {
+  grid-column: 1/-1;
+  color: var(--muted);
+}
+.learning-connect small {
+  font-size: 11px;
+}
+.notification-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--border);
+}
+.notification-row {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  padding: 19px 0;
+  border-bottom: 1px solid var(--border);
+}
+.notification-row > div {
+  flex: 1;
+}
+.notification-row h3 {
+  margin: 3px 0;
+  font-size: 16px;
+}
+.notification-row small,
+.notification-row p {
+  color: var(--muted);
+  margin: 0;
+  font-size: 12px;
+}
+.notification-row.read {
+  opacity: 0.62;
+}
+.empty-inbox {
+  padding: 35px;
+  text-align: center;
+  color: var(--muted);
+}
+.workflow-panel {
+  margin-top: 24px;
+}
+.workflow-panel label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 14px 0;
+}
+.workflow-panel input[type="checkbox"] {
+  width: 17px;
+}
+.workflow-panel > small {
+  display: block;
+  color: var(--muted);
+}
+.workflow-entry {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+.workflow-entry small {
+  display: block;
+  color: var(--muted);
+}
+.duration-picker {
+  margin: 18px auto 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.duration-picker label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 12px;
+}
+.duration-picker input {
+  width: 76px;
+  padding: 7px;
+}
+.duration-picker > div {
+  display: flex;
+  gap: 5px;
+}
+.duration-picker button {
+  border: 1px solid var(--border);
+  border-radius: 30px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 5px 11px;
+}
+.duration-picker button.active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.quick-log {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.quick-log label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  margin: 0;
+}
+.quick-log h3 {
+  margin: 0;
+}
+.quick-log small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.quick-log p {
+  margin: 0;
+  font-size: 12px;
+}
+:root .assistant-dock {
+  border-radius: 22px 0 0 22px;
+}
+:root .ai-config,
+:root .ai-user-message,
+:root .ai-draft {
+  border-radius: 14px;
+}
+.ai-composer select {
+  width: 100%;
+  font-size: 12px;
+  padding: 7px;
+}
+.ai-composer > label:first-child {
+  font-size: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+@media (max-width: 1200px) {
+  .agenda-hero {
+    grid-template-columns: 1fr;
+  }
+  .learning-connect {
+    grid-template-columns: 1fr;
+  }
+  .learning-connect > small {
+    grid-column: auto;
+  }
+  .topbar .search {
+    max-width: 200px;
+  }
+}

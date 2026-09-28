@@ -1,0 +1,2 @@
+/* Compatibility import. Monument is now scoped to a selectable theme. */
+@import "./themes/monument.css";

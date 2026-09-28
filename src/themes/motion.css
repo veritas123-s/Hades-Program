@@ -1,0 +1,133 @@
+/* Short, one-shot motion. No motion is needed to understand or use a control. */
+:root {
+  --motion-spring: cubic-bezier(0.2, 0.8, 0.2, 1.12);
+  --motion-smooth: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+@keyframes hades-popup {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes hades-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes hades-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes hades-dock {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes hades-toast {
+  from {
+    opacity: 0;
+    translate: 0 14px;
+    scale: 0.96;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+}
+.modal-backdrop {
+  animation: hades-fade 160ms ease-out;
+}
+.modal {
+  animation: hades-popup 260ms var(--motion-spring);
+  transform-origin: 50% 65%;
+}
+.toast {
+  animation: hades-toast 260ms var(--motion-spring);
+}
+.assistant-dock:not([hidden]) {
+  animation: hades-dock 260ms var(--motion-smooth);
+}
+.page-heading,
+main > .panel,
+.agenda-hero {
+  animation: hades-reveal 220ms var(--motion-smooth);
+}
+.calendar-month-grid,
+.calendar-year,
+.calendar-day-events {
+  animation: hades-reveal 220ms var(--motion-smooth);
+}
+.notification-row {
+  animation: hades-fade 160ms ease-out;
+}
+.button,
+.icon-button,
+.nav-item,
+.calendar-day,
+.calendar-week-strip button,
+.calendar-view-switch button,
+.calendar-month-title,
+.agenda-mini {
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 180ms ease,
+    transform 180ms var(--motion-smooth);
+}
+.button:not(:disabled):hover,
+.calendar-month-title:hover {
+  transform: translateY(-1px);
+}
+.button:not(:disabled):active,
+.icon-button:not(:disabled):active,
+.calendar-day:not(:disabled):active,
+.calendar-week-strip button:active,
+.calendar-view-switch button:active {
+  transform: scale(0.97);
+}
+.icon-button:not(:disabled):hover svg {
+  transform: scale(1.1);
+  transition: transform 160ms ease;
+}
+.calendar-day:not(:disabled):hover {
+  box-shadow: 0 3px 10px #0000000b;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .button:hover,
+  .button:active,
+  .icon-button:active,
+  .calendar-day:active,
+  .calendar-month-title:hover,
+  .calendar-week-strip button:active,
+  .calendar-view-switch button:active,
+  .icon-button:hover svg {
+    transform: none !important;
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "baseURL": "https://hades.example.com",
+  "port": 4318,
+  "secret": "GENERATE_A_RANDOM_SECRET_ON_THE_SERVER",
+  "smtp": {
+    "host": "smtp.example.com",
+    "port": 465,
+    "user": "",
+    "password": "",
+    "from": "Hades <noreply@example.com>"
+  }
+}

@@ -1,0 +1,19 @@
+# Replace this hostname with the verified public HTTPS hostname.
+# The backend and SQLite database are never exposed directly.
+{
+    admin 127.0.0.1:2019
+}
+hades.example.com {
+    request_body {
+        max_size 900KB
+    }
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        Cache-Control no-store
+        -Server
+    }
+    reverse_proxy 127.0.0.1:4318 {
+        header_up X-Hades-Client-IP {remote_host}
+    }
+}

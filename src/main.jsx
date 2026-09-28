@@ -1,0 +1,14 @@
+import React from "react";
+import { createRoot } from "react-dom/client";
+import App from "./App.jsx";
+import "./styles.css";
+import "./themes/feature-layout.css";
+import "./themes/tokens.css";
+import "./themes/monument.css";
+import "./platform/workbench.css";
+import "./modules/assistant/assistant.css";
+import "./themes/hades.css";
+import "./themes/motion.css";
+import "./themes/expanded.css";
+import './themes/refinement.css';
+createRoot(document.getElementById("root")).render(<App />);

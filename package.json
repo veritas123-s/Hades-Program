@@ -1,0 +1,105 @@
+{
+  "name": "ai-veritas",
+  "productName": "Hades",
+  "version": "3.0.0",
+  "private": true,
+  "description": "MySHSMU 校园与专注工作台",
+  "author": "AI VERITAS local project",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "node scripts/prepare-cloud.mjs && vite build",
+    "start": "npm run build && electron .",
+    "test": "node --test tests/*.test.mjs",
+    "test:desktop": "node scripts/desktop-test.mjs",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder --win portable",
+    "format": "prettier --write src electron tests scripts docs *.json *.md *.html *.js",
+    "format:check": "prettier --check src electron tests scripts docs *.json *.md *.html *.js",
+    "scaffold:widget": "node scripts/scaffold-widget.mjs",
+    "test:platform": "node scripts/platform-test.mjs",
+    "test:assistant": "node scripts/assistant-test.mjs",
+    "dist:installer": "npm run build && electron-builder --win nsis --x64 --config.electronDist=node_modules/electron/dist",
+    "dist:installer:ia32": "npm run build && node scripts/prepare-ia32.mjs && electron-builder --win nsis --ia32 --config.electronVersion=43.7.5 --config.electronDist=.cache/electron-43.7.5-ia32"
+  },
+  "dependencies": {
+    "ical.js": "2.2.1",
+    "lucide-react": "1.47.0",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "6.1.1",
+    "electron": "44.4.5",
+    "electron-builder": "26.15.3",
+    "extract-zip": "2.0.1",
+    "playwright": "1.63.0",
+    "prettier": "3.9.9",
+    "vite": "8.3.0"
+  },
+  "build": {
+    "appId": "local.ai.veritas",
+    "productName": "Hades",
+    "directories": {
+      "output": "release-v3.0"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "src/domain.mjs",
+      "docs/ORIGIN.md",
+      "package.json",
+      "assets/**/*",
+      "src/briefing.mjs",
+      "src/domain/**/*.mjs",
+      "src/platform/model.mjs",
+      "src/themes/catalog.mjs",
+      "src/assistant.mjs",
+      "src/agenda.mjs",
+      "src/themes/custom.mjs",
+      "src/learning-policy.mjs",
+      "src/calendar.mjs",
+      "src/cloud-data.mjs"
+    ],
+    "win": {
+      "target": "portable",
+      "signExecutable": false,
+      "icon": "assets/icon.ico"
+    },
+    "portable": {
+      "artifactName": "Hades-${version}-Windows-${arch}.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "runAfterFinish": true,
+      "shortcutName": "Hades",
+      "artifactName": "Hades-Setup-${version}-${arch}.${ext}",
+      "installerLanguages": [
+        "zh_CN",
+        "en_US"
+      ],
+      "language": "2052",
+      "allowToChangeInstallationDirectory": true
+    },
+    "extraFiles": [
+      {
+        "from": "docs/安装后使用说明.txt",
+        "to": "使用说明.txt"
+      },
+      {
+        "from": "docs/ORIGIN.md",
+        "to": "来源说明.md"
+      },
+      {
+        "from": "docs/TENCENT-CLI-LICENSE.txt",
+        "to": "licenses/TENCENT-CLI-LICENSE.txt"
+      }
+    ]
+  }
+}

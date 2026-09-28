@@ -1,0 +1,151 @@
+import React from "react";
+import { Plus, Inbox } from "lucide-react";
+import { QUADRANTS } from "../../domain.mjs";
+import { Empty } from "../../components.jsx";
+
+export default function TasksPage({
+  state,
+  call,
+  page,
+  filter,
+  setFilter,
+  project,
+  setProject,
+  projects,
+  visible,
+  card,
+  addTask,
+  query,
+  manageLists,
+}) {
+  return (
+    <>
+      <div className="page-heading">
+        <div>
+          <p className="eyebrow">
+            {page === "matrix" ? "PRIORITIES / 优先级" : "TASKS / 任务"}
+          </p>
+          <h1>
+            {page === "matrix"
+              ? "重要的事，放在对的位置"
+              : "让每件事，都有着落"}
+          </h1>
+          <p>
+            {page === "matrix"
+              ? "拖动任务调整象限，也可以在编辑中修改优先级。"
+              : "收集想法，拆解步骤，在自己的节奏里完成。"}
+          </p>
+        </div>
+        <button className="button primary" onClick={() => addTask()}>
+          <Plus size={16} />
+          新建任务
+        </button>
+      </div>
+      <div className="task-toolbar">
+        <button className="button small" onClick={manageLists}>
+          管理清单
+        </button>
+        <div className="tabs">
+          {[
+            ["active", "待办"],
+            ["today", "今天与逾期"],
+            ["done", "已完成"],
+            ["trash", "回收站"],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              className={filter === id ? "active" : ""}
+              onClick={() => setFilter(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <select
+          aria-label="筛选清单"
+          value={project}
+          onChange={(e) => setProject(e.target.value)}
+        >
+          {["全部清单", ...projects].map((p) => (
+            <option key={p}>{p}</option>
+          ))}
+        </select>
+      </div>
+      {page === "matrix" && filter !== "trash" ? (
+        <div className="quadrant-grid">
+          {QUADRANTS.map((q) => (
+            <section
+              className={`quadrant q-${q.id}`}
+              key={q.id}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const task = state.tasks.find(
+                  (t) => t.id === e.dataTransfer.getData("text/plain"),
+                );
+                if (task) call("task.save", { ...task, quadrant: q.id });
+              }}
+            >
+              <header>
+                <div>
+                  <span
+                    className="quadrant-mark"
+                    style={{ background: q.color }}
+                  />
+                  <h2>{q.title}</h2>
+                  <span className="count">
+                    {visible.filter((t) => t.quadrant === q.id).length}
+                  </span>
+                </div>
+                <p>{q.subtitle}</p>
+              </header>
+              <div className="quadrant-tasks">
+                {visible.filter((t) => t.quadrant === q.id).map(card)}
+                {!visible.some((t) => t.quadrant === q.id) && (
+                  <p className="quadrant-empty">
+                    {q.id === "plan"
+                      ? "为长期成长，留一点时间"
+                      : "把任务拖到这里，或添加新任务"}
+                  </p>
+                )}
+              </div>
+              <button className="add-line" onClick={() => addTask(q.id)}>
+                <Plus size={16} />
+                添加任务
+              </button>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <section className="panel task-list">
+          {visible.length ? (
+            visible.map((t) =>
+              filter === "trash" ? (
+                <div className="trash-row" key={t.id}>
+                  <span>{t.title}</span>
+                  <button
+                    className="button small"
+                    onClick={() => call("task.restore", { id: t.id })}
+                  >
+                    恢复任务
+                  </button>
+                </div>
+              ) : (
+                card(t)
+              ),
+            )
+          ) : (
+            <Empty
+              icon={Inbox}
+              title={query ? "没有匹配的任务" : "这里暂时没有任务"}
+            >
+              {filter === "active"
+                ? "点击新建任务，开始整理你的计划。"
+                : "换一个筛选条件，或继续向前。"}
+            </Empty>
+          )}
+        </section>
+      )}
+    </>
+  );
+}

@@ -1,0 +1,77 @@
+.cloud-setup {
+  margin: 16px 0;
+}
+.cloud-setup > .button {
+  width: 100%;
+  justify-content: center;
+}
+.cloud-setup-body {
+  margin-top: 16px;
+}
+.cloud-setup-step {
+  border-top: 1px solid var(--border);
+  padding: 16px 0 4px;
+}
+.cloud-setup-step h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+.cloud-setup-step h4 > span {
+  width: 24px;
+  height: 24px;
+  border: 1px solid currentColor;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 12px;
+}
+.cloud-setup-step form {
+  display: grid;
+  gap: 10px;
+  margin: 10px 0;
+}
+.cloud-setup-step form label {
+  display: grid;
+  gap: 6px;
+}
+.cloud-setup-step input[type="password"] {
+  width: 100%;
+  min-width: 0;
+}
+.cloud-setup-body .cloud-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  line-height: 1.65;
+  margin: 14px 0;
+  font-size: 13px;
+}
+.cloud-consent input {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  margin-top: 4px;
+}
+.cloud-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 10px 0;
+}
+.cloud-setup-status {
+  font-size: 13px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.cloud-setup-body details {
+  margin: 10px 0;
+  font-size: 13px;
+}
+.cloud-setup-body details p {
+  overflow-wrap: anywhere;
+}
+.cloud-setup-body summary {
+  cursor: pointer;
+}

@@ -1,0 +1,17 @@
+{
+  "name": "hades-server",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node index.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=24.15.0"
+  },
+  "dependencies": {
+    "better-auth": "1.7.6",
+    "nodemailer": "10.0.11"
+  }
+}
