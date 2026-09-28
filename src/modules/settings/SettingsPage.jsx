@@ -12,9 +12,18 @@ export default function SettingsPage({ state, call, toast, setPage }) {
           <h1>适合你的，才是好节奏</h1>
           <p>调整专注节奏，照顾好自己的数据。</p>
         </div>
-        <span className="version">Hades V3.0 / 3.0.0</span>
+        <span className="version">Hades V3.1 / 3.1.0</span>
       </div>
       <div className="settings-grid">
+        <section className="panel">
+          <h2>帮助与手册</h2>
+          <p>离线查看功能教程、账号同步说明及 Zeus 编写的开发维护手册。</p>
+          <div className="data-actions">
+            <button className="button" onClick={() => call("help.open", { kind: "user" })}>使用说明</button>
+            <button className="button" onClick={() => call("help.open", { kind: "developer" })}>开发者手册 · Zeus</button>
+          </div>
+          <p className="hint">shsmuveritas.com 等待 ICP 备案完成，本版继续使用现有 HTTPS 账号服务。</p>
+        </section>
         <section className="panel">
           <h2>专注与提醒</h2>
           <form

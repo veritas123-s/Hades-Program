@@ -1,7 +1,7 @@
 {
   "name": "ai-veritas",
   "productName": "Hades",
-  "version": "3.0.5",
+  "version": "3.1.0",
   "private": true,
   "description": "MySHSMU 校园与专注工作台",
   "author": "AI VERITAS local project",
@@ -10,7 +10,7 @@
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "node scripts/prepare-cloud.mjs && vite build",
+    "build": "node scripts/prepare-cloud.mjs && node scripts/build-guides.mjs && vite build",
     "start": "npm run build && electron .",
     "test": "node --test tests/*.test.mjs",
     "test:desktop": "node scripts/desktop-test.mjs",
@@ -43,7 +43,7 @@
     "appId": "local.ai.veritas",
     "productName": "Hades",
     "directories": {
-      "output": "release-v3.0.5"
+      "output": "release-v3.1"
     },
     "files": [
       "dist/**/*",
@@ -99,6 +99,18 @@
       {
         "from": "docs/TENCENT-CLI-LICENSE.txt",
         "to": "licenses/TENCENT-CLI-LICENSE.txt"
+      },
+      {
+        "from": "docs/offline",
+        "to": "帮助文档"
+      },
+      {
+        "from": "docs/USER-GUIDE.md",
+        "to": "帮助文档/USER-GUIDE.md"
+      },
+      {
+        "from": "docs/DEVELOPER-HANDBOOK.md",
+        "to": "帮助文档/DEVELOPER-HANDBOOK.md"
       }
     ]
   }

@@ -29,3 +29,5 @@ local-ops/
 server/data/
 server/*.sqlite*
 server/config.json
+
+docs/offline/

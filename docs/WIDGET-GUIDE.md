@@ -1,8 +1,8 @@
-# 开发一个 V1.2 小组件
+# 开发一个 Hades 小组件
 
 ## 创建与运行
 
-在 desktop 目录执行：
+在当前 Hades-Program 仓库根目录执行：
 
 ```powershell
 npm run scaffold:widget -- --id reading-card --title "阅读卡片"

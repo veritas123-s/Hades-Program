@@ -17,7 +17,7 @@ const {
 const path = require("node:path");
 const fs = require("node:fs");
 const { pathToFileURL } = require("node:url");
-app.setName("Hades V3.0.5");
+app.setName("Hades V3.1.0");
 app.setAppUserModelId("local.ai.veritas");
 const testMode = process.env.VERITAS_TEST === "1";
 if (testMode && process.env.VERITAS_TEST_DATA)
@@ -93,7 +93,7 @@ function createWindow() {
     minHeight: 730,
     backgroundColor: "#f7f7f4",
     icon: path.join(__dirname, "../assets/icon.png"),
-    title: "Hades V3.0.5",
+    title: "Hades V3.1.0",
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
@@ -120,6 +120,10 @@ function createWindow() {
 }
 async function handle(action, p = {}) {
   requireAccount(accounts, action);
+  if (action === "help.open") {
+    const { openHelp } = await import("./help.mjs");
+    return openHelp(app, shell, p?.kind);
+  }
   if (action === "state") return snapshot();
   if (action.startsWith("account.")) return accounts.execute(action, p);
   if (!personalReady) throw Error("正在打开账号空间，请稍候");
@@ -447,11 +451,11 @@ else {
           .createFromPath(path.join(__dirname, "../assets/icon.png"))
           .resize({ width: 32, height: 32 }),
       );
-      tray.setToolTip("Hades V3.0.5");
+      tray.setToolTip("Hades V3.1.0");
       tray.on("click", show);
       tray.setContextMenu(
         Menu.buildFromTemplate([
-          { label: "打开 Hades V3.0.5", click: show },
+          { label: "打开 Hades V3.1.0", click: show },
           {
             label: "暂停计时",
             click: () => {

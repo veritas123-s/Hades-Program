@@ -1,5 +1,6 @@
 const publicActions = new Set([
   "state",
+  "help.open",
   "account.state",
   "account.login",
   "account.send",

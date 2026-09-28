@@ -5,7 +5,7 @@ export default {
   title: "账号与同步",
   description: "云端账号和跨设备数据",
   apiVersion: 1,
-  version: "3.0.5",
+  version: "3.1.0",
   order: 8,
   routes: [
     {

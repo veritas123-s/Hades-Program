@@ -119,7 +119,7 @@ export default function App() {
     return (
       <div className="loading">
         <div className="brand-symbol">H</div>
-        <h1>Hades V3.0.5</h1>
+        <h1>Hades V3.1.0</h1>
         <p>
           {window.veritas
             ? "正在打开你的工作空间…"
@@ -139,6 +139,10 @@ export default function App() {
           </div>
         </div>
         <AccountPage state={state} call={call} toast={setToast} locked />
+        <div className="data-actions">
+          <button className="button" onClick={() => call("help.open", { kind: "user" })}>使用说明</button>
+          <button className="button" onClick={() => call("help.open", { kind: "developer" })}>开发者手册 · Zeus</button>
+        </div>
         {toast && (
           <div className="toast" role="status">
             {toast}
@@ -199,7 +203,7 @@ export default function App() {
           <div className="brand-symbol">H</div>
           <div>
             <b>
-              Hades<span>3.0.5</span>
+              Hades<span>3.1.0</span>
             </b>
             <small>任务 · 课程 · 专注</small>
           </div>
@@ -390,7 +394,7 @@ export default function App() {
             }}
           />
           <footer className="page-footer">
-            <span>Hades V3.0.5</span>
+            <span>Hades V3.1.0</span>
             <span>保存在这台电脑</span>
           </footer>
         </main>
