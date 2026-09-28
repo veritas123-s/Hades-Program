@@ -11,6 +11,7 @@
 - `node scripts/v3-test.mjs .cache/electron-43.7.5-ia32/electron.exe --runtime`：同样 4 组通过，Electron 43.7.5 ia32；运行宿主为 64 位 Windows，未覆盖真正 32 位系统。
 - 根项目及服务器 `npm audit --omit=dev`：均为 0 项漏洞。开发依赖扫描仍报告 extract-zip 高风险通告；仅用于经过校验的官方 Electron 压缩包，发布依赖不包含它。
 - 账号页与窄窗口截图已检查，搜索框单层焦点、固定品牌图形、独立导航滚动、七主题切换正常。
+- Windows 邮箱配置表单通过 PowerShell 语法检查；目录权限及配置替换组件已用临时数据检查。真实发信配置在开发机通过 TLS 与 SMTP 身份验证，没有发送邮件；服务器网络及真实收信仍待验证，授权码不进入源码或安装包。
 
 ## 上线前必须完成
 
