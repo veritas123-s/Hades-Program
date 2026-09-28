@@ -1,16 +1,17 @@
 # Hades-Program
+
 A tool to bridge the gaps between those complicated apps of SHSMU
 
-## Hades V3.0 · Poseidon（开发中）
+## Hades V3.0 · Poseidon（测试版）
 
 Windows 校园与专注工作台：任务清单、四象限、年/月/日日历、校园课表、番茄钟、时间记录、可切换主题，以及可配置模型服务的 Poseidon 助手。
 
 ### V3.0
 
-- 安装向导支持选择目录，准备 x64 与 ia32 两种单文件安装包。
+- 安装向导支持选择目录，提供 x64 与 ia32 两种单文件安装包。
 - 中文界面、固定品牌图形、侧栏独立滚动、单层搜索焦点与圆角按钮；保留七主题。
 - 通用 ICS 日历导入预览、去重与导出；已有任务和专注记录不受日历导入影响。
-- 完整云端账号与同步代码已完成本地测试，后台部署在现有腾讯云 CVM；公网 HTTPS、验证码邮箱与实网验收仍待完成。详见 [服务器部署](server/README.md) 与 [验证记录](docs/VALIDATION-V3.0.md)。
+- 云端账号与同步后台已部署到现有腾讯云 CVM，受信任 HTTPS、低权限运行、服务重启、在线备份及真实中文邮件已验证。两个真实账号在不同电脑上的完整验收仍待完成。详见 [服务器部署](server/README.md) 与 [验证记录](docs/VALIDATION-V3.0.md)。
 
 ### 并入本版的 V2.3 修复
 
@@ -38,7 +39,7 @@ npm start
 npm run dist:installer
 ```
 
-目标输出为 `release-v3.0/Hades-Setup-3.0.0-x64.exe`；32 位使用 `npm run dist:installer:ia32`。完成发行验证后，同学只需安装包，不需要 Node.js 或开发环境。当前版本尚未发布，源码仓库不存放个人配置与安装包。
+目标输出为 `release-v3.0/Hades-Setup-3.0.0-x64.exe`；32 位使用 `npm run dist:installer:ia32`。同学只需安装包，不需要 Node.js 或开发环境。当前提供测试版；源码仓库不存放个人配置与安装包。
 
 ### 使用与数据
 

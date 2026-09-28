@@ -49,13 +49,11 @@ try {
   assert.equal((await call("state")).schemaVersion, 5);
   const dimensions = await page.locator(".brand-symbol").boundingBox();
   assert.equal(dimensions.width, dimensions.height);
-  const side = await page
-    .locator(".sidebar-scroll")
-    .evaluate((e) => ({
-      overflow: getComputedStyle(e).overflowY,
-      height: e.clientHeight,
-      scroll: e.scrollHeight,
-    }));
+  const side = await page.locator(".sidebar-scroll").evaluate((e) => ({
+    overflow: getComputedStyle(e).overflowY,
+    height: e.clientHeight,
+    scroll: e.scrollHeight,
+  }));
   assert.ok(["auto", "scroll"].includes(side.overflow));
   assert.ok(side.scroll > side.height);
   await page.getByLabel("搜索任务", { exact: true }).fill("合成测试");
@@ -77,14 +75,23 @@ try {
     .waitFor();
   assert.equal(
     await page.getByRole("button", { name: "登录", exact: true }).isEnabled(),
-    false,
+    true,
   );
   await page.getByRole("button", { name: "注册账号", exact: true }).click();
   await page.getByRole("heading", { name: "创建云端账号" }).waitFor();
   await page.getByRole("button", { name: "忘记密码", exact: true }).click();
   await page.getByRole("heading", { name: "找回密码" }).waitFor();
   await page.screenshot({ path: "test-results/v3-account.png" });
-  console.log("PASS 账号入口、注册找回界面、服务未开通时明确禁用");
+  assert.equal((await call("state")).account.ready, true);
+  assert.equal(
+    await page
+      .getByText(
+        "云端服务尚未开通。当前数据仍完整保存在这台电脑，开通后即可注册和同步。",
+      )
+      .count(),
+    0,
+  );
+  console.log("PASS 账号入口、注册找回界面、已配置云服务可用");
   await page.getByRole("button", { name: "日程日历", exact: true }).click();
   await page.getByRole("button", { name: "导入 / 导出日历" }).click();
   await page.getByRole("button", { name: "导入日历", exact: true }).click();
