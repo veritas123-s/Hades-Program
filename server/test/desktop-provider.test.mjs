@@ -19,13 +19,62 @@ test("桌面端真实账号流程、加密仓库边界、跨地址会话隔离�
     load: () => structuredClone(saved),
     save: (p) => Object.assign(saved, structuredClone(p)),
   };
-  const fetcher = (url, options) => backend.handle(new Request(url, options));
+  // Reproduce metadata added by the real Electron/Node network stack, which a
+  // directly constructed Request in the old fixture did not include.
+  const fetcher = (url, options) =>
+    backend.handle(
+      new Request(url, {
+        ...options,
+        headers: {
+          ...options.headers,
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "none",
+          "sec-fetch-dest": "empty",
+        },
+      }),
+    );
   const p = new SelfHostedProvider(
     { baseURL: "https://hades.synthetic.invalid" },
     secrets,
     { fetcher },
   );
   try {
+    const missingOrigin = await backend.handle(
+      new Request(
+        "https://hades.synthetic.invalid/api/auth/email-otp/send-verification-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "sec-fetch-mode": "cors",
+          },
+          body: JSON.stringify({
+            email: "not-created@synthetic.invalid",
+            type: "email-verification",
+          }),
+        },
+      ),
+    );
+    assert.equal(missingOrigin.status, 403);
+    assert.equal((await missingOrigin.json()).code, "MISSING_OR_NULL_ORIGIN");
+    const foreignOrigin = await backend.handle(
+      new Request(
+        "https://hades.synthetic.invalid/api/auth/email-otp/send-verification-otp",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Origin: "https://untrusted.invalid",
+            "sec-fetch-mode": "cors",
+          },
+          body: JSON.stringify({
+            email: "not-created@synthetic.invalid",
+            type: "email-verification",
+          }),
+        },
+      ),
+    );
+    assert.equal(foreignOrigin.status, 403);
     assert.equal(await p.initialize(), null);
     await p.send(
       "desktop@synthetic.invalid",

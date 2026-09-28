@@ -106,6 +106,9 @@ export class SelfHostedProvider {
         method: body === undefined ? "GET" : "POST",
         headers: {
           "Content-Type": "application/json",
+          // Native fetch carries Chromium Fetch Metadata but no web-page Origin.
+          // Identify this configured HTTPS origin without relaxing server CSRF checks.
+          Origin: this.origin,
           ...(authenticated ? { Authorization: "Bearer " + this.token } : {}),
         },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),
