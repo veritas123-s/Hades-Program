@@ -10,6 +10,7 @@ import {
   X,
   Palette,
   Sparkles,
+  SlidersHorizontal,
 } from "lucide-react";
 import { QUADRANTS, dayKey, elapsed, dayTotals } from "./domain.mjs";
 import { TaskEditor, TaskCard, timeText } from "./components.jsx";
@@ -19,6 +20,10 @@ import { agenda } from "./agenda.mjs";
 import AssistantPanel from "./modules/assistant/AssistantPanel.jsx";
 import ListManager from "./shared/ListManager.jsx";
 import AccountPage from "./modules/accounts/AccountPage.jsx";
+import ManualModal from "./shared/ManualModal.jsx";
+import OnboardingTour from "./shared/OnboardingTour.jsx";
+import SidebarManager from "./shared/SidebarManager.jsx";
+import { APP_LABEL, APP_VERSION } from "./version.mjs";
 
 export default function App() {
   const [state, setState] = useState(null),
@@ -32,6 +37,9 @@ export default function App() {
     [busy, setBusy] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [listsOpen, setListsOpen] = useState(false);
+  const [sidebarManagerOpen, setSidebarManagerOpen] = useState(false);
+  const [manualKind, setManualKind] = useState(null);
+  const [tourOpen, setTourOpen] = useState(false);
   const [, setClock] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setClock((x) => x + 1), 30000);
@@ -115,11 +123,23 @@ export default function App() {
     )
       setProject("全部清单");
   }, [state?.lists, project]);
+  useEffect(() => {
+    if (
+      state?.account?.authenticated &&
+      !state?.locked &&
+      (state.workspace?.onboardingVersion || 0) < 1
+    )
+      setTourOpen(true);
+  }, [
+    state?.account?.authenticated,
+    state?.locked,
+    state?.workspace?.onboardingVersion,
+  ]);
   if (!state)
     return (
       <div className="loading">
         <div className="brand-symbol">H</div>
-        <h1>Hades V3.1.0</h1>
+        <h1>{APP_LABEL}</h1>
         <p>
           {window.veritas
             ? "正在打开你的工作空间…"
@@ -140,8 +160,18 @@ export default function App() {
         </div>
         <AccountPage state={state} call={call} toast={setToast} locked />
         <div className="data-actions">
-          <button className="button" onClick={() => call("help.open", { kind: "user" })}>使用说明</button>
-          <button className="button" onClick={() => call("help.open", { kind: "developer" })}>开发者手册 · Zeus</button>
+          <button
+            className="button"
+            onClick={() => call("help.open", { kind: "user" })}
+          >
+            使用说明
+          </button>
+          <button
+            className="button"
+            onClick={() => call("help.open", { kind: "developer" })}
+          >
+            开发者手册 · Zeus
+          </button>
         </div>
         {toast && (
           <div className="toast" role="status">
@@ -155,6 +185,13 @@ export default function App() {
     totals = dayTotals(state.logs),
     today = dayKey(),
     todayMs = totals[today] || 0;
+  const navigation = state.workspace?.navigation || {
+    collapsed: false,
+    hidden: [],
+  };
+  const visibleNav = NAV.filter(
+    ([id]) => id === "today" || !navigation.hidden.includes(id),
+  );
   const visible = state.tasks
     .filter(
       (t) =>
@@ -197,27 +234,31 @@ export default function App() {
     />
   );
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
+    <div
+      className={`app-shell ${navigation.collapsed ? "sidebar-collapsed" : ""}`}
+    >
+      <aside className={`sidebar ${navigation.collapsed ? "collapsed" : ""}`}>
         <div className="brand">
           <div className="brand-symbol">H</div>
           <div>
             <b>
-              Hades<span>3.1.0</span>
+              Hades<span>{APP_VERSION}</span>
             </b>
             <small>任务 · 课程 · 专注</small>
           </div>
         </div>
         <button className="new-task" onClick={() => addTask()}>
           <Plus size={18} />
-          新建任务<kbd>Ctrl N</kbd>
+          <span>新建任务</span>
+          <kbd>Ctrl N</kbd>
         </button>
         <div className="sidebar-scroll">
           <p className="nav-label">我的工作空间</p>
           <nav>
-            {NAV.map(([id, label, Icon]) => (
+            {visibleNav.map(([id, label, Icon]) => (
               <button
                 key={id}
+                title={navigation.collapsed ? label : undefined}
                 className={page === id ? "active" : ""}
                 onClick={() => setPage(id)}
               >
@@ -268,9 +309,21 @@ export default function App() {
           <button
             onClick={() => setPage("settings")}
             className={page === "settings" ? "active" : ""}
+            title={navigation.collapsed ? "设置与数据" : undefined}
+            aria-label="设置与数据"
           >
             <Settings size={18} />
-            设置与数据<span>V3.0</span>
+            <b>设置与数据</b>
+            <span>V3.2</span>
+          </button>
+          <button
+            className="sidebar-manage"
+            title={navigation.collapsed ? "整理侧栏" : undefined}
+            aria-label="整理侧栏"
+            onClick={() => setSidebarManagerOpen(true)}
+          >
+            <SlidersHorizontal size={18} />
+            <b>整理侧栏</b>
           </button>
         </div>
       </aside>
@@ -377,6 +430,8 @@ export default function App() {
               addTask,
               openAssistant: () => setAssistantOpen(true),
               manageLists: () => setListsOpen(true),
+              openManual: (kind = "user") => setManualKind(kind),
+              startTour: () => setTourOpen(true),
               query,
               active,
               today,
@@ -394,8 +449,10 @@ export default function App() {
             }}
           />
           <footer className="page-footer">
-            <span>Hades V3.1.0</span>
-            <span>保存在这台电脑</span>
+            <span>{APP_LABEL}</span>
+            <span>
+              {state.account?.sync?.enabled ? "账号空间与云同步" : "账号空间"}
+            </span>
           </footer>
         </main>
         {state.timer.status !== "idle" && page !== "focus" && (
@@ -445,6 +502,29 @@ export default function App() {
           state={state}
           call={call}
           onClose={() => setListsOpen(false)}
+        />
+      )}
+      {sidebarManagerOpen && (
+        <SidebarManager
+          nav={NAV}
+          workspace={state.workspace}
+          call={call}
+          onClose={() => setSidebarManagerOpen(false)}
+        />
+      )}
+      {manualKind && (
+        <ManualModal
+          kind={manualKind}
+          call={call}
+          onClose={() => setManualKind(null)}
+        />
+      )}
+      {tourOpen && (
+        <OnboardingTour
+          onFinish={async () => {
+            setTourOpen(false);
+            await call("workspace.configure", { onboardingVersion: 1 });
+          }}
         />
       )}
       {toast && (

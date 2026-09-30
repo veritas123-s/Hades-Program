@@ -93,19 +93,30 @@ export async function createBackend({
     ["/email-otp/request-password-reset", "POST"],
     ["/email-otp/reset-password", "POST"],
   ]);
+  const securityHeaders = {
+    "Cache-Control": "no-store",
+    "Content-Security-Policy":
+      "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Referrer-Policy": "no-referrer",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+  };
   const reply = (data, status = 200) =>
     Response.json(data, {
       status,
-      headers: {
-        "Cache-Control": "no-store",
-        "X-Content-Type-Options": "nosniff",
-      },
+      headers: securityHeaders,
     });
   async function handle(request) {
     try {
       const u = new URL(request.url);
       if (u.pathname === "/health" && request.method === "GET")
-        return reply({ ok: true, version: "3.0.5" });
+        return reply({ ok: true, version: "3.2.0" });
+      const requestOrigin = request.headers.get("origin");
+      if (!requestOrigin) return reply({ code: "MISSING_OR_NULL_ORIGIN" }, 403);
+      if (requestOrigin !== url.origin)
+        return reply({ code: "INVALID_ORIGIN" }, 403);
       if (u.pathname.startsWith("/api/auth/")) {
         const route = u.pathname.slice("/api/auth".length);
         if (routes.get(route) !== request.method)

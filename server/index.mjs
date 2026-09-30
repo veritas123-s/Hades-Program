@@ -100,7 +100,14 @@ const server = http.createServer(async (req, res) => {
   }
   const headers = {
     "Cache-Control": "no-store",
+    "Content-Security-Policy":
+      "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Referrer-Policy": "no-referrer",
+    "Strict-Transport-Security": "max-age=31536000",
     "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
   };
   try {
     const client = String(

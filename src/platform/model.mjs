@@ -17,6 +17,8 @@ export function initialWorkspace() {
     appearance: defaultAppearance(),
     customThemes: [],
     widgets: { order: [...DEFAULT_WIDGET_ORDER], hidden: [], sizes: {} },
+    navigation: { collapsed: false, hidden: [] },
+    onboardingVersion: 0,
     widgetData: {},
   };
 }
@@ -85,6 +87,23 @@ export function workspaceInput(input) {
       result.widgets.sizes[id] = size;
     }
   }
+  if (input.navigation) {
+    if (typeof input.navigation.collapsed !== "boolean")
+      throw new Error("侧栏配置无效");
+    result.navigation = {
+      collapsed: input.navigation.collapsed,
+      hidden: idList(input.navigation.hidden ?? []),
+    };
+  }
+  if (input.onboardingVersion !== undefined) {
+    if (
+      !Number.isInteger(input.onboardingVersion) ||
+      input.onboardingVersion < 0 ||
+      input.onboardingVersion > 100
+    )
+      throw new Error("新手引导版本无效");
+    result.onboardingVersion = input.onboardingVersion;
+  }
   if (input.widgetData) {
     if (
       typeof input.widgetData !== "object" ||
@@ -128,6 +147,10 @@ export function updateWorkspace(current, patch) {
   }
   if (patch.widgets !== undefined)
     next.widgets = { ...next.widgets, ...patch.widgets };
+  if (patch.navigation !== undefined)
+    next.navigation = { ...next.navigation, ...patch.navigation };
+  if (patch.onboardingVersion !== undefined)
+    next.onboardingVersion = patch.onboardingVersion;
   return workspaceInput(next);
 }
 export function saveWidgetData(current, { id, version, data }) {

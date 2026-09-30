@@ -1,0 +1,433 @@
+package com.shsmuveritas.hades.data
+
+import android.content.Context
+import com.shsmuveritas.hades.security.SecureStore
+import java.time.LocalDate
+import java.util.UUID
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.json.JSONArray
+import org.json.JSONObject
+
+data class MobileTask(
+    val id: String,
+    val title: String,
+    val project: String,
+    val due: String,
+    val dueTime: String,
+    val quadrant: String,
+    val completed: Boolean,
+)
+
+data class ScheduleItem(
+    val title: String,
+    val start: String,
+    val end: String,
+    val location: String,
+    val kind: String,
+)
+
+data class HadesUiState(
+    val loading: Boolean = true,
+    val authenticated: Boolean = false,
+    val email: String = "",
+    val nickname: String = "",
+    val needsVerification: Boolean = false,
+    val pendingEmail: String = "",
+    val document: JSONObject? = null,
+    val tasks: List<MobileTask> = emptyList(),
+    val schedule: List<ScheduleItem> = emptyList(),
+    val remoteVersion: Int = 0,
+    val syncPhase: String = "idle",
+    val message: String = "",
+    val dirty: Boolean = false,
+    val conflictVersion: Int? = null,
+    val focusStartedAt: Long? = null,
+    val focusUntil: Long? = null,
+    val clock: Long = System.currentTimeMillis(),
+)
+
+class HadesRepository(context: Context) {
+    private val appContext = context.applicationContext
+    private val secureStore = SecureStore(appContext)
+    private val api = AccountApi(secureStore)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private val defaultDocument by lazy {
+        appContext.assets.open("default-cloud-document.json").bufferedReader().use {
+            JSONObject(it.readText())
+        }
+    }
+
+    var state: HadesUiState = HadesUiState()
+        private set
+
+    var onStateChanged: ((HadesUiState) -> Unit)? = null
+        set(value) {
+            field = value
+            value?.invoke(state)
+        }
+
+    init {
+        restore()
+    }
+
+    private fun emit(next: HadesUiState) {
+        state = next
+        onStateChanged?.invoke(next)
+    }
+
+    private fun restore() {
+        if (!api.hasSession()) {
+            emit(HadesUiState(loading = false))
+            return
+        }
+        val storedUser = secureStore.get("user")?.let { runCatching { JSONObject(it) }.getOrNull() }
+        if (storedUser != null) {
+            val uid = storedUser.optString("id")
+            val cached = secureStore.get("document:$uid")?.let { runCatching { JSONObject(it) }.getOrNull() }
+            emit(
+                documentState(
+                    state.copy(
+                        loading = false,
+                        authenticated = true,
+                        email = storedUser.optString("email"),
+                        nickname = storedUser.optString("name", "Hades 用户"),
+                        document = cached,
+                        remoteVersion = secureStore.get("version:$uid")?.toIntOrNull() ?: 0,
+                        dirty = secureStore.get("dirty:$uid") == "1",
+                        syncPhase = "offline",
+                    ),
+                    cached,
+                ),
+            )
+        }
+        scope.launch { resumeSession() }
+    }
+
+    private suspend fun resumeSession() {
+        try {
+            val response = withContext(Dispatchers.IO) { api.current() }
+            acceptUser(response)
+            syncNow()
+        } catch (error: ApiException) {
+            if (error.status == 401) logoutLocal()
+            else emit(state.copy(loading = false, syncPhase = "offline", message = error.message.orEmpty()))
+        } catch (_: Exception) {
+            emit(state.copy(loading = false, syncPhase = "offline", message = "当前离线，显示上次同步内容"))
+        }
+    }
+
+    fun login(email: String, password: String) {
+        if (email.isBlank() || password.length < 8) {
+            emit(state.copy(message = "请输入邮箱和至少 8 位密码"))
+            return
+        }
+        emit(state.copy(loading = true, message = ""))
+        scope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) { api.signIn(email.trim(), password) }
+                acceptUser(response)
+                pullFromCloud()
+            } catch (error: Exception) {
+                emit(HadesUiState(loading = false, message = error.message ?: "登录失败"))
+            }
+        }
+    }
+
+    fun register(email: String, password: String) {
+        if (email.isBlank() || password.length !in 8..128) {
+            emit(state.copy(message = "请输入邮箱和 8–128 位密码"))
+            return
+        }
+        emit(state.copy(loading = true, message = ""))
+        scope.launch {
+            try {
+                withContext(Dispatchers.IO) { api.signUp(email.trim(), password) }
+                emit(
+                    HadesUiState(
+                        loading = false,
+                        needsVerification = true,
+                        pendingEmail = email.trim(),
+                        message = "验证码已发送，请在 10 分钟内完成验证",
+                    ),
+                )
+            } catch (error: Exception) {
+                emit(HadesUiState(loading = false, message = error.message ?: "验证码发送失败"))
+            }
+        }
+    }
+
+    fun verify(code: String) {
+        if (code.length !in 4..10 || state.pendingEmail.isBlank()) {
+            emit(state.copy(message = "请输入邮件中的验证码"))
+            return
+        }
+        emit(state.copy(loading = true, message = ""))
+        scope.launch {
+            try {
+                val response = withContext(Dispatchers.IO) { api.verify(state.pendingEmail, code.trim()) }
+                acceptUser(response)
+                pullFromCloud()
+            } catch (error: Exception) {
+                emit(state.copy(loading = false, message = error.message ?: "验证失败"))
+            }
+        }
+    }
+
+    private fun userObject(response: JSONObject): JSONObject? {
+        val user = response.optJSONObject("user") ?: return null
+        if (user.optString("id").isBlank()) return null
+        return user
+    }
+
+    private fun acceptUser(response: JSONObject) {
+        val user = userObject(response) ?: throw ApiException("账号信息无效", 502)
+        val publicUser = JSONObject()
+            .put("id", user.optString("id"))
+            .put("email", user.optString("email"))
+            .put("name", user.optString("name", "Hades 用户"))
+        secureStore.put("user", publicUser.toString())
+        emit(
+            state.copy(
+                loading = false,
+                authenticated = true,
+                needsVerification = false,
+                pendingEmail = "",
+                email = publicUser.optString("email"),
+                nickname = publicUser.optString("name"),
+                message = "",
+            ),
+        )
+    }
+
+    private fun userId(): String = secureStore.get("user")
+        ?.let { runCatching { JSONObject(it).optString("id") }.getOrDefault("") }
+        .orEmpty()
+
+    private fun cache(document: JSONObject, version: Int, dirty: Boolean) {
+        val uid = userId()
+        if (uid.isBlank()) return
+        secureStore.put("document:$uid", document.toString())
+        secureStore.put("version:$uid", version.toString())
+        secureStore.put("dirty:$uid", if (dirty) "1" else "0")
+    }
+
+    private suspend fun pullFromCloud() {
+        emit(state.copy(syncPhase = "syncing", message = ""))
+        try {
+            val result = withContext(Dispatchers.IO) { api.pull() }
+            val version = result.optInt("version", 0)
+            val document = if (result.isNull("document")) JSONObject(defaultDocument.toString())
+            else JSONObject(result.getJSONObject("document").toString())
+            cache(document, version, false)
+            emit(
+                documentState(
+                    state.copy(
+                        loading = false,
+                        document = document,
+                        remoteVersion = version,
+                        dirty = false,
+                        conflictVersion = null,
+                        syncPhase = "synced",
+                        message = if (version == 0) "云端空间已就绪" else "已与电脑端同步",
+                    ),
+                    document,
+                ),
+            )
+        } catch (error: Exception) {
+            emit(state.copy(loading = false, syncPhase = "offline", message = error.message ?: "同步失败"))
+        }
+    }
+
+    fun syncNow() {
+        if (!state.authenticated) return
+        scope.launch {
+            if (state.dirty && state.document != null) pushDocument(state.document)
+            else pullFromCloud()
+        }
+    }
+
+    private suspend fun pushDocument(document: JSONObject, version: Int = state.remoteVersion) {
+        emit(state.copy(syncPhase = "syncing", message = ""))
+        try {
+            val result = withContext(Dispatchers.IO) { api.push(version, document) }
+            if (result.optBoolean("conflict")) {
+                val conflict = result.optInt("version", version)
+                emit(state.copy(syncPhase = "conflict", conflictVersion = conflict, dirty = true, message = "云端已有更新，请选择保留版本"))
+                return
+            }
+            val nextVersion = result.getInt("version")
+            cache(document, nextVersion, false)
+            emit(state.copy(remoteVersion = nextVersion, dirty = false, conflictVersion = null, syncPhase = "synced", message = "已同步到电脑端"))
+        } catch (error: Exception) {
+            cache(document, state.remoteVersion, true)
+            emit(state.copy(dirty = true, syncPhase = "offline", message = "已保存在手机，联网后可重试同步"))
+        }
+    }
+
+    fun keepCloudVersion() {
+        scope.launch { pullFromCloud() }
+    }
+
+    fun keepPhoneVersion() {
+        val document = state.document ?: return
+        val version = state.conflictVersion ?: return
+        scope.launch { pushDocument(document, version) }
+    }
+
+    fun saveTask(title: String, due: String, quadrant: String) {
+        val cleanTitle = title.trim().take(240)
+        val cleanDue = due.trim()
+        if (cleanTitle.isBlank()) {
+            emit(state.copy(message = "请填写任务名称"))
+            return
+        }
+        if (cleanDue.isNotBlank() && runCatching { LocalDate.parse(cleanDue) }.isFailure) {
+            emit(state.copy(message = "截止日期请使用 YYYY-MM-DD"))
+            return
+        }
+        val document = JSONObject((state.document ?: defaultDocument).toString())
+        val task = JSONObject()
+            .put("id", "mobile:${UUID.randomUUID()}")
+            .put("title", cleanTitle)
+            .put("quadrant", quadrant.takeIf { it in setOf("do", "plan", "delegate", "later") } ?: "plan")
+            .put("project", "收集箱")
+            .put("due", cleanDue)
+            .put("dueTime", "")
+            .put("reminder", "")
+            .put("repeat", "none")
+            .put("estimate", 0)
+            .put("notes", "")
+            .put("subtasks", JSONArray())
+            .put("createdAt", System.currentTimeMillis())
+            .put("completedAt", JSONObject.NULL)
+            .put("deletedAt", JSONObject.NULL)
+            .put("remindedFor", "")
+        document.getJSONArray("tasks").put(task)
+        updateAndPush(document)
+    }
+
+    fun toggleTask(id: String) = mutateTask(id) { task ->
+        if (task.isNull("completedAt")) task.put("completedAt", System.currentTimeMillis())
+        else task.put("completedAt", JSONObject.NULL)
+    }
+
+    fun deleteTask(id: String) = mutateTask(id) { task ->
+        task.put("deletedAt", System.currentTimeMillis())
+    }
+
+    private fun mutateTask(id: String, action: (JSONObject) -> Unit) {
+        val document = state.document?.let { JSONObject(it.toString()) } ?: return
+        val tasks = document.getJSONArray("tasks")
+        for (index in 0 until tasks.length()) {
+            val task = tasks.getJSONObject(index)
+            if (task.optString("id") == id) {
+                action(task)
+                updateAndPush(document)
+                return
+            }
+        }
+    }
+
+    fun startFocus(minutes: Int) {
+        val duration = minutes.coerceIn(1, 180) * 60_000L
+        val now = System.currentTimeMillis()
+        emit(state.copy(focusStartedAt = now, focusUntil = now + duration, clock = now, message = "专注已开始"))
+    }
+
+    fun tick() {
+        val now = System.currentTimeMillis()
+        emit(state.copy(clock = now))
+        if (state.focusUntil != null && now >= state.focusUntil) finishFocus(true)
+    }
+
+    fun finishFocus(completed: Boolean = false) {
+        val start = state.focusStartedAt ?: return
+        val end = minOf(System.currentTimeMillis(), state.focusUntil ?: Long.MAX_VALUE)
+        if (end - start < 1000) {
+            emit(state.copy(focusStartedAt = null, focusUntil = null, message = "专注时间太短，未保存"))
+            return
+        }
+        val document = JSONObject((state.document ?: defaultDocument).toString())
+        document.getJSONArray("logs").put(
+            JSONObject()
+                .put("id", "mobile:${UUID.randomUUID()}")
+                .put("taskId", "")
+                .put("title", "手机专注")
+                .put("project", "未分类")
+                .put("mode", "focus")
+                .put("startedAt", start)
+                .put("endedAt", end)
+                .put("durationMs", end - start)
+                .put("completed", completed)
+                .put("segments", JSONArray().put(JSONObject().put("start", start).put("end", end)))
+                .put("deletedAt", JSONObject.NULL),
+        )
+        emit(state.copy(focusStartedAt = null, focusUntil = null))
+        updateAndPush(document)
+    }
+
+    private fun updateAndPush(document: JSONObject) {
+        cache(document, state.remoteVersion, true)
+        emit(documentState(state.copy(document = document, dirty = true, syncPhase = "syncing", message = ""), document))
+        scope.launch { pushDocument(document) }
+    }
+
+    private fun documentState(base: HadesUiState, document: JSONObject?): HadesUiState {
+        if (document == null) return base.copy(tasks = emptyList(), schedule = emptyList())
+        val tasks = buildList {
+            val array = document.optJSONArray("tasks") ?: JSONArray()
+            for (index in 0 until array.length()) {
+                val task = array.optJSONObject(index) ?: continue
+                if (!task.isNull("deletedAt")) continue
+                add(
+                    MobileTask(
+                        id = task.optString("id"),
+                        title = task.optString("title"),
+                        project = task.optString("project", "收集箱"),
+                        due = task.optString("due"),
+                        dueTime = task.optString("dueTime"),
+                        quadrant = task.optString("quadrant", "plan"),
+                        completed = !task.isNull("completedAt"),
+                    ),
+                )
+            }
+        }.sortedWith(compareBy<MobileTask> { it.completed }.thenBy { it.due.ifBlank { "9999-99-99" } })
+        val schedule = buildList {
+            val courses = document.optJSONArray("courses") ?: JSONArray()
+            for (index in 0 until courses.length()) {
+                val course = courses.optJSONObject(index) ?: continue
+                add(ScheduleItem(course.optString("title"), course.optString("start"), course.optString("end"), course.optString("location"), "课程"))
+            }
+            val events = document.optJSONArray("events") ?: JSONArray()
+            for (index in 0 until events.length()) {
+                val event = events.optJSONObject(index) ?: continue
+                if (!event.isNull("deletedAt")) continue
+                add(ScheduleItem(event.optString("title"), event.optString("start"), event.optString("end"), event.optString("location"), "日程"))
+            }
+        }.sortedBy { it.start }
+        return base.copy(tasks = tasks, schedule = schedule)
+    }
+
+    fun logout() {
+        scope.launch {
+            withContext(Dispatchers.IO) { runCatching { api.signOut() } }
+            logoutLocal()
+        }
+    }
+
+    private fun logoutLocal() {
+        secureStore.clearSession()
+        emit(HadesUiState(loading = false))
+    }
+
+    fun clearMessage() = emit(state.copy(message = ""))
+
+    fun close() {
+        scope.cancel()
+    }
+}
