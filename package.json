@@ -1,7 +1,7 @@
 {
   "name": "ai-veritas",
   "productName": "Hades",
-  "version": "3.2.0",
+  "version": "4.0.0",
   "private": true,
   "description": "MySHSMU 校园与专注工作台",
   "author": "AI VERITAS local project",
@@ -43,7 +43,7 @@
     "appId": "local.ai.veritas",
     "productName": "Hades",
     "directories": {
-      "output": "release-v3.2"
+      "output": "release-v4.0"
     },
     "files": [
       "dist/**/*",
@@ -54,7 +54,7 @@
       "assets/**/*",
       "src/briefing.mjs",
       "src/domain/**/*.mjs",
-      "src/platform/model.mjs",
+      "src/platform/**/*.mjs",
       "src/themes/catalog.mjs",
       "src/assistant.mjs",
       "src/agenda.mjs",

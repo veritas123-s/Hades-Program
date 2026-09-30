@@ -145,7 +145,7 @@ export default function SettingsPage({
           <section className="panel about">
             <p className="eyebrow">关于 Hades</p>
             <h3>一个持续成长的个人工作台</h3>
-            <p>V3.2：安卓连接、安全加固、轻量侧栏与应用内教程。</p>
+            <p>V4：校园快讯、三类导航、邮件提醒与中文字体搭配。</p>
             <p>
               七款主题、可组合小组件、Poseidon 助手与校园连接，按你的方式使用。
             </p>

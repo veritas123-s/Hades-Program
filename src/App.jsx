@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   Bell,
   Timer,
@@ -11,10 +12,16 @@ import {
   Palette,
   Sparkles,
   SlidersHorizontal,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ChevronDown,
+  GraduationCap,
+  Newspaper,
 } from "lucide-react";
 import { QUADRANTS, dayKey, elapsed, dayTotals } from "./domain.mjs";
 import { TaskEditor, TaskCard, timeText } from "./components.jsx";
 import { NAV, ModuleOutlet } from "./platform/modules.jsx";
+import { NAV_GROUPS, routeGroup } from "./platform/navigation.mjs";
 import { useTheme } from "./themes/useTheme.jsx";
 import { agenda } from "./agenda.mjs";
 import AssistantPanel from "./modules/assistant/AssistantPanel.jsx";
@@ -38,6 +45,8 @@ export default function App() {
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [listsOpen, setListsOpen] = useState(false);
   const [sidebarManagerOpen, setSidebarManagerOpen] = useState(false);
+  const [groupMenu, setGroupMenu] = useState(null);
+  const [foldedGroups, setFoldedGroups] = useState([]);
   const [manualKind, setManualKind] = useState(null);
   const [tourOpen, setTourOpen] = useState(false);
   const [, setClock] = useState(0);
@@ -238,6 +247,23 @@ export default function App() {
       className={`app-shell ${navigation.collapsed ? "sidebar-collapsed" : ""}`}
     >
       <aside className={`sidebar ${navigation.collapsed ? "collapsed" : ""}`}>
+        <button
+          className="sidebar-toggle"
+          aria-label={navigation.collapsed ? "展开侧栏" : "收起侧栏"}
+          title={navigation.collapsed ? "展开侧栏" : "收起侧栏"}
+          onClick={() => {
+            setGroupMenu(null);
+            call("workspace.configure", {
+              navigation: { ...navigation, collapsed: !navigation.collapsed },
+            });
+          }}
+        >
+          {navigation.collapsed ? (
+            <PanelLeftOpen size={18} />
+          ) : (
+            <PanelLeftClose size={18} />
+          )}
+        </button>
         <div className="brand">
           <div className="brand-symbol">H</div>
           <div>
@@ -253,21 +279,88 @@ export default function App() {
           <kbd>Ctrl N</kbd>
         </button>
         <div className="sidebar-scroll">
-          <p className="nav-label">我的工作空间</p>
           <nav>
-            {visibleNav.map(([id, label, Icon]) => (
-              <button
-                key={id}
-                title={navigation.collapsed ? label : undefined}
-                className={page === id ? "active" : ""}
-                onClick={() => setPage(id)}
-              >
-                <Icon size={18} />
-                <span>{label}</span>
-                {id === "tasks" && <small>{active.length}</small>}
-              </button>
+            {NAV_GROUPS.map((group) => (
+              <React.Fragment key={group.id}>
+                {visibleNav.some(([id]) => routeGroup(id) === group.id) && (
+                  <button
+                    className={`nav-group-button ${navigation.collapsed && routeGroup(page) === group.id ? "active" : ""}`}
+                    aria-label={`${group.title}板块`}
+                    aria-expanded={
+                      navigation.collapsed
+                        ? groupMenu === group.id
+                        : !foldedGroups.includes(group.id)
+                    }
+                    onClick={() =>
+                      navigation.collapsed
+                        ? setGroupMenu(groupMenu === group.id ? null : group.id)
+                        : setFoldedGroups((old) =>
+                            old.includes(group.id)
+                              ? old.filter((x) => x !== group.id)
+                              : [...old, group.id],
+                          )
+                    }
+                  >
+                    {group.id === "efficiency" ? (
+                      <Timer size={18} />
+                    ) : group.id === "academic" ? (
+                      <GraduationCap size={18} />
+                    ) : (
+                      <Newspaper size={18} />
+                    )}
+                    <span>{group.title}</span>
+                    <ChevronDown size={14} />
+                  </button>
+                )}
+                {!navigation.collapsed &&
+                  !foldedGroups.includes(group.id) &&
+                  visibleNav
+                    .filter(([id]) => routeGroup(id) === group.id)
+                    .map(([id, label, Icon]) => (
+                      <button
+                        key={id}
+                        title={navigation.collapsed ? label : undefined}
+                        className={page === id ? "active" : ""}
+                        onClick={() => setPage(id)}
+                      >
+                        <Icon size={18} />
+                        <span>{label}</span>
+                        {id === "tasks" && <small>{active.length}</small>}
+                      </button>
+                    ))}
+              </React.Fragment>
             ))}
           </nav>
+            {navigation.collapsed && groupMenu && createPortal(
+            <>
+              <button
+                className="sidebar-popup-backdrop"
+                aria-label="关闭板块菜单"
+                onClick={() => setGroupMenu(null)}
+              />
+              <section
+                className="sidebar-group-popup"
+                aria-label={`${NAV_GROUPS.find((x) => x.id === groupMenu)?.title}菜单`}
+              >
+                <h3>{NAV_GROUPS.find((x) => x.id === groupMenu)?.title}</h3>
+                {visibleNav
+                  .filter(([id]) => routeGroup(id) === groupMenu)
+                  .map(([id, label, Icon]) => (
+                    <button
+                      className={page === id ? "active" : ""}
+                      key={id}
+                      onClick={() => {
+                        setPage(id);
+                        setGroupMenu(null);
+                      }}
+                    >
+                      <Icon size={18} />
+                      {label}
+                    </button>
+                  ))}
+              </section>
+              </>, document.body
+          )}
           <div className="sidebar-projects">
             <p className="nav-label">
               我的清单{" "}
@@ -314,7 +407,7 @@ export default function App() {
           >
             <Settings size={18} />
             <b>设置与数据</b>
-            <span>V3.2</span>
+            <span>V4.0</span>
           </button>
           <button
             className="sidebar-manage"

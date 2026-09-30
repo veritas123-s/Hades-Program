@@ -8,6 +8,14 @@ export default function CloudSetup({ call }) {
   const [data, setData] = useState(null),
     [open, setOpen] = useState(false),
     [token, setToken] = useState(""),
+    [channel, setChannel] = useState(null),
+    [email, setEmail] = useState({
+      host: "smtp.qq.com",
+      port: 465,
+      user: "",
+      to: "",
+      password: "",
+    }),
     [consent, setConsent] = useState(false),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
@@ -48,6 +56,7 @@ export default function CloudSetup({ call }) {
     }
   }
   const locked = busy || data?.busy,
+    selectedChannel = channel || data?.channel || "email",
     authorized = data?.login?.authenticated,
     waiting = ["starting", "waiting", "authorizing"].includes(
       data?.login?.phase,
@@ -59,22 +68,22 @@ export default function CloudSetup({ call }) {
         aria-expanded={open}
         onClick={() => setOpen(!open)}
       >
-        <QrCode size={16} />{" "}
-        {open ? "收起独立开通向导" : "扫码开通自己的微信早晚报"}
+        <QrCode size={16} /> {open ? "收起独立开通向导" : "开通我的早晚报"}
       </button>
       {open &&
         createPortal(
           <Modal
-            title="开通我的微信早晚报"
+            title="开通我的早晚报"
             wide
             onClose={() => {
               setOpen(false);
               setToken("");
+              setEmail((old) => ({ ...old, password: "" }));
             }}
           >
             <div className="cloud-setup-body">
               <p className="hint">
-                每人使用自己的腾讯云和微信。首次设置完成后，关机也能收到早晚报；登录本身不会创建云资源。
+                独立云服务支持关机提醒，默认电子邮件，也可选择 PushPlus。
               </p>
               <section className="cloud-setup-step">
                 <h4>
@@ -109,46 +118,114 @@ export default function CloudSetup({ call }) {
               </section>
               <section className="cloud-setup-step">
                 <h4>
-                  <span>2</span> 绑定你的微信{" "}
-                  {data?.pushConfigured && <Check size={16} />}
+                  <span>2</span> 选择接收方式{" "}
+                  {data?.deliveryConfigured && <Check size={16} />}
                 </h4>
-                <p className="hint">
-                  打开
-                  pushplus，扫码登录并按页面提示关注接收公众号，再复制你自己的
-                  Token。其额度、订阅和推送规则以服务页面为准。
-                </p>
-                <button
-                  className="text-button"
-                  disabled={locked}
-                  onClick={() => run("open", { which: "pushplus" })}
-                >
-                  <ExternalLink size={14} /> 打开微信绑定页面
-                </button>
-                <form
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    if (await run("bind", { token })) setToken("");
-                  }}
-                >
-                  <label>
-                    我的 pushplus Token
-                    <input
-                      aria-label="我的 pushplus Token"
-                      type="password"
-                      autoComplete="new-password"
-                      value={token}
-                      onChange={(e) => setToken(e.target.value)}
-                      placeholder={
-                        data?.pushConfigured
-                          ? "已加密保存；更换时填写"
-                          : "从本人 pushplus 页面复制"
-                      }
-                    />
-                  </label>
-                  <button className="button" disabled={locked || !token.trim()}>
-                    保存微信接收配置
-                  </button>
-                </form>
+                <label>
+                  提醒渠道
+                  <select
+                    value={selectedChannel}
+                    disabled={locked}
+                    onChange={(e) => setChannel(e.target.value)}
+                  >
+                    <option value="email">电子邮件（默认）</option>
+                    <option value="pushplus">PushPlus 微信推送</option>
+                  </select>
+                </label>
+                {selectedChannel === "email" ? (
+                  <form
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      if (await run("bind", { channel: "email", email }))
+                        setEmail((old) => ({ ...old, password: "" }));
+                    }}
+                  >
+                    {[
+                      ["to", "接收邮箱", "email"],
+                      ["user", "发信邮箱", "email"],
+                      ["host", "SMTP 主机", "text"],
+                      ["password", "客户端授权码", "password"],
+                    ].map(([key, label, type]) => (
+                      <label key={key}>
+                        {label}
+                        <input
+                          required
+                          type={type}
+                          autoComplete="off"
+                          value={email[key]}
+                          onChange={(e) =>
+                            setEmail({ ...email, [key]: e.target.value })
+                          }
+                        />
+                      </label>
+                    ))}
+                    <label>
+                      加密端口
+                      <select
+                        value={email.port}
+                        onChange={(e) =>
+                          setEmail({ ...email, port: Number(e.target.value) })
+                        }
+                      >
+                        <option value="465">465 · TLS</option>
+                        <option value="587">587 · STARTTLS</option>
+                      </select>
+                    </label>
+                    {data?.emailConfigured && (
+                      <p role="status">已保存邮箱：{data.emailRecipient}</p>
+                    )}
+                    <p className="hint">
+                      使用自己的邮箱客户端授权码，保存在本机加密配置及本人腾讯云函数中。
+                    </p>
+                    <button className="button" disabled={locked}>
+                      保存邮件接收配置
+                    </button>
+                  </form>
+                ) : (
+                  <>
+                    <p className="hint">
+                      打开
+                      pushplus，扫码登录并按页面提示关注接收公众号，再复制你自己的
+                      Token。其额度、订阅和推送规则以服务页面为准。
+                    </p>
+                    <button
+                      className="text-button"
+                      disabled={locked}
+                      onClick={() => run("open", { which: "pushplus" })}
+                    >
+                      <ExternalLink size={14} /> 打开微信绑定页面
+                    </button>
+                    <form
+                      onSubmit={async (e) => {
+                        e.preventDefault();
+                        if (await run("bind", { channel: "pushplus", token }))
+                          setToken("");
+                      }}
+                    >
+                      <label>
+                        我的 pushplus Token
+                        <input
+                          aria-label="我的 pushplus Token"
+                          type="password"
+                          autoComplete="new-password"
+                          value={token}
+                          onChange={(e) => setToken(e.target.value)}
+                          placeholder={
+                            data?.pushConfigured
+                              ? "已加密保存；更换时填写"
+                              : "从本人 pushplus 页面复制"
+                          }
+                        />
+                      </label>
+                      <button
+                        className="button"
+                        disabled={locked || !token.trim()}
+                      >
+                        保存微信接收配置
+                      </button>
+                    </form>
+                  </>
+                )}
               </section>
               <section className="cloud-setup-step">
                 <h4>
@@ -168,13 +245,18 @@ export default function CloudSetup({ call }) {
                   />
                   <span>
                     我确认使用自己的腾讯云并承担其费用；同意上传任务与课表摘要，按北京时间每天
-                    08:00、21:00 经 pushplus 发到我的微信。
+                    08:00、21:00
+                    经所选渠道发送。邮件授权码仅部署到本人的云函数。
                   </span>
                 </label>
                 <button
                   className="button primary"
                   disabled={
-                    locked || !consent || !authorized || !data?.pushConfigured
+                    locked ||
+                    !consent ||
+                    !authorized ||
+                    !data?.deliveryConfigured ||
+                    selectedChannel !== data?.channel
                   }
                   onClick={() => run("deploy", { consent })}
                 >
@@ -236,7 +318,7 @@ export default function CloudSetup({ call }) {
                       disabled={locked}
                       onClick={() => run("received")}
                     >
-                      微信已收到
+                      已收到
                     </button>
                   </div>
                 )}

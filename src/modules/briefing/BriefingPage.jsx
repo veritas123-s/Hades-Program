@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { beijingDay } from "../../briefing.mjs";
 import CloudConnection from "./CloudConnection.jsx";
+import LinkedText from "../../shared/LinkedText.jsx";
 
 export default function Briefing({ state, call }) {
   const [data, setData] = useState(null),
@@ -77,7 +78,7 @@ export default function Briefing({ state, call }) {
         <ArrowRight />
         <div className="cloud-pending">
           <Cloud />
-          <strong>微信自动化快报</strong>
+          <strong>早晚报自动提醒</strong>
           <small>
             {data?.sync?.configured
               ? data.sync.phase === "synced"
@@ -160,7 +161,7 @@ export default function Briefing({ state, call }) {
                   {t.due < date ? "逾期" : t.due === date ? "今天" : "临近"}
                 </span>
                 <div>
-                  <b>{t.title}</b>
+                  <LinkedText text={t.title} call={call} />
                   <small>
                     {t.project} · {t.quadrant_label} · {t.due}
                     {t.due_time ? ` ${t.due_time}` : "，未指定截止钟点"}
@@ -245,7 +246,7 @@ export default function Briefing({ state, call }) {
               <div className="registry-item" key={item.id}>
                 <Check size={14} />
                 <div>
-                  <b>{item.title}</b>
+                  <LinkedText text={item.title} call={call} />
                   <small>
                     {item.enabled ? "台账已启用" : "台账已停用"} ·
                     沿用原提醒规则

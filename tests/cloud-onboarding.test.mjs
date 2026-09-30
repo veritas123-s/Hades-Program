@@ -87,6 +87,43 @@ function setup() {
   cloud.bind({ token: "syntheticPushToken0123456789" });
   return { ...provider, cloud, secrets, sync, options, login };
 }
+test("邮件配置不暴露授权码；切换旧函数先保留版本再升级代码", async () => {
+  const f = setup();
+  try {
+    await f.cloud.deploy({ consent: true });
+    f.cloud.bind({
+      channel: "email",
+      email: {
+        host: "smtp.qq.com",
+        port: 465,
+        user: "sender@example.com",
+        to: "receiver@example.com",
+        password: "synthetic-mail-only",
+      },
+    });
+    assert.equal(f.cloud.status().channel, "email");
+    assert.doesNotMatch(
+      JSON.stringify(f.cloud.status()),
+      /synthetic-mail-only/,
+    );
+    f.cloud.config.plan.runtimeHash = "legacy-runtime";
+    const result = await f.cloud.deploy({ consent: true });
+    assert.equal(result.phase, "ready", result.message);
+    const actions = f.state.calls.map((x) => x.action);
+    assert.ok(
+      actions.indexOf("PublishVersion") < actions.indexOf("UpdateFunctionCode"),
+    );
+    const vars = Object.fromEntries(
+      f.state.fn.Environment.Variables.map((x) => [x.Key, x.Value]),
+    );
+    assert.equal(vars.DELIVERY_CHANNEL, "email");
+    assert.equal(vars.PUSHPLUS_TOKEN, undefined);
+    assert.equal(f.state.testCount, 0);
+  } finally {
+    f.cloud.stop();
+    f.sync.stop();
+  }
+});
 test("费用未确认不创建资源；完整部署只授予单对象权限，不自动发送测试", async () => {
   const f = setup();
   try {

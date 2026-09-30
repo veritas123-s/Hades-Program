@@ -13,7 +13,10 @@ export default async function execute(action, p, context) {
     broadcast,
   } = context;
   const win = context.getWindow();
-  if (action === "school.open") {
+  if (action === "school.canvas.open") {
+    await shell.openExternal("https://oc.sjtu.edu.cn/login/canvas");
+    return { ok: true };
+  } else if (action === "school.open") {
     await auth.open(true);
     return { ok: true };
   } else if (action === "school.login.configure") {

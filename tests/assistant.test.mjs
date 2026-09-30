@@ -36,6 +36,38 @@ function setup(fetcher) {
     service: new AssistantService({ directory, secrets, fetcher }),
   };
 }
+test("校园快讯整理只传公开字段，不带历史、凭据，也不自动创建任务", async () => {
+  let sent;
+  const { service } = setup(async (_url, options) => {
+    sent = JSON.parse(options.body);
+    return Response.json({
+      choices: [{ message: { content: "今日公开快讯" } }],
+    });
+  });
+  service.history = [{ user: "私人聊天记录" }];
+  const reply = await service.summarizeNews(
+    [
+      {
+        id: "public",
+        title: "讲座",
+        source: "学校",
+        date: "2026-09-30",
+        url: "https://news.sjtu.edu.cn/",
+        excerpt: "公开摘要",
+        privateNotes: "私人任务",
+      },
+    ],
+    [{ source: "学校", status: "partial" }],
+  );
+  assert.equal(reply, "今日公开快讯");
+  assert.equal(sent.model, "deepseek-chat");
+  assert.equal(sent.messages.length, 2);
+  assert.doesNotMatch(
+    JSON.stringify(sent),
+    /私人聊天记录|私人任务|synthetic-key-for-tests/,
+  );
+  assert.deepEqual(service.history, [{ user: "私人聊天记录" }]);
+});
 test("助手上下文只包含最小必要字段，关闭摘要时排除历史和个人数据", () => {
   const state = initialState();
   state.tasks = [

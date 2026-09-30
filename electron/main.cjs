@@ -41,6 +41,7 @@ let win,
   bridge,
   assistant,
   learning,
+  news,
   workflows,
   accounts,
   accountSync,
@@ -58,6 +59,7 @@ const snapshot = () =>
     : {
         ...store.state,
         learning: learning?.status(),
+        news: news?.status(),
         workflows: workflows?.data,
         campusAuth: auth?.status(),
         account: accounts?.status(),
@@ -224,6 +226,7 @@ else {
         bridge?.sync?.stop();
         bridge?.onboarding?.stop();
         assistant?.cancel();
+        news?.stop();
         if (learning) {
           learning.disconnected = true;
           learning.generation++;
@@ -247,6 +250,7 @@ else {
           await connectorInitialization;
           learning.disconnected = false;
           personalReady = accounts.authenticated;
+          if (!testMode && personalReady) news?.start();
         }
         broadcast();
       }
@@ -394,7 +398,7 @@ else {
           safeStorage,
         ),
         sync: bridge.sync,
-        getFeed: () => buildFeed(store.state),
+        getFeed: () => buildFeed(store.state, Date.now(), news?.status()),
         openExternal: (url) => shell.openExternal(url),
         fetcher: (...args) => net.fetch(...args),
         changed: broadcast,
@@ -407,6 +411,25 @@ else {
         bridge.status.local = "error";
       }
       const { createCommandRouter } = await import("./commands/index.mjs");
+      const { NewsService } = await import("./news-service.mjs");
+      const { openNewsReader } = await import("./news-reader.mjs");
+      news = new NewsService({
+        directory: dataDirectory,
+        openReader: (url) => openNewsReader(BrowserWindow, url),
+        fetcher: (...args) => net.fetch(...args),
+        allowed: () => accounts.authenticated && personalReady,
+        changed: () => {
+          broadcast();
+          if (accounts.authenticated && personalReady)
+            try {
+              bridge.export(store.state);
+            } catch {}
+        },
+        summarize: (items, coverage) =>
+          assistant.summarizeNews(items, coverage),
+      });
+      bridge.getNews = () =>
+        bridge.onboarding?.config.plan?.runtimeHash ? news.status() : null;
       commandRouter = createCommandRouter({
         themeAssets,
         store,
@@ -416,6 +439,7 @@ else {
         bridge,
         assistant,
         learning,
+        news,
         workflows,
         dialog,
         shell,
@@ -542,6 +566,7 @@ else {
       app.quit();
     });
   app.on("before-quit", (event) => {
+    news?.stop();
     accountSync?.stop();
     bridge?.onboarding?.stop();
     quitting = true;

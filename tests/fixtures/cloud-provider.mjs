@@ -90,6 +90,11 @@ export function fakeCloud() {
       case "UpdateFunctionConfiguration":
         state.fn.Environment = p.Environment;
         return ok({});
+      case "PublishVersion":
+        return ok({ FunctionVersion: "1" });
+      case "UpdateFunctionCode":
+        state.fn.Code = p.Code;
+        return ok({});
       case "PutReservedConcurrencyConfig":
         return ok({});
       case "CreateTrigger": {

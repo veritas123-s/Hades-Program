@@ -2,6 +2,8 @@ import React from "react";
 import { Settings2 } from "lucide-react";
 import { Boundary } from "./Boundary.jsx";
 import { registry } from "./modules.jsx";
+import { CustomWidget } from "./CustomWidget.jsx";
+import { customWidgetIds } from "./widget-recipes.mjs";
 import {
   widgetLayout,
   widgetServices,
@@ -17,9 +19,19 @@ export function WidgetContent({ definition, state, actions, call }) {
   return <Component {...services} config={record.data} />;
 }
 export function WidgetBoard({ state, call, actions }) {
-  const ids = widgetLayout(state.workspace, registry).filter(
-    (id) => !["courses", "priority"].includes(id),
-  );
+  const ids = state.workspace.widgets.order
+    .filter(
+      (id) =>
+        (registry.widgets.has(id) ||
+          customWidgetIds(state.workspace).includes(id)) &&
+        !state.workspace.widgets.hidden.includes(id) &&
+        !state.workspace.widgetData[id]?.data.deletedAt,
+    )
+    .filter(
+      (id) =>
+        !["courses", "priority"].includes(id) ||
+        state.workspace.widgetData[id]?.data.explicitlyAdded,
+    );
   return (
     <>
       <div className="widget-board-heading">
@@ -37,7 +49,11 @@ export function WidgetBoard({ state, call, actions }) {
       </div>
       <div className="widget-board">
         {ids.map((id) => {
-          const definition = registry.widgets.get(id);
+          const definition = registry.widgets.get(id) || {
+            id,
+            title: state.workspace.widgetData[id].data.title,
+            defaultSize: "half",
+          };
           return (
             <div
               className={`widget-slot size-${state.workspace.widgets.sizes[id] || definition.defaultSize || "half"}`}
@@ -45,12 +61,16 @@ export function WidgetBoard({ state, call, actions }) {
               key={id}
             >
               <Boundary label={definition.title}>
-                <WidgetContent
-                  definition={definition}
-                  state={state}
-                  actions={actions}
-                  call={call}
-                />
+                {id.startsWith("custom-") ? (
+                  <CustomWidget id={id} state={state} call={call} />
+                ) : (
+                  <WidgetContent
+                    definition={definition}
+                    state={state}
+                    actions={actions}
+                    call={call}
+                  />
+                )}
               </Boundary>
             </div>
           );

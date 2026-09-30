@@ -14,10 +14,23 @@ import { registry } from "../../platform/modules.jsx";
 import ThemeEditor from "./ThemeEditor.jsx";
 import { WALLPAPERS } from "../../themes/wallpapers.mjs";
 import { defaultAppearance } from "../../themes/custom.mjs";
+import { customWidgetIds } from "../../platform/widget-recipes.mjs";
 export default function WorkbenchPage({ state, call }) {
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const workspace = state.workspace;
+  const catalog = new Map(registry.widgets);
+  for (const id of customWidgetIds(workspace))
+    catalog.set(id, {
+      id,
+      title: workspace.widgetData[id].data.title,
+      description:
+        workspace.widgetData[id].data.kind === "countdown"
+          ? "你的重要日倒计时"
+          : "你的打卡检查表",
+      defaultSize: "half",
+      moduleId: "personal",
+    });
   const update = async (patch) => {
     setBusy(true);
     setError("");
@@ -32,18 +45,28 @@ export default function WorkbenchPage({ state, call }) {
     }
   };
   const ordered = [
-    ...workspace.widgets.order.filter((id) => registry.widgets.has(id)),
-    ...[...registry.widgets.keys()].filter(
+    ...workspace.widgets.order.filter((id) => catalog.has(id)),
+    ...[...catalog.keys()].filter(
       (id) => !workspace.widgets.order.includes(id),
     ),
-  ].filter((id) => !["courses", "priority"].includes(id));
+  ].filter(
+    (id) =>
+      !["courses", "priority"].includes(id) ||
+      workspace.widgetData[id]?.data.explicitlyAdded,
+  );
   const visible = workspace.widgets.order.filter(
     (id) =>
-      registry.widgets.has(id) &&
-      !["courses", "priority"].includes(id) &&
+      catalog.has(id) &&
+      (!["courses", "priority"].includes(id) ||
+        workspace.widgetData[id]?.data.explicitlyAdded) &&
+      !workspace.widgetData[id]?.data.deletedAt &&
       !workspace.widgets.hidden.includes(id),
   );
   const toggle = (id) => {
+    if (workspace.widgetData[id]?.data.deletedAt) {
+      call("widget.restore", { id }).catch(() => {});
+      return;
+    }
     const active = visible.includes(id);
     update({
       widgets: {
@@ -73,7 +96,7 @@ export default function WorkbenchPage({ state, call }) {
           <h1>一个工作台，多种可能</h1>
           <p>随时换一种氛围，把需要的功能放在眼前。</p>
         </div>
-        <span className="version">V3.2</span>
+        <span className="version">V4.0</span>
       </div>
       {error && (
         <p className="error" role="alert">
@@ -163,7 +186,7 @@ export default function WorkbenchPage({ state, call }) {
         </div>
         <div className="widget-catalog">
           {ordered.map((id) => {
-            const item = registry.widgets.get(id),
+            const item = catalog.get(id),
               active = visible.includes(id),
               index = visible.indexOf(id);
             return (
