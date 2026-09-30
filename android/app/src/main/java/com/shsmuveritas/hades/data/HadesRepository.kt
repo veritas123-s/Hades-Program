@@ -246,8 +246,9 @@ class HadesRepository(context: Context) {
     fun syncNow() {
         if (!state.authenticated) return
         scope.launch {
-            if (state.dirty && state.document != null) pushDocument(state.document)
-            else pullFromCloud()
+            val current = state
+            val document = current.document
+            if (current.dirty && document != null) pushDocument(document) else pullFromCloud()
         }
     }
 
@@ -342,7 +343,8 @@ class HadesRepository(context: Context) {
     fun tick() {
         val now = System.currentTimeMillis()
         emit(state.copy(clock = now))
-        if (state.focusUntil != null && now >= state.focusUntil) finishFocus(true)
+        val focusUntil = state.focusUntil
+        if (focusUntil != null && now >= focusUntil) finishFocus(true)
     }
 
     fun finishFocus(completed: Boolean = false) {
