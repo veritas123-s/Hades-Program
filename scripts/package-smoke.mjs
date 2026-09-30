@@ -22,6 +22,10 @@ const app = await launchAuthenticated({ executablePath, args: [], env });
 try {
   const page = await app.firstWindow();
   await page.getByRole("heading", { name: "今天的安排" }).waitFor();
+  await page
+    .getByRole("dialog", { name: "Hades 新手教程" })
+    .getByRole("button", { name: "跳过", exact: true })
+    .click();
   assert.equal(await app.evaluate(({ app }) => app.isPackaged), true);
   assert.equal(
     (await page.evaluate(() => window.veritas.call("state"))).schemaVersion,
