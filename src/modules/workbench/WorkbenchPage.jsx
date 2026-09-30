@@ -73,7 +73,7 @@ export default function WorkbenchPage({ state, call }) {
           <h1>一个工作台，多种可能</h1>
           <p>随时换一种氛围，把需要的功能放在眼前。</p>
         </div>
-        <span className="version">V3.0</span>
+        <span className="version">V3.2</span>
       </div>
       {error && (
         <p className="error" role="alert">

@@ -22,6 +22,7 @@ test("真实认证库：邮箱验证、账号隔离、并发版本、密码找�
         method: body === undefined ? "GET" : "POST",
         headers: {
           "Content-Type": "application/json",
+          Origin: "http://localhost:4318",
           ...(token ? { Authorization: "Bearer " + token } : {}),
         },
         ...(body === undefined ? {} : { body: JSON.stringify(body) }),

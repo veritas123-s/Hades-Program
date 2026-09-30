@@ -99,6 +99,19 @@ test("主题与布局修改互不覆盖，不触碰小组件内容", () => {
   ]);
   assert.throws(() => updateWorkspace(state, { theme: "unknown" }));
 });
+test("侧栏显示与新手教程偏好可升级、可校验且不影响组件", () => {
+  const original = initialWorkspace();
+  const configured = updateWorkspace(original, {
+    navigation: { collapsed: true, hidden: ["calendar", "insights"] },
+    onboardingVersion: 1,
+  });
+  assert.equal(configured.navigation.collapsed, true);
+  assert.deepEqual(configured.navigation.hidden, ["calendar", "insights"]);
+  assert.equal(configured.onboardingVersion, 1);
+  assert.throws(() => updateWorkspace(configured, { navigation: { hidden: ["../bad"] } }));
+  assert.throws(() => updateWorkspace(configured, { onboardingVersion: -1 }));
+  assert.deepEqual(original.navigation, { collapsed: false, hidden: [] });
+});
 test("备份恢复包含主题、组件顺序和独立数据；未安装组件的数据保留", () => {
   const s = initialState();
   s.workspace = saveWidgetData(

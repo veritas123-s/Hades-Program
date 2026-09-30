@@ -10,5 +10,6 @@ import "./modules/assistant/assistant.css";
 import "./themes/hades.css";
 import "./themes/motion.css";
 import "./themes/expanded.css";
-import './themes/refinement.css';
+import "./themes/refinement.css";
+import "./themes/v3.2.css";
 createRoot(document.getElementById("root")).render(<App />);

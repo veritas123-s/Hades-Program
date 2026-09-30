@@ -2,7 +2,15 @@
 
 A tool to bridge the gaps between those complicated apps of SHSMU
 
-## Hades V3.1 · Poseidon（测试版）
+## Hades V3.2 · Poseidon（测试版）
+
+### V3.2
+
+- 增加原生 Android 伴侣端，使用同一账号同步任务、日程、课表摘要和专注记录；会话与缓存由 Android KeyStore 加密。
+- 桌面端统一使用宋体，提升正文和辅助文字字号；侧栏可收起、可隐藏模块，设置内嵌使用说明、开发者手册和新手教程。
+- 同步服务增加严格来源检查与安全响应头；隔离攻防脚本覆盖账号隔离、畸形载荷、版本重放、SQL 注入样式内容和客户端静态控制。
+- 移除有高危路径穿越通告的直接解压依赖，根项目与账号后台依赖扫描均为 0 项已知漏洞。
+- 具体检查与限制见 [V3.2 验证记录](docs/VALIDATION-V3.2.md) 和 [隐私威胁模型](docs/THREAT-MODEL-V3.2.md)。
 
 Windows 校园与专注工作台：任务清单、四象限、年/月/日日历、校园课表、番茄钟、时间记录、可切换主题，以及可配置模型服务的 Poseidon 助手。
 
@@ -54,7 +62,7 @@ npm start
 npm run dist:installer
 ```
 
-目标输出为 `release-v3.1/Hades-Setup-3.1.0-x64.exe`；32 位使用 `npm run dist:installer:ia32`。同学只需安装包，不需要 Node.js 或开发环境。当前提供测试版；源码仓库不存放个人配置与安装包。
+目标输出为 `release-v3.2/Hades-Setup-3.2.0-x64.exe`；32 位使用 `npm run dist:installer:ia32`，安卓端由 `android` 工程或仓库工作流生成 APK。同学只需对应平台的安装文件，不需要 Node.js 或开发环境。当前提供测试版；源码仓库不存放个人配置与安装包。
 
 ### 使用与数据
 

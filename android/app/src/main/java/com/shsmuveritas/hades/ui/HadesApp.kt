@@ -1,0 +1,337 @@
+package com.shsmuveritas.hades.ui
+
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import com.shsmuveritas.hades.BuildConfig
+import com.shsmuveritas.hades.data.HadesRepository
+import com.shsmuveritas.hades.data.HadesUiState
+import com.shsmuveritas.hades.data.MobileTask
+import java.time.LocalDate
+import kotlinx.coroutines.delay
+
+private enum class MobilePage(val title: String, val mark: String) {
+    Today("今日", "今"), Tasks("任务", "清"), Schedule("日程", "历"), Focus("专注", "钟"), Connection("连接", "云")
+}
+
+@Composable
+fun HadesApp(ui: HadesUiState, repository: HadesRepository) {
+    if (!ui.authenticated) {
+        AuthScreen(ui, repository)
+        return
+    }
+    var page by remember { mutableStateOf(MobilePage.Today) }
+    Scaffold(
+        bottomBar = {
+            NavigationBar {
+                MobilePage.entries.forEach { item ->
+                    NavigationBarItem(
+                        selected = page == item,
+                        onClick = { page = item },
+                        icon = { Text(item.mark, fontWeight = FontWeight.Bold) },
+                        label = { Text(item.title) },
+                    )
+                }
+            }
+        },
+    ) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding)) {
+            MobileHeader(ui, page, repository)
+            if (ui.message.isNotBlank()) {
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 8.dp),
+                    shape = RoundedCornerShape(14.dp),
+                    onClick = repository::clearMessage,
+                ) { Text(ui.message, Modifier.padding(13.dp), color = MaterialTheme.colorScheme.onPrimaryContainer) }
+            }
+            when (page) {
+                MobilePage.Today -> TodayScreen(ui, repository)
+                MobilePage.Tasks -> TasksScreen(ui, repository)
+                MobilePage.Schedule -> ScheduleScreen(ui)
+                MobilePage.Focus -> FocusScreen(ui, repository)
+                MobilePage.Connection -> ConnectionScreen(ui, repository)
+            }
+        }
+    }
+}
+
+@Composable
+private fun AuthScreen(ui: HadesUiState, repository: HadesRepository) {
+    var register by remember { mutableStateOf(false) }
+    var email by remember { mutableStateOf(ui.pendingEmail) }
+    var password by remember { mutableStateOf("") }
+    var code by remember { mutableStateOf("") }
+    Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(28.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        ) {
+            Column(Modifier.padding(28.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text("H", style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary)
+                Text("Hades", style = MaterialTheme.typography.headlineLarge)
+                Text("登录后连接电脑端工作空间", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                if (ui.needsVerification) {
+                    Text(ui.pendingEmail, fontWeight = FontWeight.SemiBold)
+                    OutlinedTextField(code, { code = it.take(10) }, label = { Text("邮箱验证码") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
+                    Button({ repository.verify(code) }, modifier = Modifier.fillMaxWidth(), enabled = !ui.loading) { Text("完成验证并登录") }
+                    TextButton({ repository.clearMessage(); register = true }) { Text("返回注册") }
+                } else {
+                    OutlinedTextField(email, { email = it.take(254) }, label = { Text("邮箱") }, modifier = Modifier.fillMaxWidth(), singleLine = true, keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email))
+                    OutlinedTextField(password, { password = it.take(128) }, label = { Text("密码") }, modifier = Modifier.fillMaxWidth(), singleLine = true, visualTransformation = PasswordVisualTransformation())
+                    Button(
+                        { if (register) repository.register(email, password) else repository.login(email, password) },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !ui.loading,
+                    ) { Text(if (register) "发送验证码" else "登录") }
+                    TextButton({ register = !register; repository.clearMessage() }) { Text(if (register) "已有账号，直接登录" else "第一次使用，注册账号") }
+                }
+                if (ui.loading) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) { CircularProgressIndicator(Modifier.size(22.dp)); Text("正在连接…") }
+                if (ui.message.isNotBlank()) Text(ui.message, color = MaterialTheme.colorScheme.error)
+                HorizontalDivider()
+                Text("账号令牌与离线缓存由 Android 系统密钥库加密。未登录时不显示个人任务、日程或专注记录。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+}
+
+@Composable
+private fun MobileHeader(ui: HadesUiState, page: MobilePage, repository: HadesRepository) {
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column { Text(page.title, style = MaterialTheme.typography.headlineMedium); Text("Hades V${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        TextButton(repository::syncNow, enabled = ui.syncPhase != "syncing") { Text(when (ui.syncPhase) { "synced" -> "已同步"; "syncing" -> "同步中"; "conflict" -> "有冲突"; else -> "同步" }) }
+    }
+}
+
+@Composable
+private fun TodayScreen(ui: HadesUiState, repository: HadesRepository) {
+    val today = LocalDate.now().toString()
+    val due = ui.tasks.filter { !it.completed && it.due.isNotBlank() && it.due <= today }
+    val courses = ui.schedule.filter { it.start.startsWith(today) }
+    LazyColumn(contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        item {
+            Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer), shape = RoundedCornerShape(22.dp)) {
+                Column(Modifier.padding(20.dp)) {
+                    Text(LocalDate.now().toString(), style = MaterialTheme.typography.labelLarge)
+                    Text(if (due.isEmpty()) "今天没有临近任务" else "${due.size} 项任务需要处理", style = MaterialTheme.typography.titleLarge)
+                    Text("${courses.size} 节课程 · ${ui.tasks.count { !it.completed }} 项待办", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+        item { SectionTitle("当日任务") }
+        if (due.isEmpty()) item { EmptyCard("任务完成后，可到专注页记录投入时间。") }
+        items(due, key = { it.id }) { TaskRow(it, repository) }
+        item { SectionTitle("今日课程与日程") }
+        if (courses.isEmpty()) item { EmptyCard("暂无同步到今天的课程或日程。") }
+        items(courses) { item -> ScheduleCard(item.title, item.start, item.end, item.location, item.kind) }
+    }
+}
+
+@Composable
+private fun TasksScreen(ui: HadesUiState, repository: HadesRepository) {
+    var adding by remember { mutableStateOf(false) }
+    LazyColumn(contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        item { Button({ adding = true }, modifier = Modifier.fillMaxWidth()) { Text("添加任务") } }
+        items(ui.tasks, key = { it.id }) { task -> TaskRow(task, repository) }
+        if (ui.tasks.isEmpty()) item { EmptyCard("从手机或电脑新建第一项任务。") }
+    }
+    if (adding) AddTaskDialog(onDismiss = { adding = false }) { title, due, quadrant ->
+        repository.saveTask(title, due, quadrant)
+        adding = false
+    }
+}
+
+@Composable
+private fun TaskRow(task: MobileTask, repository: HadesRepository) {
+    Card(shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(task.completed, { repository.toggleTask(task.id) })
+            Column(Modifier.weight(1f).padding(horizontal = 8.dp)) {
+                Text(task.title, style = MaterialTheme.typography.titleMedium)
+                Text(listOf(task.project, task.due, quadrantName(task.quadrant)).filter { it.isNotBlank() }.joinToString(" · "), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            TextButton({ repository.deleteTask(task.id) }) { Text("删除", color = MaterialTheme.colorScheme.error) }
+        }
+    }
+}
+
+@Composable
+private fun AddTaskDialog(onDismiss: () -> Unit, onSave: (String, String, String) -> Unit) {
+    var title by remember { mutableStateOf("") }
+    var due by remember { mutableStateOf("") }
+    var quadrant by remember { mutableStateOf("plan") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("添加任务") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                OutlinedTextField(title, { title = it }, label = { Text("任务名称") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(due, { due = it.take(10) }, label = { Text("截止日期 YYYY-MM-DD") }, modifier = Modifier.fillMaxWidth())
+                Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("do" to "立即", "plan" to "规划", "delegate" to "处理", "later" to "以后").forEach { (id, label) ->
+                        if (quadrant == id) Button({ quadrant = id }) { Text(label) }
+                        else OutlinedButton({ quadrant = id }) { Text(label) }
+                    }
+                }
+            }
+        },
+        confirmButton = { Button({ onSave(title, due, quadrant) }) { Text("保存") } },
+        dismissButton = { TextButton(onDismiss) { Text("取消") } },
+    )
+}
+
+@Composable
+private fun ScheduleScreen(ui: HadesUiState) {
+    val today = LocalDate.now().toString()
+    val items = ui.schedule.filter { it.end >= today }.take(60)
+    LazyColumn(contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        item { Text("课程和日程由电脑端及云同步汇总。", color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        items(items) { item -> ScheduleCard(item.title, item.start, item.end, item.location, item.kind) }
+        if (items.isEmpty()) item { EmptyCard("未来暂无已同步的课程或日程。") }
+    }
+}
+
+@Composable
+private fun ScheduleCard(title: String, start: String, end: String, location: String, kind: String) {
+    Card(shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(17.dp)) {
+            Text(kind, color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelLarge)
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text("$start — $end", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            if (location.isNotBlank()) Text(location, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun FocusScreen(ui: HadesUiState, repository: HadesRepository) {
+    var minutes by remember { mutableIntStateOf(25) }
+    LaunchedEffect(ui.focusStartedAt) {
+        while (ui.focusStartedAt != null) {
+            delay(1000)
+            repository.tick()
+        }
+    }
+    val remaining = ((ui.focusUntil ?: ui.clock) - ui.clock).coerceAtLeast(0) / 1000
+    Column(Modifier.fillMaxSize().padding(22.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+        Text(if (ui.focusStartedAt == null) "准备专注" else "正在专注", style = MaterialTheme.typography.headlineMedium)
+        Spacer(Modifier.height(18.dp))
+        Text(String.format("%02d:%02d", remaining / 60, remaining % 60), style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary)
+        Spacer(Modifier.height(24.dp))
+        if (ui.focusStartedAt == null) {
+            Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                listOf(15, 25, 45, 60, 90).forEach { value ->
+                    if (minutes == value) Button({ minutes = value }) { Text("$value 分") }
+                    else OutlinedButton({ minutes = value }) { Text("$value 分") }
+                }
+            }
+            Spacer(Modifier.height(20.dp))
+            Button({ repository.startFocus(minutes) }, modifier = Modifier.fillMaxWidth()) { Text("开始专注") }
+        } else {
+            Button({ repository.finishFocus(false) }, modifier = Modifier.fillMaxWidth()) { Text("结束并保存") }
+        }
+        Spacer(Modifier.height(18.dp))
+        Text("保存后会与电脑端专注记录合并。", color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
+private fun ConnectionScreen(ui: HadesUiState, repository: HadesRepository) {
+    LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        item {
+            Card(shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
+                Column(Modifier.padding(20.dp)) {
+                    Text(ui.nickname.ifBlank { "Hades 用户" }, style = MaterialTheme.typography.titleLarge)
+                    Text(ui.email)
+                    Text("云端版本 ${ui.remoteVersion} · ${if (ui.dirty) "手机有待同步更改" else "本地已对齐"}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+        if (ui.conflictVersion != null) item {
+            Card(shape = RoundedCornerShape(18.dp)) {
+                Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Text("发现同步冲突", style = MaterialTheme.typography.titleMedium)
+                    Text("电脑端和手机端都发生了修改。请选择要保留的数据版本。")
+                    Button(repository::keepCloudVersion, modifier = Modifier.fillMaxWidth()) { Text("使用云端版本") }
+                    OutlinedButton(repository::keepPhoneVersion, modifier = Modifier.fillMaxWidth()) { Text("用手机版本覆盖云端") }
+                }
+            }
+        }
+        item { Button(repository::syncNow, modifier = Modifier.fillMaxWidth(), enabled = ui.syncPhase != "syncing") { Text("立即同步") } }
+        item {
+            Card(shape = RoundedCornerShape(18.dp)) {
+                Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("隐私保护", style = MaterialTheme.typography.titleMedium)
+                    Text("• 只同步账号、任务、日程、课表摘要和专注记录\n• 学校登录会话与模型密钥不进入手机云同步\n• 会话令牌与离线缓存使用 Android KeyStore 加密\n• 手机不监听局域网端口，也不读取电脑文件")
+                }
+            }
+        }
+        item { OutlinedButton(repository::logout, modifier = Modifier.fillMaxWidth()) { Text("退出账号") } }
+    }
+}
+
+@Composable
+private fun SectionTitle(text: String) { Text(text, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 6.dp)) }
+
+@Composable
+private fun EmptyCard(text: String) {
+    Card(shape = RoundedCornerShape(18.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
+        Text(text, Modifier.fillMaxWidth().padding(18.dp), textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+private fun quadrantName(value: String) = when (value) {
+    "do" -> "重要紧急"
+    "plan" -> "重要不紧急"
+    "delegate" -> "紧急不重要"
+    else -> "以后处理"
+}

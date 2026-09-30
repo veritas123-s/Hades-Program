@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 5,
+  "tasks": [],
+  "lists": [
+    {
+      "id": "list:收集箱",
+      "name": "收集箱",
+      "deletedAt": null
+    }
+  ],
+  "events": [],
+  "courseTrash": [],
+  "logs": [],
+  "courses": [],
+  "courseRanges": [],
+  "settings": {
+    "focusMinutes": 25,
+    "shortMinutes": 5,
+    "longMinutes": 15,
+    "dailyGoal": 120,
+    "notifications": true,
+    "sound": true,
+    "closeToTray": true
+  },
+  "workspace": {
+    "version": 1,
+    "theme": "monument",
+    "appearance": {
+      "image": "default",
+      "opacity": 22,
+      "blur": 0,
+      "position": "center",
+      "fit": "cover"
+    },
+    "customThemes": [],
+    "widgets": {
+      "order": [
+        "priority",
+        "focus",
+        "week",
+        "courses"
+      ],
+      "hidden": [],
+      "sizes": {}
+    },
+    "navigation": {
+      "collapsed": false,
+      "hidden": []
+    },
+    "onboardingVersion": 0,
+    "widgetData": {}
+  }
+}

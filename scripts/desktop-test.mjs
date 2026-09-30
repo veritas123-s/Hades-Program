@@ -24,12 +24,26 @@ try {
   app = await launchAuthenticated({ args: [root], env, timeout: 30000 });
   let page = await app.firstWindow();
   await page.getByRole("heading", { name: "今天的安排" }).waitFor();
+  const tour = page.getByRole("dialog", { name: "Hades 新手教程" });
+  await tour.getByRole("button", { name: "跳过", exact: true }).click();
+  await tour.waitFor({ state: "hidden" });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   assert.equal(await page.evaluate(() => typeof window.require), "undefined");
   assert.equal(await page.evaluate(() => typeof window.process), "undefined");
   await page.screenshot({ path: path.join(output, "01-overview-empty.png") });
   ok("独立桌面启动、空白状态、渲染沙箱");
+  await page.getByRole("button", { name: "整理侧栏" }).click();
+  await page.getByRole("button", { name: "收起为图标" }).click();
+  assert.match(
+    (await page.locator(".sidebar").getAttribute("class")) || "",
+    /collapsed/,
+  );
+  await page.getByRole("button", { name: "关闭", exact: true }).click();
+  await page.getByRole("button", { name: "整理侧栏" }).click();
+  await page.getByRole("button", { name: "展开侧栏" }).click();
+  await page.getByRole("button", { name: "关闭", exact: true }).click();
+  ok("侧栏收起、展开与偏好保存");
   await page.locator(".new-task").click();
   await page.getByLabel("任务名称", { exact: true }).fill("测试：阅读一篇文献");
   await page.getByLabel("所属清单", { exact: true }).fill("科研");
@@ -259,7 +273,22 @@ try {
     fs.readdirSync(fixtureProfile(dataDir)).some((f) => /^backup-/.test(f)),
   );
   ok("完整备份导出与恢复，恢复前自动备份");
-  await page.locator(".sidebar-bottom>button").click();
+  await page.getByRole("button", { name: "设置与数据" }).click();
+  await page.getByRole("button", { name: "使用说明", exact: true }).click();
+  await page
+    .getByRole("dialog", { name: "Hades 手册" })
+    .getByRole("heading", { name: /Hades V3/ })
+    .waitFor();
+  await page
+    .getByRole("dialog", { name: "Hades 手册" })
+    .getByRole("button", { name: "开发者手册" })
+    .click();
+  await page
+    .getByRole("dialog", { name: "Hades 手册" })
+    .getByRole("heading", { name: /Hades V3/ })
+    .waitFor();
+  await page.getByRole("button", { name: "关闭手册" }).click();
+  ok("使用说明与开发者手册内嵌显示");
   await page.getByLabel("每日专注目标（分钟）").fill("180");
   await page.getByRole("button", { name: "保存设置", exact: true }).click();
   state = await page.evaluate(() => window.veritas.call("state"));
