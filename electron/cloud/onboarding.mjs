@@ -4,6 +4,12 @@ import { TencentLogin } from "./tencent-login.mjs";
 import { CloudError, REGION } from "./tencent-api.mjs";
 import { sourceZip } from "./zip.mjs";
 import { syncURL } from "../cloud-sync.mjs";
+import {
+  deliveryChannel,
+  deliveryReady,
+  deliveryEnvironment,
+  emailInput,
+} from "./delivery.mjs";
 
 const missing = (e) =>
   /ResourceNotFound|ResourceNotExist|NotExist|NoSuch/.test(e.code || "");
@@ -74,8 +80,8 @@ export class CloudOnboarding {
     this.info = {
       phase: this.config.plan?.completedAt ? "ready" : "idle",
       message: this.config.plan?.completedAt
-        ? "已保存独立云服务。微信接收情况请在下方验证。"
-        : "使用自己的腾讯云与微信，独立开通早晚报。",
+        ? "已保存独立云服务，请验证提醒接收情况。"
+        : "使用自己的腾讯云，独立开通早晚报。",
     };
     this.login = login || new TencentLogin({ openExternal, fetcher, changed });
   }
@@ -86,6 +92,10 @@ export class CloudOnboarding {
       busy: this.busy,
       login: this.login.status(),
       pushConfigured: !!this.config.pushToken,
+      channel: deliveryChannel(this.config),
+      deliveryConfigured: deliveryReady(this.config),
+      emailConfigured: !!this.config.email,
+      emailRecipient: this.config.email?.to || "",
       warning: this.secrets.warning || "",
       receivedAt: p?.receivedAt || null,
       plan: p
@@ -123,18 +133,22 @@ export class CloudOnboarding {
     this.idle();
     return this.login.logout();
   }
-  bind({ token }) {
+  bind({ token, channel = "pushplus", email }) {
     this.idle();
-    token = String(token || "").trim();
-    if (!/^[a-zA-Z0-9]{20,128}$/.test(token))
-      throw new CloudError("请填写你本人 pushplus 的完整 Token。");
-    this.save({ pushToken: token });
+    if (channel === "email") {
+      this.save({ channel, email: emailInput(email || {}) });
+    } else if (channel === "pushplus") {
+      token = String(token || "").trim();
+      if (!/^[a-zA-Z0-9]{20,128}$/.test(token))
+        throw new CloudError("请填写你本人 pushplus 的完整 Token。");
+      this.save({ channel, pushToken: token });
+    } else throw new CloudError("请选择电子邮件或 PushPlus");
     this.testAccepted = false;
     if (this.config.plan)
       this.checkpoint({ receivedAt: null, completedAt: null });
     this.update({
       phase: "idle",
-      message: "微信接收配置已加密保存；点击开通或继续以应用到云端。",
+      message: "接收配置已加密保存；点击开通或继续以应用到云端。",
     });
     return this.status();
   }
@@ -206,12 +220,10 @@ export class CloudOnboarding {
   async deploy({ consent } = {}) {
     this.idle();
     if (consent !== true)
-      throw new CloudError(
-        "请先确认资源、数据上传范围、每日微信推送及按量费用。",
-      );
+      throw new CloudError("请先确认资源、数据上传范围、每日提醒及按量费用。");
     const api = this.ownAccount();
-    if (!this.config.pushToken)
-      throw new CloudError("请先绑定你自己的微信接收 Token。");
+    if (!deliveryReady(this.config))
+      throw new CloudError("请先保存你自己的提醒接收配置。");
     if (
       this.sync.status().configured &&
       (!this.config.plan?.endpoint ||
@@ -348,18 +360,20 @@ export class CloudOnboarding {
             Value: `${p.bucket}.cos.${REGION}.myqcloud.com`,
           },
           { Key: "VERITAS_SYNC_SECRET", Value: p.secret },
-          { Key: "PUSHPLUS_TOKEN", Value: this.config.pushToken },
+          ...deliveryEnvironment(this.config),
           { Key: "TZ", Value: "Asia/Shanghai" },
         ],
       };
       let fn = await this.functionInfo(api);
+      const entries = Object.fromEntries(
+        ["index.py", "veritas_bridge.py", "veritas_sync.py"].map((name) => [
+          name,
+          fs.readFileSync(new URL(`runtime/${name}`, import.meta.url)),
+        ]),
+      );
+      const zip = sourceZip(entries),
+        runtimeHash = createHash("sha256").update(zip).digest("hex");
       if (!fn) {
-        const entries = Object.fromEntries(
-          ["index.py", "veritas_bridge.py", "veritas_sync.py"].map((name) => [
-            name,
-            fs.readFileSync(new URL(`runtime/${name}`, import.meta.url)),
-          ]),
-        );
         await api.call("scf", "CreateFunction", {
           FunctionName: p.functionName,
           Namespace: "default",
@@ -374,16 +388,39 @@ export class CloudOnboarding {
           PublicNetConfig: { PublicNetStatus: "ENABLE" },
           AutoCreateClsTopic: "FALSE",
           CodeSource: "ZipFile",
-          Code: { ZipFile: sourceZip(entries).toString("base64") },
+          Code: { ZipFile: zip.toString("base64") },
         });
         fn = await this.activeFunction(api);
+        this.checkpoint({ runtimeHash });
       }
       if (fn.Role !== p.roleName)
         throw new CloudError("执行角色与开通记录不一致，请在控制台核对。");
+      if (this.config.plan.runtimeHash !== runtimeHash) {
+        const backup = await api.call("scf", "PublishVersion", {
+          FunctionName: p.functionName,
+          Namespace: "default",
+          Description: "Hades runtime upgrade backup",
+        });
+        if (!backup.FunctionVersion)
+          throw new CloudError("旧提醒程序备份未确认，未替换代码");
+        this.checkpoint({ runtimeBackupVersion: backup.FunctionVersion });
+        await api.call("scf", "UpdateFunctionCode", {
+          FunctionName: p.functionName,
+          Namespace: "default",
+          Handler: "index.main_handler",
+          CodeSource: "ZipFile",
+          Code: { ZipFile: zip.toString("base64") },
+        });
+        await this.activeFunction(api);
+        this.checkpoint({ runtimeHash });
+      }
       const current = Object.fromEntries(
         (fn.Environment?.Variables || []).map((v) => [v.Key, v.Value]),
       );
-      if (Environment.Variables.some((v) => current[v.Key] !== v.Value)) {
+      if (
+        Object.keys(current).length !== Environment.Variables.length ||
+        Environment.Variables.some((v) => current[v.Key] !== v.Value)
+      ) {
         await api.call("scf", "UpdateFunctionConfiguration", {
           FunctionName: p.functionName,
           Namespace: "default",
@@ -533,15 +570,15 @@ export class CloudOnboarding {
       this.testAccepted = accepted;
       this.update({
         message: accepted
-          ? "推送服务已受理，请检查微信；收到后点击“微信已收到”。"
-          : "推送被拒绝或结果未知，请检查 pushplus 绑定与额度。暂未确认送达。",
+          ? "提醒服务已受理，请检查所选接收端；收到后点击“已收到”。"
+          : "提醒被拒绝或结果未知，请检查接收配置。暂未确认送达。",
       });
     } catch (e) {
       this.update({
         message:
           e instanceof CloudError
             ? e.message
-            : "测试提醒结果未知，请检查微信后再决定是否重试。",
+            : "测试提醒结果未知，请检查接收端后再决定是否重试。",
       });
     } finally {
       this.busy = false;
@@ -552,7 +589,7 @@ export class CloudOnboarding {
   confirmReceived() {
     this.idle();
     if (!this.testAccepted || !this.config.plan?.completedAt)
-      throw new CloudError("请先点击发送测试提醒，并在微信实际收到后确认。");
+      throw new CloudError("请先点击发送测试提醒，并在实际收到后确认。");
     this.checkpoint({ receivedAt: Date.now() });
     this.update({
       message: "你已确认收到测试提醒。每日 08:00、21:00 由独立云服务发送快报。",

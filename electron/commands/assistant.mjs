@@ -1,11 +1,37 @@
+import { followIntent } from "../news-organizations.mjs";
+import { widgetIntent, addWidget } from "../../src/platform/widget-recipes.mjs";
+import { randomUUID } from "node:crypto";
 export default async function execute(
   action,
   p,
-  { assistant, store, bridge, broadcast, workflows, learning },
+  { assistant, store, bridge, broadcast, workflows, learning, news },
 ) {
   if (action === "assistant.configure") assistant.configure(p);
   else if (action === "assistant.models") await assistant.models();
   else if (action === "assistant.chat") {
+    const widget = widgetIntent(p.text);
+    if (widget) {
+      store.change((state) => {
+        state.workspace = addWidget(
+          state.workspace,
+          widget,
+          "custom-" + randomUUID(),
+        );
+      });
+      await assistant.actionReply(
+        p.text,
+        `已将「${widget.title}」小组件添加到首页。可在组件中编辑或在主题与小组件中管理。`,
+      );
+      broadcast();
+      return assistant.status(store.state);
+    }
+    const organization = followIntent(p.text);
+    if (organization) {
+      news.follow({ name: organization });
+      await assistant.followReply(p.text, organization);
+      broadcast();
+      return assistant.status(store.state);
+    }
     const entry = await assistant.chat(p, {
       ...store.state,
       learning: learning?.status(),

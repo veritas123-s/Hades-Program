@@ -7,7 +7,7 @@ export const beijingDay = (value = Date.now()) =>
     month: "2-digit",
     day: "2-digit",
   }).format(new Date(value));
-export function buildFeed(state, now = Date.now()) {
+export function buildFeed(state, now = Date.now(), news = null) {
   const dates = new Map();
   for (const range of state.courseRanges) {
     if (now - range.syncedAt > 7 * 86400000 || range.syncedAt > now) continue;
@@ -32,6 +32,35 @@ export function buildFeed(state, now = Date.now()) {
     });
   }
   return {
+    ...(news
+      ? {
+          campus_news: {
+            date: beijingDay(now),
+            collected_at: news.lastAttempt
+              ? new Date(news.lastAttempt).toISOString()
+              : null,
+            items: (news.items || [])
+              .filter((x) => !x.deletedAt && x.activityDate === beijingDay(now))
+              .slice(0, 60)
+              .map(({ source, title, url, excerpt }) => ({
+                source,
+                title,
+                url,
+                excerpt,
+              })),
+            summary:
+              news.summary?.date === beijingDay(now) &&
+              news.summary?.kind === "activities"
+                ? news.summary.text
+                : "",
+            coverage: (news.coverage || []).map(({ source, status, note }) => ({
+              source,
+              status,
+              note,
+            })),
+          },
+        }
+      : {}),
     schema_version: 1,
     source: "AI·VERITAS·V1.3",
     timezone: "Asia/Shanghai",

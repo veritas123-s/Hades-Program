@@ -65,7 +65,14 @@ export class BriefingBridge {
   export(state, force = false) {
     if (!this.config.enabled) return;
     const signature = createHash("sha256")
-      .update(JSON.stringify([state.tasks, state.courses, state.courseRanges]))
+      .update(
+        JSON.stringify([
+          state.tasks,
+          state.courses,
+          state.courseRanges,
+          this.getNews?.(),
+        ]),
+      )
       .digest("hex");
     if (
       !force &&
@@ -73,7 +80,7 @@ export class BriefingBridge {
       Date.now() - (this.status.updatedAt || 0) < 3600000
     )
       return;
-    const feed = buildFeed(state),
+    const feed = buildFeed(state, Date.now(), this.getNews?.()),
       targets = [path.join(this.directory, "briefing", "veritas-feed.json")];
     if (this.config.sharedRoot)
       targets.push(
@@ -102,7 +109,7 @@ export class BriefingBridge {
     return feed;
   }
   snapshot(state, date) {
-    const feed = buildFeed(state);
+    const feed = buildFeed(state, Date.now(), this.getNews?.());
     let registry;
     try {
       registry = this.registry();

@@ -152,6 +152,29 @@ export default function Campus({ state, call, setPage, widgetActions }) {
           打开学校登录
         </button>
       </div>
+      <div className="academic-connectors">
+        <section className="academic-connector">
+          <h3>超星学习通</h3>
+          <p>
+            {state.learning?.connected
+              ? "已连接 · 作业与通知"
+              : "扫码连接课程、作业与通知"}
+          </p>
+          <button
+            className="button primary"
+            onClick={() => setPage("notifications")}
+          >
+            打开学习通连接与通知
+          </button>
+        </section>
+        <section className="academic-connector">
+          <h3>交大 Canvas</h3>
+          <p>官方平台入口</p>
+          <button className="button" onClick={() => call("school.canvas.open")}>
+            打开 Canvas
+          </button>
+        </section>
+      </div>
       <div className="tabs">
         {[
           ["courses", "我的课表", CalendarDays],
@@ -359,7 +382,9 @@ function Rooms({ call }) {
               <option value="">请选择</option>
               {opts[i].map((o) => (
                 <option key={o.code} value={o.code}>
-                  {o.name}
+                  {i === 1
+                    ? `${opts[0].find((campus) => campus.code === values[0])?.name || "校区待确认"} · ${o.name}`
+                    : o.name}
                 </option>
               ))}
             </select>

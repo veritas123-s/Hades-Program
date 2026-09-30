@@ -11,12 +11,38 @@ import assistant from "./assistant.mjs";
 import agenda from "./agenda.mjs";
 import content from "./content.mjs";
 import appearance from "./appearance.mjs";
-import calendar from './calendar.mjs';
+import calendar from "./calendar.mjs";
 import { makeRouter } from "./router.mjs";
+import news from "./news.mjs";
+import links from "./links.mjs";
 export function createCommandRouter(context) {
   return makeRouter(
     [
-      {names:['calendar.export','calendar.import.preview','calendar.import.commit','calendar.import.cancel'],execute:calendar},
+      { names: ["link.open"], execute: links },
+      {
+        names: [
+          "news.state",
+          "news.collect",
+          "news.configure",
+          "news.import",
+          "news.delete",
+          "news.restore",
+          "news.open",
+          "news.follow",
+          "news.unfollow",
+          "news.activity",
+        ],
+        execute: news,
+      },
+      {
+        names: [
+          "calendar.export",
+          "calendar.import.preview",
+          "calendar.import.commit",
+          "calendar.import.cancel",
+        ],
+        execute: calendar,
+      },
       { names: ["background.import"], execute: appearance },
       {
         names: [
@@ -68,6 +94,7 @@ export function createCommandRouter(context) {
       {
         names: [
           "school.open",
+          "school.canvas.open",
           "school.login.configure",
           "school.login.renew",
           "school.logout",
@@ -109,7 +136,13 @@ export function createCommandRouter(context) {
         execute: storage,
       },
       {
-        names: ["workspace.configure", "workspace.reset", "widget.configure"],
+        names: [
+          "workspace.configure",
+          "workspace.reset",
+          "widget.configure",
+          "widget.delete",
+          "widget.restore",
+        ],
         execute: workspace,
       },
     ],

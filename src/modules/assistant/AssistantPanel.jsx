@@ -589,10 +589,7 @@ export default function AssistantPanel({
               停止生成
             </button>
           ) : (
-            <button
-              className="button primary"
-              disabled={!text.trim() || !data?.configured}
-            >
+            <button className="button primary" disabled={!text.trim()}>
               <Send size={14} />
               发送
             </button>

@@ -34,14 +34,14 @@ try {
   await page.screenshot({ path: path.join(output, "01-overview-empty.png") });
   ok("独立桌面启动、空白状态、渲染沙箱");
   await page.getByRole("button", { name: "整理侧栏" }).click();
-  await page.getByRole("button", { name: "收起为图标" }).click();
+  await page.getByRole("button", { name: "仅显示三大板块" }).click();
   assert.match(
     (await page.locator(".sidebar").getAttribute("class")) || "",
     /collapsed/,
   );
   await page.getByRole("button", { name: "关闭", exact: true }).click();
   await page.getByRole("button", { name: "整理侧栏" }).click();
-  await page.getByRole("button", { name: "展开侧栏" }).click();
+  await page.getByRole("dialog",{name:"整理侧栏"}).getByRole("button", { name: "展开侧栏" }).click();
   await page.getByRole("button", { name: "关闭", exact: true }).click();
   ok("侧栏收起、展开与偏好保存");
   await page.locator(".new-task").click();
@@ -277,7 +277,7 @@ try {
   await page.getByRole("button", { name: "使用说明", exact: true }).click();
   await page
     .getByRole("dialog", { name: "Hades 手册" })
-    .getByRole("heading", { name: /Hades V3/ })
+    .getByRole("heading", { name: /Hades V\d/ })
     .waitFor();
   await page
     .getByRole("dialog", { name: "Hades 手册" })
@@ -285,7 +285,7 @@ try {
     .click();
   await page
     .getByRole("dialog", { name: "Hades 手册" })
-    .getByRole("heading", { name: /Hades V3/ })
+    .getByRole("heading", { name: /Hades V\d/ })
     .waitFor();
   await page.getByRole("button", { name: "关闭手册" }).click();
   ok("使用说明与开发者手册内嵌显示");

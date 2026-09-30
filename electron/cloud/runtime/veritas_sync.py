@@ -25,8 +25,26 @@ def timestamp(value):
 
 
 def validate_feed(feed):
-    if not isinstance(feed, dict) or set(feed) != {'schema_version', 'source', 'timezone', 'generated_at', 'timetable', 'tasks', 'rules'}:
+    if not isinstance(feed, dict) or set(feed) - {'campus_news'} != {'schema_version', 'source', 'timezone', 'generated_at', 'timetable', 'tasks', 'rules'}:
         raise ValueError('invalid fields')
+    if 'campus_news' in feed:
+        news = feed['campus_news']
+        if not isinstance(news, dict) or set(news) != {'date', 'collected_at', 'items', 'summary', 'coverage'}:
+            raise ValueError('invalid news')
+        datetime.strptime(news['date'], '%Y-%m-%d')
+        if news['collected_at'] is not None:
+            timestamp(news['collected_at'])
+        if not isinstance(news['summary'], str) or len(news['summary']) > 12000 or not isinstance(news['items'], list) or len(news['items']) > 60 or not isinstance(news['coverage'], list) or len(news['coverage']) > 50:
+            raise ValueError('invalid news bounds')
+        for row in news['items']:
+            if not isinstance(row, dict) or set(row) != {'source', 'title', 'url', 'excerpt'} or any(not isinstance(v,str) or len(v)>2000 for v in row.values()):
+                raise ValueError('invalid news item')
+            url = urllib.parse.urlparse(row['url'])
+            if url.scheme != 'https' or url.hostname not in ('news.sjtu.edu.cn','www.shsmu.edu.cn','weixin.sogou.com','mp.weixin.qq.com') or url.username or url.password or url.port:
+                raise ValueError('invalid news URL')
+        for row in news['coverage']:
+            if not isinstance(row, dict) or set(row) != {'source','status','note'} or any(not isinstance(v,str) or len(v)>500 for v in row.values()):
+                raise ValueError('invalid news coverage')
     if feed['schema_version'] != 1 or feed['timezone'] != 'Asia/Shanghai':
         raise ValueError('invalid schema')
     generated = timestamp(feed['generated_at'])

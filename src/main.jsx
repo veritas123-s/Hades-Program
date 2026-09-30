@@ -12,4 +12,5 @@ import "./themes/motion.css";
 import "./themes/expanded.css";
 import "./themes/refinement.css";
 import "./themes/v3.2.css";
+import "./themes/v4.css";
 createRoot(document.getElementById("root")).render(<App />);

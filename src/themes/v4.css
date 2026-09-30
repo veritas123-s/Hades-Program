@@ -1,0 +1,218 @@
+:root,
+:root[data-theme] {
+  --font-interface:
+    "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", "Noto Sans CJK SC",
+    sans-serif;
+  --font-reading:
+    "STZhongsong", "华文中宋", "Songti SC", "Noto Serif CJK SC", "SimSun", serif;
+  --font-number: "Bahnschrift", "Segoe UI", sans-serif;
+  font-family: var(--font-interface);
+}
+body,
+button,
+input,
+textarea,
+select,
+:root[data-theme] .panel,
+:root[data-theme] button,
+:root[data-theme] input,
+:root[data-theme] select {
+  font-family: var(--font-interface);
+  letter-spacing: 0.01em;
+}
+:root[data-theme] .page-heading h1,
+:root[data-theme] h2,
+:root[data-theme] h3,
+:root[data-theme] .panel :is(h2, h3) {
+  font-family: var(--font-reading);
+  line-height: 1.45;
+  letter-spacing: 0.04em;
+}
+:root[data-theme] .page-heading h1 {
+  font-size: 30px;
+  font-weight: 700;
+}
+.pre-wrap,
+.manual-content {
+  font-family: var(--font-reading);
+  line-height: 1.85;
+}
+.timer-display,
+.focus-clock,
+.stat-value {
+  font-family: var(--font-number);
+  font-variant-numeric: tabular-nums;
+}
+.sidebar .nav-group-label {
+  margin: 18px 12px 8px;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--muted);
+}
+.sidebar.collapsed .nav-group-label {
+  display: none;
+}
+.academic-connectors {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+.academic-connector {
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--border));
+  border-radius: 16px;
+  padding: 20px;
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+}
+.academic-connector h3 {
+  margin: 0 0 8px;
+}
+.academic-connector .button {
+  margin-top: 14px;
+}
+.news-import {
+  display: flex;
+  gap: 16px;
+  align-items: end;
+  flex-wrap: wrap;
+}
+.news-import label {
+  display: grid;
+  gap: 10px;
+  flex: 1;
+  min-width: 240px;
+}
+.news-import input {
+  width: 100%;
+}
+.news-list h2 {
+  font-size: 22px;
+}
+.news-coverage {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+.linked-text {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+.linked-text a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.sidebar-toggle {
+  display: flex;
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 8px;
+  cursor: pointer;
+}
+.sidebar nav .nav-group-button {
+  margin-top: 16px;
+  font-weight: 700;
+  gap: 10px;
+}
+.sidebar nav .nav-group-button svg:last-child {
+  margin-left: auto;
+}
+:root[data-theme] .sidebar.collapsed {
+  width: 176px;
+}
+.app-shell.sidebar-collapsed .workspace {
+  margin-left: 176px;
+  width: calc(100% - 176px);
+}
+.sidebar.collapsed nav .nav-group-button span {
+  display: inline;
+  font-size: 14px;
+}
+.sidebar.collapsed nav .nav-group-button {
+  width: 100%;
+  padding: 16px 8px;
+  justify-content: flex-start;
+}
+.sidebar.collapsed .new-task {
+  display: none;
+}
+.sidebar-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: transparent;
+  border: 0;
+}
+.sidebar-group-popup {
+  position: fixed;
+  left: 186px;
+  top: 150px;
+  width: 250px;
+  z-index: 50;
+  padding: 20px;
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 12px 36px #0003;
+  border: 1px solid var(--border);
+}
+.sidebar-group-popup button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sidebar-group-popup button:hover {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+}
+.organization-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.organization-directory .button {
+  padding: 8px 14px;
+}
+.activity-date {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.activity-date input {
+  max-width: 180px;
+}
+.countdown-days {
+  font-family: var(--font-number);
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--accent);
+}
+.custom-widget h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.checklist-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+.custom-widget form {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
