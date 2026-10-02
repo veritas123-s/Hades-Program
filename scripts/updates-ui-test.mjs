@@ -61,14 +61,16 @@ try {
   assert.match(await banner.innerText(), /5.2.0/);
   await banner.getByRole("button", { name: "稍后提醒" }).click();
   await banner.waitFor({ state: "hidden" });
-  await page.getByRole("button", { name: "设置", exact: true }).click();
+  await page.getByRole("button", { name: "设置与数据", exact: true }).click();
   await page.getByRole("tab", { name: "版本更新", exact: true }).click();
   const checkbox = page.getByRole("checkbox", { name: "通过邮箱接收版本更新" });
   await checkbox.waitFor();
-  await checkbox.check();
+  await checkbox.click();
+  await page.waitForFunction(()=>document.querySelector('[aria-label="通过邮箱接收版本更新"]').checked===true);
   await assert.doesNotReject(() => checkbox.waitFor());
   assert.equal(await checkbox.isChecked(), true);
-  await checkbox.uncheck();
+  await checkbox.click();
+  await page.waitForFunction(()=>document.querySelector('[aria-label="通过邮箱接收版本更新"]').checked===false);
   assert.equal(await checkbox.isChecked(), false);
   await page.screenshot({ path: "test-results/updates-v51-settings.png" });
   fs.writeFileSync(

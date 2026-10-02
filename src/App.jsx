@@ -414,7 +414,7 @@ export default function App() {
           >
             <Settings size={18} />
             <b>设置与数据</b>
-            <span>V4.1</span>
+            <span>V{APP_VERSION}</span>
           </button>
           <button
             className="sidebar-manage"
