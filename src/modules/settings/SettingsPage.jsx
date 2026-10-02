@@ -1,3 +1,4 @@
+import UpdateCenter from "./UpdateCenter.jsx";
 import React, { useState } from "react";
 import { Download, Upload, FolderOpen } from "lucide-react";
 import { APP_LABEL } from "../../version.mjs";
@@ -20,6 +21,7 @@ export default function SettingsPage({
     ["account", "账号"],
     ["data", "数据"],
     ["help", "帮助"],
+    ["updates", "版本更新"],
     ["about", "关于"],
   ];
   return (
@@ -197,6 +199,16 @@ export default function SettingsPage({
                   重新播放新手教程
                 </button>
               </div>
+            </Panel>
+          </div>
+          <div hidden={tab !== "updates"}>
+            <Panel className="panel">
+              <UpdateCenter
+                updates={state.updates}
+                call={call}
+                toast={toast}
+                userId={state.account?.user?.id}
+              />
             </Panel>
           </div>
           <div hidden={tab !== "about"}>

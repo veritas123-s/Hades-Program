@@ -1,7 +1,7 @@
 {
   "name": "ai-veritas",
   "productName": "Medstack",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "private": true,
   "description": "医栈通 · 医栈事，一站通",
   "author": "AI VERITAS local project",
@@ -47,7 +47,7 @@
     "appId": "local.ai.veritas",
     "productName": "Medstack",
     "directories": {
-      "output": "release-medstack-5.0"
+      "output": "release-medstack-5.1"
     },
     "files": [
       "dist/**/*",
@@ -67,7 +67,8 @@
       "src/learning-policy.mjs",
       "src/calendar.mjs",
       "src/cloud-data.mjs",
-      "src/agent/**/*.mjs"
+      "src/agent/**/*.mjs",
+      "src/releases.mjs"
     ],
     "win": {
       "target": "portable",

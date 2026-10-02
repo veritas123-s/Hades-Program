@@ -44,6 +44,7 @@ let win,
   news,
   workflows,
   accounts,
+  updates,
   accountSync,
   requireAccount,
   lockedSnapshot,
@@ -55,9 +56,13 @@ let win,
   sequence = 0;
 const snapshot = () =>
   !accounts?.authenticated || !personalReady
-    ? lockedSnapshot(accounts?.status(), ++sequence)
+    ? {
+        ...lockedSnapshot(accounts?.status(), ++sequence),
+        updates: updates?.status(),
+      }
     : {
         ...store.state,
+        updates: updates?.status(),
         learning: learning?.status(),
         news: news?.status(),
         workflows: workflows?.data,
@@ -132,6 +137,19 @@ async function handle(action, p = {}) {
     return readHelp(app, p?.kind);
   }
   if (action === "state") return snapshot();
+  if (action === "updates.state") return updates.status();
+  if (action === "updates.check") return updates.check();
+  if (action === "updates.dismiss") return updates.dismiss();
+  if (action === "updates.download") return updates.download(p.platform);
+  if (action === "updates.email") {
+    const uid = accounts.status().user?.id;
+    const result = await updates.email(
+      p.emailUpdates === undefined ? undefined : p,
+    );
+    requireAccount(accounts, action);
+    if (uid !== accounts.status().user?.id) throw Error("账号已切换");
+    return result;
+  }
   if (action.startsWith("account.")) return accounts.execute(action, p);
   if (!personalReady) throw Error("正在打开账号空间，请稍候");
   const result = await commandRouter.execute(action, p);
@@ -194,6 +212,15 @@ else {
         accountVault,
         { fetcher: (...args) => net.fetch(...args) },
       );
+      const { Updates } = await import("./updates.mjs");
+      updates = new Updates({
+        directory: app.getPath("userData"),
+        version: APP_VERSION,
+        provider: accountProvider,
+        fetcher: (...args) => net.fetch(...args),
+        changed: broadcast,
+        open: (url) => shell.openExternal(url),
+      });
       accountSync = profiles.active
         ? new AccountSync({
             directory: dataDirectory,
@@ -450,6 +477,13 @@ else {
         getWindow: () => win,
       });
       createWindow();
+      if (!testMode) {
+        updates.check().catch(() => {});
+        setInterval(
+          () => updates.check().catch(() => {}),
+          6 * 60 * 60000,
+        ).unref();
+      }
       accounts
         .initialize()
         .then(refreshAccess)

@@ -1,3 +1,4 @@
+import { UpdateBanner } from "./modules/settings/UpdateCenter.jsx";
 import brandIcon from "../assets/medstack.svg";
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -152,9 +153,7 @@ export default function App() {
         <img className="brand-symbol" src={brandIcon} alt="Medstack" />
         <h1>{APP_LABEL}</h1>
         <p>
-          {window.veritas
-            ? "医栈事，一站通"
-            : "请通过桌面程序打开此应用。"}
+          {window.veritas ? "医栈事，一站通" : "请通过桌面程序打开此应用。"}
         </p>
         {toast && <p className="error">{toast}</p>}
       </div>
@@ -165,10 +164,13 @@ export default function App() {
         <div className="auth-brand">
           <img className="brand-symbol" src={brandIcon} alt="Medstack" />
           <div>
-            <h1>医栈通 <small>Medstack</small></h1>
+            <h1>
+              医栈通 <small>Medstack</small>
+            </h1>
             <p>医栈事，一站通</p>
           </div>
         </div>
+        <UpdateBanner updates={state.updates} call={call} />
         <AccountPage state={state} call={call} toast={setToast} locked />
         <div className="data-actions">
           <button
@@ -500,6 +502,7 @@ export default function App() {
         </header>
         <PanelProvider page={page} key={state.account?.user?.id || "personal"}>
           <main>
+            <UpdateBanner updates={state.updates} call={call} />
             {state.lastNotice && (
               <div className="notice">
                 <span>{state.lastNotice}</span>

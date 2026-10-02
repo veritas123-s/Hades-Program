@@ -1,5 +1,9 @@
 const publicActions = new Set([
   "state",
+  "updates.state",
+  "updates.check",
+  "updates.dismiss",
+  "updates.download",
   "help.open",
   "help.read",
   "account.state",
