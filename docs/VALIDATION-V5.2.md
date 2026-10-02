@@ -8,4 +8,10 @@
 - 56 项响应式检查通过，含 125% 显示缩放、图标随主题配色、日历与专注组件调整。
 - 1366×768、1280×720 首页无需整页滚动；长列表采用卡片内部滚动。窄窗口允许必要滚动，优先保留可读字号。
 
-发行包验证、签名及安装数据核对仍在进行；完成后补充结果。安卓本轮更新版本标识，桌面卡片布局不改变原生安卓界面，手机实机同步仍待测试。
+实际 Windows 发行程序重复通过 68 项新版检查与 66 项精简回归；Pi 两步工具调用、核对后入库、密钥脱敏、更新提示及邮件订阅/取消检查通过。6280 项文本资源隐私扫描无发现，此扫描不构成绝对安全保证。安卓官方 CI 37022717258 编译、lint 与 APK 检查成功；版本代码 520，沿用既有签名，签名验证通过。
+
+本机实际安装版本 5.2.0、入口和登录门禁检查通过；升级前备份原始数据、加密上下文及旧程序，根与账号空间各 10 条专注记录，原始区间、任务和配置核对保留。
+
+公开发行：[V5.2.0](https://github.com/veritas123-s/Medstack-Program/releases/tag/v5.2.0)。Windows SHA256：`1d8a8ec4594560f2f7f1952506eeec773f80b4ecb5ac575f8216f8a734b84655`；Android SHA256：`9949197e378dd47872199956fc1fc36e2874048c25a6002dfe32c7a6685d5560`。
+
+主要验收命令：`npm test`、`npm run dist:installer`、`node scripts/v52-ui-test.mjs <发行程序>`、`node scripts/compact-ui-test.mjs <发行程序>`、`node scripts/responsive-ui-test.mjs`、`node scripts/medstack-package-test.mjs <发行程序>` 和 `node scripts/updates-ui-test.mjs <发行程序>`。安卓本轮更新版本标识，桌面卡片布局不改变原生安卓界面，手机实机同步仍待测试。
