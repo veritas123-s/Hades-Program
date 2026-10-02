@@ -16,4 +16,11 @@
 
 ## 边界
 
-窗口较窄或内容较多时使用单列与局部滚动，避免缩小字体或隐藏控件。未承诺所有窗口与任意数据量均完全无滚动。账号与校园测试使用合成数据；安卓手机实机同步仍待验收。安装包、实际程序、数据迁移与公告验证结果完成后补充。
+窗口较窄或内容较多时使用单列与局部滚动，避免缩小字体或隐藏控件。未承诺所有窗口与任意数据量均完全无滚动。账号与校园测试使用合成数据；安卓手机实机同步仍待验收。两端已发布 GitHub Release，并核对上传文件 SHA256；本机实际安装 5.1.2、启动及账号门禁通过。替换前备份 59 个配置与加密文件，并保留旧程序副本；原始专注区间、任务及加密设置核对保持。根目录 10 个任务、账号目录 12 个任务，两处各 10 条专注记录、13348171ms。桌面与开始菜单指向最新 Medstack。用户背景与原主题偏好保持，经典医疗作为可选主题提供。
+## 文件与命令
+
+检查 App、主题目录与配色、Focus/Calendar/Dashboard、既有界面回归与发布流程。新增 src/shared/ResponsiveViewport.jsx、BrandMark.jsx、src/themes/responsive.css、scripts/responsive-ui-test.mjs；修改 App、main、主题目录、版本、安卓版本及界面测试，更新使用手册、布局说明与公告。
+
+执行 npm test、npm run build、npm run dist:installer；运行实际发行程序的 responsive-ui-test、compact-ui-test、medstack-package-test、updates-ui-test、v41-ui-test；使用官方 CI 构建安卓、原签名身份签名并验证、发行隐私检查与 scripts/publish-release.mjs。个人数据检查及备份通过交互用户环境执行，私有诊断和备份未上传。
+
+服务器公告缓存已同步5.1.2，公网HTTPS公告版本核验通过；匿名订阅偏好返回401。账号后台保持既有5.1.0，未改变权限、网络或Boyi服务，未新增测试邮件。共享 DECISIONS、coding-projects 与 CHANGELOG 已先备份后更新；Codex Memories 未修改。
