@@ -1,3 +1,4 @@
+import { articleCover, loadNewsThumbnail } from "./news-images.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -116,7 +117,12 @@ export function parseWechatIndex(html, source) {
       Number(time) * 1000,
       block.match(/<p[^>]*class=["']txt-info["'][^>]*>([\s\S]*?)<\/p>/i)?.[1],
     );
-    if (row) items.push({ ...row, searchResult: true });
+    if (row)
+      items.push({
+        ...row,
+        imageURL: articleCover(block, "https://weixin.sogou.com"),
+        searchResult: true,
+      });
   }
   return items;
 }
@@ -140,7 +146,12 @@ export function parseUniversityIndex(html) {
       time,
       block.match(/class=["']des[^"']*["'][^>]*>([\s\S]*?)<\/div>/i)?.[1],
     );
-    if (row) rows.push({ ...row, publishedPrecision: "day" });
+    if (row)
+      rows.push({
+        ...row,
+        imageURL: articleCover(block, "https://news.sjtu.edu.cn"),
+        publishedPrecision: "day",
+      });
   }
   return rows;
 }
@@ -183,7 +194,13 @@ export function parseArticle(html, url) {
     time,
     clean(body).slice(0, 1000),
   );
-  return parsed ? { ...parsed, publishedPrecision: unix ? "time" : "day" } : null;
+  return parsed
+    ? {
+        ...parsed,
+        imageURL: articleCover(html, url),
+        publishedPrecision: unix ? "time" : "day",
+      }
+    : null;
 }
 
 export class NewsService {
@@ -194,8 +211,19 @@ export class NewsService {
     changed = () => {},
     summarize,
     openReader,
+    nativeImage,
+    imageFetcher = (...args) => fetch(...args),
   }) {
-    Object.assign(this, { fetcher, allowed, changed, summarize, openReader });
+    Object.assign(this, {
+      fetcher,
+      allowed,
+      changed,
+      summarize,
+      openReader,
+      nativeImage,
+      imageFetcher,
+    });
+    this.imageCache = new Map();
     this.file = path.join(directory, "campus-news.json");
     this.data = {
       version: 1,
@@ -239,7 +267,12 @@ export class NewsService {
     fs.renameSync(this.file + ".tmp", this.file);
   }
   status() {
-    return { ...this.data, busy: this.busy, sources: this.sources(), recent: recentNews(this.data.items) };
+    return {
+      ...this.data,
+      busy: this.busy,
+      sources: this.sources(),
+      recent: recentNews(this.data.items),
+    };
   }
   sources() {
     return this.data.followedSources || WECHAT_SOURCES;
@@ -288,6 +321,31 @@ export class NewsService {
     this.changed();
     return this.status();
   }
+  async image({ id }) {
+    if (!this.allowed()) throw Error("请先登录");
+    const row = this.data.items.find((x) => x.id === id && !x.deletedAt);
+    if (!row?.imageURL) return { image: "" };
+    const generation = this.generation;
+    if (!this.imageCache.has(row.imageURL)) {
+      if (this.imageCache.size >= 24)
+        this.imageCache.delete(this.imageCache.keys().next().value);
+      this.imageCache.set(
+        row.imageURL,
+        loadNewsThumbnail(
+          row.imageURL,
+          this.nativeImage,
+          this.imageFetcher,
+        ).catch(() => ""),
+      );
+    }
+    const image = await this.imageCache.get(row.imageURL);
+    return {
+      image:
+        generation === this.generation && this.allowed() && !row.deletedAt
+          ? image
+          : "",
+    };
+  }
   async open({ url }) {
     const safe = newsURL(url);
     this.reader?.close();
@@ -295,6 +353,7 @@ export class NewsService {
     return { ok: true };
   }
   stop() {
+    this.imageCache.clear();
     this.reader?.close();
     this.reader = null;
     clearInterval(this.interval);
@@ -359,6 +418,7 @@ export class NewsService {
       const old = prior.get(x.id);
       prior.set(x.id, {
         ...x,
+        imageURL: x.imageURL || old?.imageURL || "",
         deletedAt: old?.deletedAt || null,
         ...(old?.activityProvenance === "manual"
           ? {
@@ -464,7 +524,9 @@ export class NewsService {
       if (generation !== this.generation || !this.allowed())
         return this.status();
       const window = recentNews(rows);
-      this.merge([...window.groups, ...window.uncertainGroups].flatMap((x) => x.items));
+      this.merge(
+        [...window.groups, ...window.uncertainGroups].flatMap((x) => x.items),
+      );
       this.data.coverage = coverage;
       this.data.lastAttempt = Date.now();
       this.save();

@@ -15,3 +15,7 @@
 公开发行：[V5.2.0](https://github.com/veritas123-s/Medstack-Program/releases/tag/v5.2.0)。Windows SHA256：`1d8a8ec4594560f2f7f1952506eeec773f80b4ecb5ac575f8216f8a734b84655`；Android SHA256：`9949197e378dd47872199956fc1fc36e2874048c25a6002dfe32c7a6685d5560`。
 
 主要验收命令：`npm test`、`npm run dist:installer`、`node scripts/v52-ui-test.mjs <发行程序>`、`node scripts/compact-ui-test.mjs <发行程序>`、`node scripts/responsive-ui-test.mjs`、`node scripts/medstack-package-test.mjs <发行程序>` 和 `node scripts/updates-ui-test.mjs <发行程序>`。安卓本轮更新版本标识，桌面卡片布局不改变原生安卓界面，手机实机同步仍待测试。
+
+## V5.2.1 图文快讯与精简布局
+
+本轮新增安全封面解析、三种采集入口、无凭据缩略图请求、体积与类型限制，以及退出登录后的迟到结果拦截测试。137 项单元测试通过。图文 Electron 检查覆盖安全缩略图实际解码、三档自适应宽度、无图回退、搜索、组织专栏和删除恢复。测试封面采用合成图片，不依赖第三方实时可用性；采集覆盖限制保留。实际发行包验证和两端发行结果将在构建完成后补记。

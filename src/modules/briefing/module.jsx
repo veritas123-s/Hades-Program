@@ -13,7 +13,7 @@ export default {
       title: "快报与提醒",
       icon: BellRing,
       Component: lazy(() => import("./BriefingPage.jsx")),
-      hiddenNav: false,
+      hiddenNav: true,
     },
   ],
 };

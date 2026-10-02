@@ -22,9 +22,10 @@ export default {
     },
     {
       id: "notifications",
-      title: "日程与通知",
+      title: "超星学习通",
+      hiddenNav: true,
       icon: Bell,
-      Component: lazy(() => import("./NotificationsPage.jsx")),
+      Component: lazy(() => import("./LearningPage.jsx")),
     },
   ],
   widgets: [],

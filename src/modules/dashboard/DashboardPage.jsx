@@ -6,7 +6,6 @@ import {
   CalendarDays,
   CheckSquare2,
   Bell,
-  GraduationCap,
 } from "lucide-react";
 import { duration } from "../../components.jsx";
 import { WidgetBoard } from "../../platform/WidgetHost.jsx";
@@ -168,16 +167,16 @@ export default function DashboardPage({
         </Panel>
         <Panel
           className="panel overview-card overview-notices"
-          title="通知快讯"
+          title="校园快讯"
         >
-          {heading("通知快讯", "notifications", Bell)}
+          {heading("校园快讯", "campus-news", Bell)}
           <div className="overview-card-list">
             {model.notices.map((e) => (
               <Row
                 key={e.id}
                 title={e.title}
                 detail={e.subtitle}
-                tag={e.kind === "news" ? "校园" : "超星"}
+                tag={e.kind === "news" ? "公开" : "超星"}
                 onClick={() =>
                   setPage(e.kind === "news" ? "campus-news" : "learning")
                 }
@@ -185,34 +184,6 @@ export default function DashboardPage({
             ))}
             {!model.notices.length && (
               <p className="overview-empty">暂无新消息</p>
-            )}
-          </div>
-        </Panel>
-        <Panel
-          className="panel overview-card overview-learning"
-          title="超星学习通"
-        >
-          {heading("超星学习通", "learning", GraduationCap)}
-          <div className="overview-learning-state">
-            <span
-              className={
-                "overview-status " +
-                (state.learning?.connected ? "connected" : "")
-              }
-            >
-              {state.learning?.connected ? "已连接" : "未连接"}
-            </span>
-            <strong>
-              {model.assignments.length}
-              <small> 项待完成作业</small>
-            </strong>
-            {state.learning?.lastSuccess && (
-              <small>
-                同步于{" "}
-                {new Date(state.learning.lastSuccess).toLocaleDateString(
-                  "zh-CN",
-                )}
-              </small>
             )}
           </div>
         </Panel>

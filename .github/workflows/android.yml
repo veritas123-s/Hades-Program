@@ -42,7 +42,7 @@ jobs:
           cp "$BUILD_TOOLS/lib/apksigner.jar" android/app/build/apksigner.jar
       - uses: actions/upload-artifact@v4
         with:
-          name: Medstack-5.2.0-Android-unsigned
+          name: Medstack-5.2.1-Android-unsigned
           path: |
             android/app/build/outputs/apk/release/app-release-unsigned.apk
             android/app/build/apksigner.jar

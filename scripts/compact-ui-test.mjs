@@ -51,6 +51,14 @@ try {
         .locator(".topbar")
         .getByRole("button", { name: title, exact: true })
         .click();
+    } else if (title === "快报与提醒") {
+      await page
+        .locator(".sidebar")
+        .getByRole("button", { name: "设置与数据", exact: true })
+        .click();
+      await page
+        .getByRole("button", { name: "早晚报与推送", exact: true })
+        .click();
     } else {
       await page
         .locator(".sidebar button:not(.nav-group-button)")
@@ -101,7 +109,7 @@ try {
       ["校园与课表", "校园与课表"],
       ["超星学习通", "超星学习通"],
       ["校园快讯", "校园快讯"],
-      ["日程与通知", "日程与通知"],
+      ["校园快讯", "校园快讯"],
       ["快报与提醒", "快报"],
       ["账号与同步", "账号与同步"],
       ["主题与小组件", "主题与小组件"],

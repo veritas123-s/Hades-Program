@@ -5,7 +5,6 @@ import { createPortal } from "react-dom";
 import { PanelProvider } from "./shared/Panel.jsx";
 import ResponsiveViewport from "./shared/ResponsiveViewport.jsx";
 import {
-  Bell,
   Timer,
   Settings,
   Plus,
@@ -27,7 +26,6 @@ import { TaskEditor, TaskCard, timeText } from "./components.jsx";
 import { NAV, ModuleOutlet } from "./platform/modules.jsx";
 import { NAV_GROUPS, routeGroup } from "./platform/navigation.mjs";
 import { useTheme } from "./themes/useTheme.jsx";
-import { agenda } from "./agenda.mjs";
 import AssistantPanel from "./modules/assistant/AssistantPanel.jsx";
 import ListManager from "./shared/ListManager.jsx";
 import AccountPage from "./modules/accounts/AccountPage.jsx";
@@ -48,7 +46,9 @@ export default function App() {
     [busy, setBusy] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const setPage = (next) =>
-    next === "assistant" ? setAssistantOpen(true) : setPageState(next);
+    next === "assistant"
+      ? setAssistantOpen(true)
+      : setPageState(next === "notifications" ? "learning" : next);
   const [listsOpen, setListsOpen] = useState(false);
   const [sidebarManagerOpen, setSidebarManagerOpen] = useState(false);
   const [groupMenu, setGroupMenu] = useState(null);
@@ -493,20 +493,6 @@ export default function App() {
           >
             <Sparkles size={16} />
             <span>Poseidon 助手</span>
-          </button>
-          <button
-            className="notification-bell"
-            aria-label="打开通知中心"
-            onClick={() => setPage("notifications")}
-          >
-            <Bell size={19} />
-            <span>
-              {
-                agenda(state, state.learning).entries.filter(
-                  (e) => !state.workflows?.read?.includes(e.id),
-                ).length
-              }
-            </span>
           </button>
           <button
             className="avatar"

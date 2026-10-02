@@ -441,6 +441,7 @@ else {
       const { NewsService } = await import("./news-service.mjs");
       const { openNewsReader } = await import("./news-reader.mjs");
       news = new NewsService({
+        nativeImage,
         directory: dataDirectory,
         openReader: (url) => openNewsReader(BrowserWindow, url),
         fetcher: (...args) => net.fetch(...args),
