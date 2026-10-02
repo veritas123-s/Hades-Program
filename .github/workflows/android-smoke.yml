@@ -11,6 +11,8 @@ permissions:
   actions: read
 jobs:
   smoke:
+    # Archived platform; do not run without a new explicit owner decision.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
