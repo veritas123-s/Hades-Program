@@ -1,26 +1,23 @@
 {
   "schema": 1,
-  "version": "5.2.1",
-  "publishedAt": "2026-10-02T15:50:40.487Z",
-  "title": "医栈通 V5.2 · 图文快讯与精简布局",
+  "version": "5.2.2",
+  "publishedAt": "2026-10-02T16:19:56.897Z",
+  "title": "医栈通 V5.2.2 · 简化快讯与团队信息",
   "notes": [
-    "校园信息仅保留校园快讯和超星学习通两个入口，撤下重复通知页面。",
-    "首页合并超星通知与公开快讯为校园快讯卡片，公开同类消息合并展示。",
-    "校园快讯加入原文封面、标题、摘要、来源和日期，支持搜索；图片不可用时保留文字。",
-    "按成熟效率应用收紧字体、侧栏、按钮和卡片层级，正文采用约13—15像素并限制自动放大。",
-    "早晚报推送和自动工作流进入设置，通知删除与恢复继续可用。",
-    "今日概览独立于分类，Poseidon 全局按钮、响应式字号和八款主题保留。",
-    "安卓伴侣端更新版本标识，原生功能保留。"
+    "校园快讯移除当日活动标签与核对活动日期控件，保留近24小时、组织专栏和已删除入口。",
+    "关于页加入 Medtrix 制作团队、MySHSMU 来源鸣谢及联系我们。",
+    "联系我们提供微信号 Veritas_Enterprise 与一键复制。",
+    "既有活动日期和个人数据继续保留。安卓伴侣端更新版本标识。"
   ],
   "urgent": false,
   "downloads": {
     "windows": {
-      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.2.1/Medstack-Setup-5.2.1-x64.exe",
-      "sha256": "9f17342baf371fc7d287ee6638b8c29bcd88f8b36f533c2bc98812e63310161a"
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.2.2/Medstack-Setup-5.2.2-x64.exe",
+      "sha256": "10b5f7f2c30c990d1341146568115c1c6d48ada366109472f190aa16b35ffd32"
     },
     "android": {
-      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.2.1/Medstack-5.2.1-Android.apk",
-      "sha256": "8ae28d041d4cc31fe94bc34ffc73e8eba7cae8544ce50da5d7b4c4a3eeb749be"
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.2.2/Medstack-5.2.2-Android.apk",
+      "sha256": "7934e194d788d4d9ce2d3d17f0979db9d2d4ab648e3fb5eb544825fa5f3a7e4d"
     }
   }
 }
