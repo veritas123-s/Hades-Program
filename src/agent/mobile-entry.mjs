@@ -12,7 +12,7 @@ globalThis.MedstackPi = {
   },
   cancel() { active?.abort(); },
   async run(input) {
-    if (active) throw Error('助手正在处理上一条请求');
+    if (active) { NativePi.completed(JSON.stringify({runId:input.runId,error:'正在停止上一条请求，请稍后再试'})); return; }
     const controller = new AbortController(); active = controller;
     const now = new Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai', dateStyle: 'full', timeStyle: 'short' }).format(new Date());
     const context = input.includeContext ? input.workspace : null;
@@ -27,11 +27,11 @@ globalThis.MedstackPi = {
           controller.signal.addEventListener('abort',onAbort,{once:true});
           const finish=(f)=>v=>{controller.signal.removeEventListener('abort',onAbort);f(v);};
           pending.set(id,{resolve:finish(resolve),reject:finish(reject)});
-          NativePi.request(id,JSON.stringify(body));
+          NativePi.request(id,JSON.stringify(body),input.runId);
         }),
       });
-      NativePi.completed(JSON.stringify({ ...parseAssistantReply(result.text), turns:result.turns, steps:result.events }));
-    } catch(e) { NativePi.completed(JSON.stringify({error:e.message})); }
+      NativePi.completed(JSON.stringify({ ...parseAssistantReply(result.text), turns:result.turns, steps:result.events, runId:input.runId }));
+    } catch(e) { NativePi.completed(JSON.stringify({error:e.message,runId:input.runId})); }
     finally { active=null; }
   },
 };
