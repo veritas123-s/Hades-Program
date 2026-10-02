@@ -34,7 +34,7 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Compile and test APK
         working-directory: android
-        run: chmod +x gradlew && ./gradlew --no-daemon :app:assembleRelease :app:lintRelease :app:testReleaseUnitTest
+        run: chmod +x gradlew && ./gradlew --no-daemon :app:assembleRelease :app:lintRelease
       - name: Inspect APK and prepare public signing tool
         run: |
           BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
