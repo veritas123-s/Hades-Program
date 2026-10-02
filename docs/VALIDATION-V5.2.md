@@ -24,4 +24,8 @@
 
 最终 Windows 发行程序重复通过 68 项布局、66 项精简回归、图文列表、Pi 工具调用与隐私检查、更新及邮件订阅检查。6282 项文本资源隐私扫描无发现。安卓 CI 37027061664 编译与 lint 成功，版本代码 521，既有证书签名验证通过；手机实机验证仍待进行。
 
-两端已公开发布：[V5.2.1](https://github.com/veritas123-s/Medstack-Program/releases/tag/v5.2.1)。Windows SHA256：`9f17342baf371fc7d287ee6638b8c29bcd88f8b36f533c2bc98812e63310161a`；Android SHA256：`8ae28d041d4cc31fe94bc34ffc73e8eba7cae8544ce50da5d7b4c4a3eeb749be`。本机替换与云端版本目录检查尚待完成。
+两端已公开发布：[V5.2.1](https://github.com/veritas123-s/Medstack-Program/releases/tag/v5.2.1)。Windows SHA256：`9f17342baf371fc7d287ee6638b8c29bcd88f8b36f533c2bc98812e63310161a`；Android SHA256：`8ae28d041d4cc31fe94bc34ffc73e8eba7cae8544ce50da5d7b4c4a3eeb749be`。
+
+现有腾讯云实例仅更新公开版本目录，固定提交与 SHA256 核对后原子替换，保留前一目录并执行既有备份。执行记录 inv-w9dsd9gk1t 成功；公网 HTTPS 最新版返回 5.2.1，匿名订阅设置返回 401。账号后台仍为 5.1.0，不新增权限、不修改同机其他服务。本机仍运行 5.2.0，已请求用户从托盘退出；5.2.1 本机替换待退出后执行。
+
+本轮检查与修改范围包括导航、首页汇总、校园图文列表、安全图片采集和 V5.2 字体样式；主要文件为 src/App.jsx、src/modules/dashboard/overview.mjs、src/modules/news/NewsPage.jsx、src/modules/news/NewsCover.jsx、src/themes/v5.2.css、electron/news-images.mjs 及对应规则和发行验证脚本。设置工作流组件抽离为独立文件，使用手册和开发手册同步更新。未改动独立 miniprogram 工程。共享上下文建议记录发行状态、用户极简字体决定及手机实机待验收边界。
