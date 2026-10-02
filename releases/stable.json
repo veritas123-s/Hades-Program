@@ -1,23 +1,25 @@
 {
   "schema": 1,
-  "version": "5.2.2",
-  "publishedAt": "2026-10-02T16:19:56.897Z",
-  "title": "医栈通 V5.2.2 · 简化快讯与团队信息",
+  "version": "5.3.1",
+  "publishedAt": "2026-10-02T17:29:23.247Z",
+  "title": "医栈通 V5.3.1",
   "notes": [
-    "校园快讯移除当日活动标签与核对活动日期控件，保留近24小时、组织专栏和已删除入口。",
-    "关于页加入 Medtrix 制作团队、MySHSMU 来源鸣谢及联系我们。",
-    "联系我们提供微信号 Veritas_Enterprise 与一键复制。",
-    "既有活动日期和个人数据继续保留。安卓伴侣端更新版本标识。"
+    "加入 Medtrix 团队品牌标识，保留医栈通应用名称与图标。",
+    "嵌入课表的月视图显示课程名和时间，年视图显示课程数量。",
+    "校园快讯直接打开，增加官方栏目和页面中的公众号原文采集；保留来源覆盖状态。",
+    "修复空封面误用文章网址、图片加载失败缓存、错误编码声明及可逆乱码。",
+    "增加 Windows 一键更新：核验下载文件，保存计时，备份数据与程序后安装。",
+    "加强公开请求跳转、图片解码和停滞响应保护；修正文章信息不复活已删除快讯。"
   ],
   "urgent": false,
   "downloads": {
     "windows": {
-      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.2.2/Medstack-Setup-5.2.2-x64.exe",
-      "sha256": "10b5f7f2c30c990d1341146568115c1c6d48ada366109472f190aa16b35ffd32"
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.3.1/Medstack-Setup-5.3.1-x64.exe",
+      "sha256": "29940cbc33b89c75eba7cebe20c92993796219fc90181152c7f1051a544b80b0"
     },
     "android": {
-      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.2.2/Medstack-5.2.2-Android.apk",
-      "sha256": "7934e194d788d4d9ce2d3d17f0979db9d2d4ab648e3fb5eb544825fa5f3a7e4d"
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.3.1/Medstack-5.3.1-Android.apk",
+      "sha256": "22e86a2b0e9954e3d44e1220de2efd8306c062adea589abe9c38dc76d392b8d0"
     }
   }
 }
