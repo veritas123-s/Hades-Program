@@ -1,5 +1,8 @@
+:root[data-theme] .app-shell {
+  --type-scale: clamp(0.94, var(--layout-scale, 1), 1.06);
+}
 :root[data-theme] .page-viewport {
-  --content-font: clamp(14px, calc(15px * var(--layout-scale, 1)), 18px);
+  --content-font: clamp(13px, calc(14px * var(--type-scale, 1)), 15px);
   font-size: var(--content-font);
 }
 :root[data-theme]
@@ -8,19 +11,19 @@
   font-size: var(--content-font);
 }
 :root[data-theme] .page-viewport h1 {
-  font-size: clamp(21px, calc(25px * var(--layout-scale, 1)), 30px);
+  font-size: clamp(20px, calc(22px * var(--type-scale, 1)), 24px);
 }
 :root[data-theme] .page-viewport :is(h2, h3) {
-  font-size: clamp(16px, calc(18px * var(--layout-scale, 1)), 22px);
+  font-size: clamp(15px, calc(16px * var(--type-scale, 1)), 18px);
 }
 :root[data-theme] .page-viewport :is(small, .task-meta, .hint) {
-  font-size: clamp(12px, calc(13px * var(--layout-scale, 1)), 16px);
+  font-size: clamp(12px, calc(12px * var(--type-scale, 1)), 13px);
 }
 :root[data-theme] .page-viewport .timer-display {
   font-size: clamp(44px, calc(60px * var(--layout-scale, 1)), 76px);
 }
 :root[data-theme] .sidebar nav button {
-  font-size: clamp(14px, calc(14px * var(--layout-scale, 1)), 17px);
+  font-size: clamp(13px, calc(13px * var(--type-scale, 1)), 14px);
 }
 :root[data-theme] .topbar {
   position: relative;
@@ -42,8 +45,8 @@
 .overview-summary {
   min-width: 0;
   height: clamp(118px, calc(var(--workspace-height, 680px) * 0.19), 156px);
-  padding: 18px 22px;
-  border-radius: 18px;
+  padding: 16px 18px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -98,7 +101,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   line-height: 1.35;
-  font-size: clamp(19px, 5.5cqw, 27px);
+  font-size: clamp(17px, 4.5cqw, 23px);
 }
 .overview-information-grid {
   display: grid;
@@ -111,7 +114,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 16px 20px;
+  padding: 14px 16px;
   border-radius: 18px;
   box-shadow: 0 1px 3px var(--shadow);
   margin: 0;
@@ -155,12 +158,12 @@
   width: 100%;
   gap: 12px;
   text-align: left;
-  padding: 12px 0;
+  padding: 9px 0;
   background: none;
   border: 0;
   border-bottom: 1px solid var(--border);
   border-radius: 0;
-  min-height: 52px;
+  min-height: 44px;
 }
 .overview-row:last-child {
   border-bottom: 0;
@@ -187,7 +190,7 @@
 .overview-row em {
   color: var(--muted);
   font-style: normal;
-  font-size: clamp(12px, calc(13px * var(--layout-scale, 1)), 16px);
+  font-size: clamp(12px, calc(12px * var(--type-scale, 1)), 13px);
   white-space: nowrap;
 }
 .overview-row > svg {
@@ -288,7 +291,7 @@
   width: 100%;
 }
 :root[data-theme] .topbar :is(button, input) {
-  font-size: clamp(13px, calc(14px * var(--layout-scale, 1)), 17px);
+  font-size: clamp(13px, calc(13px * var(--type-scale, 1)), 14px);
 }
 
 .page-viewport:is(.page-notifications, .page-learning) .notification-list {
@@ -299,7 +302,7 @@
 }
 .sidebar-bottom > button b {
   white-space: nowrap;
-  font-size: clamp(13px, calc(13px * var(--layout-scale, 1)), 15px);
+  font-size: clamp(12px, calc(12px * var(--type-scale, 1)), 13px);
 }
 
 .page-viewport .calendar-view-year .calendar-agenda header {
@@ -312,7 +315,7 @@
   flex-shrink: 0;
 }
 :root[data-theme] .page-viewport .calendar-mini-month .calendar-month-title {
-  font-size: clamp(12px, calc(13px * var(--layout-scale, 1)), 16px);
+  font-size: clamp(12px, calc(12px * var(--type-scale, 1)), 13px);
 }
 
 .page-viewport .calendar-view-year {
@@ -442,4 +445,139 @@
   max-height: max(240px, calc(var(--workspace-height, 680px) - 265px));
   overflow-y: auto;
   scrollbar-gutter: stable;
+}
+
+:root[data-theme] {
+  --font-interface:
+    "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI",
+    "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+}
+:root[data-theme] .page-viewport h1 {
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -0.025em;
+}
+:root[data-theme] .page-viewport :is(h2, h3) {
+  font-weight: 600;
+  line-height: 1.4;
+}
+:root[data-theme]
+  .page-viewport
+  :is(.button, .tabs button, .settings-tabs button) {
+  min-height: 32px;
+  padding: 6px 11px;
+  font-weight: 500;
+}
+:root[data-theme]
+  .page-viewport
+  :is(input:not([type="checkbox"]):not([type="radio"]), select) {
+  min-height: 32px;
+  padding: 7px 10px;
+  line-height: 1.4;
+}
+:root[data-theme] .sidebar nav button {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  line-height: 1.4;
+}
+:root[data-theme] .sidebar nav .nav-group-button {
+  font-size: 12px;
+  font-weight: 600;
+}
+:root[data-theme] .page-viewport .panel-fold-bar strong {
+  font-size: clamp(13px, calc(14px * var(--type-scale, 1)), 15px);
+  font-weight: 550;
+}
+.page-campus-news .recent-news {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+}
+.page-campus-news .recent-news-card {
+  margin-top: 8px;
+  border-radius: 12px;
+}
+.page-campus-news .recent-meta {
+  font-size: 12px;
+  margin-bottom: 6px;
+  gap: 8px;
+}
+.page-campus-news .news-cover {
+  border-radius: 10px;
+}
+
+:root[data-theme] .topbar .assistant-launch {
+  background: color-mix(in srgb, var(--accent) 8%, var(--surface));
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 15%, var(--border));
+  border-radius: 8px;
+  font-weight: 550;
+  box-shadow: none;
+}
+:root[data-theme] .topbar .assistant-launch:hover {
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+}
+:root[data-theme] .sidebar nav button svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.8;
+}
+:root[data-theme] .topbar :is(.assistant-launch, .theme-shortcut) svg {
+  width: 16px;
+  height: 16px;
+}
+:root[data-theme] .page-viewport :is(.panel, .stat, .quadrant) {
+  box-shadow: none;
+  border-radius: 12px;
+}
+:root[data-theme] .page-viewport .tabs {
+  gap: 6px;
+}
+:root[data-theme] .page-viewport .tabs button {
+  border-radius: 7px;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+}
+:root[data-theme] .page-viewport .tabs button.active {
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface));
+  color: var(--accent);
+  font-weight: 600;
+}
+:root[data-theme] .page-campus-news .news-copy h3 .news-title-link {
+  font-size: clamp(15px, calc(16px * var(--type-scale, 1)), 17px);
+  font-weight: 600;
+}
+:root[data-theme] .page-campus-news .news-copy .linked-text {
+  font-size: var(--content-font);
+}
+
+:root[data-theme] .sidebar nav {
+  gap: 3px;
+}
+:root[data-theme] .sidebar nav button {
+  min-height: 32px;
+  padding: 6px 8px;
+  gap: 9px;
+}
+:root[data-theme] .sidebar nav .nav-group-button {
+  min-height: 28px;
+  margin-top: 10px;
+  color: var(--muted);
+}
+:root[data-theme] .sidebar-bottom > button {
+  min-height: 32px;
+  padding: 6px 8px;
+}
+.page-campus-news .recent-news > .panel-fold-bar {
+  min-height: 0;
+  height: 0;
+}
+.page-campus-news .recent-news > .panel-fold-bar .panel-fold-toggle {
+  top: -4px;
+}
+.page-campus-news .recent-news.panel-folded > .panel-fold-bar {
+  height: auto;
+  min-height: 32px;
 }

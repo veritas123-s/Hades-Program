@@ -203,10 +203,14 @@ try {
     }
   }
   const homes = results.filter((x) => x.label.endsWith("/今日概览"));
-  assert.ok(homes[0].font > homes.at(-1).font + 3, "heading must scale");
+  assert.ok(homes[0].font > homes.at(-1).font + 1, "heading must scale");
   assert.ok(
-    homes[0].bodyFont > homes.at(-1).bodyFont + 2,
+    homes[0].bodyFont > homes.at(-1).bodyFont + 0.8,
     "body text must scale",
+  );
+  assert.ok(
+    homes.every((x) => x.bodyFont >= 13 && x.bodyFont <= 15 && x.font <= 24),
+    "restrained readable type ramp",
   );
   await page.setViewportSize({ width: 1366, height: 768 });
   await open("超星学习通");
@@ -254,6 +258,8 @@ try {
     await open("今日概览", "今天的安排");
     await measure("theme/" + theme.id, true);
     await page.screenshot({
+      animations: "disabled",
+      timeout: 45000,
       path: path.join(root, "test-results/v52-" + theme.id + ".png"),
     });
   }

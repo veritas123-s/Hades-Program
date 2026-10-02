@@ -251,3 +251,5 @@ npm run dist:installer:ia32
 ### 图文快讯（5.2.1）
 
 `electron/news-images.mjs` 提取封面，仅允许明确的学校域名和公开图片 CDN。主进程通过已收录文章 ID 请求图片，使用无凭据请求、拒绝重定向、6 秒超时及 2 MiB 输入上限；本机原生解码并缩放至 480 像素，JPEG 输出不超过 180 KB。最多缓存 24 个缩略图，离开账号上下文清空，登录变更或删除后丢弃迟到结果。界面仅呈现本地 data 图片，保持原 CSP，未增加远程图片域。正文不注入应用 DOM，继续以隔离原文窗口显示。
+
+界面比例参考 Linear 界面重设计（https://linear.app/now/how-we-redesigned-the-linear-ui）与 Fluent 2 字体层级（https://fluent2.microsoft.design/typography）：字体尺度与几何尺度分离，字体缩放限制为0.94—1.06；正文13—15px、页面标题20—24px，字号仍随可用空间变化。导航32px，列表图文采用左图右文，来源设置默认折叠，几何样式覆盖全部主题但保留各自配色。

@@ -6,11 +6,7 @@ export default function RecentNews({ news, call, defaultCollapsed = false }) {
   const recent = news?.recent;
   const cards = (groups) =>
     groups.map((group) => (
-      <Panel
-        className="panel recent-news-card"
-        title={group.title}
-        key={group.id}
-      >
+      <article className="panel recent-news-card" key={group.id}>
         <div className="news-visual-row">
           <NewsCover
             item={group.items.find((x) => x.imageURL) || group.items[0]}
@@ -85,7 +81,7 @@ export default function RecentNews({ news, call, defaultCollapsed = false }) {
             </div>
           ))}
         </details>
-      </Panel>
+      </article>
     ));
   return (
     <Panel

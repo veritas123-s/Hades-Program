@@ -127,8 +127,14 @@ try {
   await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].setContentSize(1366, 768),
   );
+  await page
+    .evaluate(() =>
+      window.veritas.call("workspace.configure", { theme: "paper" }),
+    )
+    .catch(() => {});
   await page.waitForTimeout(500);
   await page.screenshot({
+    animations: "disabled",
     path: path.join(root, "test-results/news-visual.png"),
   });
   fs.writeFileSync(
