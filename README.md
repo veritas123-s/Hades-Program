@@ -1,5 +1,9 @@
 # Medstack-Program
 
+## 医栈通 Medstack V5.0
+
+**医栈事，一站通。** 桌面和安卓共用官方 Pi Agent Core，Poseidon 的模型和密钥可由每位用户独立配置。新版采用统一的医疗栈图标，安卓包名为 `com.medstack.app`，通过同一账号同步任务、日程与专注记录。安装与架构说明见 [新版说明](docs/MEDSTACK-RELEASE.md)。
+
 A tool to bridge the gaps between those complicated apps of SHSMU
 
 ## Medstack V3.2 · Poseidon（测试版）
