@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { initialState, taskInput } from "../src/domain.mjs";
 import { beijingDay } from "../src/briefing.mjs";
 import { THEMES } from "../src/themes/catalog.mjs";
-const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hades22-ui-"));
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), "medstack22-ui-"));
 const env = { ...process.env, VERITAS_TEST: "1", VERITAS_TEST_DATA: dir };
 delete env.ELECTRON_RUN_AS_NODE;
 const seed = initialState(),
@@ -218,7 +218,7 @@ try {
   assert.ok(exported.themeAssets[imageId]);
   await app.close();
   app = null;
-  const fresh = fs.mkdtempSync(path.join(os.tmpdir(), "hades22-restore-"));
+  const fresh = fs.mkdtempSync(path.join(os.tmpdir(), "medstack22-restore-"));
   env.VERITAS_TEST_DATA = fresh;
   await launch();
   await app.evaluate(({ dialog }, file) => {

@@ -10,7 +10,7 @@ test("桌面端真实账号流程、加密仓库边界、跨地址会话隔离�
     saved = {};
   const backend = await createBackend({
     database: ":memory:",
-    baseURL: "https://hades.synthetic.invalid",
+    baseURL: "https://medstack.synthetic.invalid",
     secret: "synthetic-secret-for-tests-not-production-1234",
     testMode: true,
     sendEmail: async (m) => outbox.push(m),
@@ -34,14 +34,14 @@ test("桌面端真实账号流程、加密仓库边界、跨地址会话隔离�
       }),
     );
   const p = new SelfHostedProvider(
-    { baseURL: "https://hades.synthetic.invalid" },
+    { baseURL: "https://medstack.synthetic.invalid" },
     secrets,
     { fetcher },
   );
   try {
     const missingOrigin = await backend.handle(
       new Request(
-        "https://hades.synthetic.invalid/api/auth/email-otp/send-verification-otp",
+        "https://medstack.synthetic.invalid/api/auth/email-otp/send-verification-otp",
         {
           method: "POST",
           headers: {
@@ -59,7 +59,7 @@ test("桌面端真实账号流程、加密仓库边界、跨地址会话隔离�
     assert.equal((await missingOrigin.json()).code, "MISSING_OR_NULL_ORIGIN");
     const foreignOrigin = await backend.handle(
       new Request(
-        "https://hades.synthetic.invalid/api/auth/email-otp/send-verification-otp",
+        "https://medstack.synthetic.invalid/api/auth/email-otp/send-verification-otp",
         {
           method: "POST",
           headers: {

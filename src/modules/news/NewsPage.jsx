@@ -1,11 +1,13 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useState } from "react";
 import { RefreshCw, ExternalLink, Trash2, Undo2 } from "lucide-react";
 import { beijingDay } from "../../briefing.mjs";
 import LinkedText from "../../shared/LinkedText.jsx";
+import RecentNews from "./RecentNews.jsx";
 export default function NewsPage({ state, call }) {
   const data = state.news || {},
     [date, setDate] = useState(beijingDay()),
-    [filter, setFilter] = useState("today"),
+    [filter, setFilter] = useState("recent"),
     [organization, setOrganization] = useState("全部组织"),
     [newOrganization, setNewOrganization] = useState(""),
     [url, setURL] = useState(""),
@@ -43,18 +45,19 @@ export default function NewsPage({ state, call }) {
       <div className="page-heading">
         <div>
           <p className="eyebrow">校园快讯</p>
-          <h1>校园正在发生</h1>
+          <h1>校园快讯</h1>
         </div>
         <button
           className="button primary"
           disabled={busy || data.busy}
-          onClick={() => run("news.collect")}
+          onClick={() => run("news.collect", { windowHours: 24 })}
         >
           <RefreshCw size={16} />
-          {data.busy ? "采集中…" : "采集最新消息"}
+          {data.busy ? "采集中…" : "采集最新信息"}
         </button>
       </div>
       <div className="tabs">
+        <button className={filter === "recent" ? "active" : ""} onClick={() => setFilter("recent")}>最近24小时</button>
         <button
           className={filter === "today" ? "active" : ""}
           onClick={() => setFilter("today")}
@@ -80,7 +83,7 @@ export default function NewsPage({ state, call }) {
           onChange={(e) => setDate(e.target.value)}
         />
       </div>
-      <section className="panel">
+      <Panel className="panel" title="采集设置与来源" defaultCollapsed>
         <label className="toggle-row">
           应用运行时每小时自动采集
           <input
@@ -95,7 +98,6 @@ export default function NewsPage({ state, call }) {
           {data.lastAttempt
             ? `上次采集：${new Date(data.lastAttempt).toLocaleString("zh-CN")}`
             : "首次采集尚未完成"}{" "}
-          · 公开索引有延迟，覆盖情况见下方
         </p>
         <details>
           <summary>
@@ -123,9 +125,9 @@ export default function NewsPage({ state, call }) {
             ))}
           </div>
         </details>
-      </section>
+      </Panel>
       {filter === "columns" && (
-        <section className="panel organization-directory">
+        <Panel className="panel organization-directory">
           <div className="organization-buttons">
             {["全部组织", ...organizations].map((name) => (
               <button
@@ -169,16 +171,16 @@ export default function NewsPage({ state, call }) {
                 取消关注（保留历史文章）
               </button>
             )}
-        </section>
+        </Panel>
       )}
-      {data.summary?.date === date && filter !== "deleted" && (
-        <section className="panel">
+      {data.summary?.date === date && filter === "today" && (
+        <Panel className="panel">
           <h2>Poseidon 整理</h2>
           <LinkedText text={data.summary.text} call={call} />
-        </section>
+        </Panel>
       )}
       {data.summaryError && <p role="status">{data.summaryError}</p>}
-      <section className="panel">
+      <Panel className="panel" title="补充文章" defaultCollapsed>
         <form
           className="news-import"
           onSubmit={async (e) => {
@@ -201,13 +203,14 @@ export default function NewsPage({ state, call }) {
             读取文章
           </button>
         </form>
-      </section>
+      </Panel>
       {error && (
         <p className="error" role="alert">
           {error}
         </p>
       )}
-      <div className="news-list">
+      {filter === "recent" && <RecentNews news={data} call={call}/>}
+      <div className="news-list" hidden={filter === "recent"}>
         {items.map((x) => (
           <article className="panel" key={x.id}>
             <small>
@@ -258,8 +261,8 @@ export default function NewsPage({ state, call }) {
           </article>
         ))}
       </div>
-      {!items.length && (
-        <section className="panel">
+      {!items.length && filter !== "recent" && (
+        <Panel className="panel">
           <p>
             {filter === "deleted"
               ? "没有已删除消息"
@@ -267,7 +270,7 @@ export default function NewsPage({ state, call }) {
                 ? "该组织尚未收录文章，可补充原文链接或重新采集。"
                 : "没有已确认在这一天举行的活动，其他消息请到组织专栏查看。"}
           </p>
-        </section>
+        </Panel>
       )}
     </>
   );

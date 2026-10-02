@@ -6,6 +6,10 @@ on:
     branches: [main]
     paths:
       - "android/**"
+      - "src/agent/**"
+      - "src/assistant.mjs"
+      - "package*.json"
+      - "vite.agent.config.js"
       - ".github/workflows/android.yml"
 
 permissions:
@@ -17,6 +21,12 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Build local Pi runtime
+        run: npm ci --ignore-scripts && npm run build:mobile-agent
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -24,10 +34,19 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
       - name: Compile and test APK
         working-directory: android
-        run: chmod +x gradlew && ./gradlew --no-daemon :app:assembleDebug :app:lintDebug
+        run: chmod +x gradlew && ./gradlew --no-daemon :app:assembleRelease :app:lintRelease :app:testReleaseUnitTest
+      - name: Inspect APK and prepare public signing tool
+        run: |
+          BUILD_TOOLS=$(find "$ANDROID_HOME/build-tools" -mindepth 1 -maxdepth 1 -type d | sort -V | tail -1)
+          "$BUILD_TOOLS/aapt" dump badging android/app/build/outputs/apk/release/app-release-unsigned.apk > android/app/build/apk-metadata.txt
+          cp "$BUILD_TOOLS/lib/apksigner.jar" android/app/build/apksigner.jar
       - uses: actions/upload-artifact@v4
         with:
-          name: Hades-3.2.0-Android-debug
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Medstack-5.0.0-Android-unsigned
+          path: |
+            android/app/build/outputs/apk/release/app-release-unsigned.apk
+            android/app/build/apksigner.jar
+            android/app/build/apk-metadata.txt
+            android/app/build/reports/lint-results-release.html
           if-no-files-found: error
           retention-days: 14

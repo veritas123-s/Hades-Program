@@ -35,8 +35,8 @@ test("可选择归档课程且不读取教师班级，非法截止日期不溢�
   assert.equal(parseDeadline("09-31 24:00").deadline, null);
 });
 test("损坏工作流文件不能通过失败的保存激活自动建任务权限", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hades-config-"));
-  fs.writeFileSync(path.join(dir, "hades-workflows.json"), "broken");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-config-"));
+  fs.writeFileSync(path.join(dir, "medstack-workflows.json"), "broken");
   const w = new Workflows(dir);
   assert.throws(() => w.configure({ autoCommit: true }));
   assert.equal(w.data.autoCommit, false);
@@ -148,7 +148,7 @@ test("学习通允许域和课程格式验证，倒计时与绝对截止区分",
   assert.throws(() => parseNotices({ status: false, notices: { list: [] } }));
 });
 test("自动作业去重、截止更新尊重用户编辑、撤销后不重新生成、重启保留", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hades-workflow-"));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-workflow-"));
   const store = new Store(dir),
     w = new Workflows(dir);
   const item = {
@@ -174,7 +174,7 @@ test("自动作业去重、截止更新尊重用户编辑、撤销后不重新�
   assert.equal(store.state.logs.length, 0);
 });
 test("估算截止不冒充精确任务DDL，通知已读键不随刷新时间变化", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hades-estimate-")),
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-estimate-")),
     s = new Store(dir),
     w = new Workflows(dir);
   const x = {

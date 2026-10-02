@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useState } from "react";
 import {
   BarChart3,
@@ -44,8 +45,7 @@ export default function Stats({ state, call }) {
       <div className="page-heading">
         <div>
           <p className="eyebrow">时间复盘</p>
-          <h1>看见时间，流向哪里</h1>
-          <p>用真实投入，认识自己的节奏。</p>
+          <h1>时间记录</h1>
         </div>
         <div className="inline">
           <button className="button" onClick={() => call("export.csv")}>
@@ -75,13 +75,13 @@ export default function Stats({ state, call }) {
         ))}
       </div>
       <div className="stats-summary">
-        <section className="panel">
+        <Panel className="panel">
           <p className="eyebrow">累计专注</p>
           <h2 className="large-value">{duration(filteredMs)}</h2>
           <p className="hint">所选日期内的实际工作时长 · 跨日按天分配</p>
           <WeekChart totals={totals} />
-        </section>
-        <section className="panel">
+        </Panel>
+        <Panel className="panel">
           <h3>按清单分布</h3>
           {Object.entries(groups)
             .sort((a, b) => b[1] - a[1])
@@ -109,9 +109,9 @@ export default function Stats({ state, call }) {
               完成专注，或手动补记一段时间。
             </Empty>
           )}
-        </section>
+        </Panel>
       </div>
-      <section className="panel">
+      <Panel className="panel">
         <div className="panel-heading">
           <div>
             <h3>
@@ -187,7 +187,7 @@ export default function Stats({ state, call }) {
             完成第一段专注，再回来看看。
           </Empty>
         )}
-      </section>
+      </Panel>
       {manual && <ManualLog call={call} onClose={() => setManual(false)} />}
     </>
   );

@@ -3,7 +3,7 @@
 {
     admin 127.0.0.1:2019
 }
-hades.example.com {
+medstack.example.com {
     request_body {
         max_size 900KB
     }
@@ -14,6 +14,6 @@ hades.example.com {
         -Server
     }
     reverse_proxy 127.0.0.1:4318 {
-        header_up X-Hades-Client-IP {remote_host}
+        header_up X-Medstack-Client-IP {remote_host}
     }
 }

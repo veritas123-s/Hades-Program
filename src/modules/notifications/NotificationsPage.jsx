@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import { courseRelevance } from "../../learning-policy.mjs";
 import React, { useState } from "react";
 import {
@@ -79,7 +80,6 @@ export default function NotificationsPage({
         <div>
           <p className="eyebrow">日程与通知</p>
           <h1>日程与通知</h1>
-          <p>课程、任务截止时间与学习通动态，集中在这里。</p>
         </div>
         <button className="button" onClick={() => setPage("calendar")}>
           <CalendarDays size={17} />
@@ -91,7 +91,7 @@ export default function NotificationsPage({
         </span>
       </div>
       <AgendaCard {...{ state, call, setPage, openAssistant }} />
-      <section className="panel learning-connect">
+      <Panel className="panel learning-connect">
         <div>
           <h3>超星学习通</h3>
           <p>{l.message}</p>
@@ -184,13 +184,13 @@ export default function NotificationsPage({
           })}
           {!catalog.length && <p className="hint">同步后可选择课程。</p>}
         </details>
-      </section>
+      </Panel>
       {error && (
         <p className="error" role="alert">
           {error}
         </p>
       )}
-      <section className="panel">
+      <Panel className="panel">
         <div className="notification-filters">
           {[
             ["all", "全部"],
@@ -369,8 +369,8 @@ export default function NotificationsPage({
             </p>
           )}
         </div>
-      </section>
-      <section className="panel workflow-panel">
+      </Panel>
+      <Panel className="panel workflow-panel">
         <h2>Poseidon 工作流</h2>
         <p>以下操作在本机完成。已入库的任务沿用现有早晚报同步通道。</p>
         <label>
@@ -415,7 +415,7 @@ export default function NotificationsPage({
         {!state.workflows?.audit?.length && (
           <p className="hint">暂无自动执行记录。</p>
         )}
-      </section>
+      </Panel>
     </>
   );
 }

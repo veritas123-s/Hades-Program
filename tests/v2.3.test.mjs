@@ -27,7 +27,7 @@ const work = {
   taskId: learningTaskId("work:1:2:3"),
   done: false,
 };
-const dir = () => fs.mkdtempSync(path.join(os.tmpdir(), "hades23-unit-"));
+const dir = () => fs.mkdtempSync(path.join(os.tmpdir(), "medstack23-unit-"));
 test("未归档不能证明是当前课程，明确年份、近期课表与手动关注可确认", () => {
   const s = initialState(),
     l = { courses: [course], catalogComplete: true };

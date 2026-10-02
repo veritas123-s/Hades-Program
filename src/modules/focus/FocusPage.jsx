@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useEffect, useState } from "react";
 import { Play, Pause, Square, RotateCcw, Leaf } from "lucide-react";
 import { elapsed } from "../../domain.mjs";
@@ -29,7 +30,6 @@ export default function Focus({ state, call, selected, setSelected, todayMs }) {
         <div>
           <p className="eyebrow">专注空间</p>
           <h1>专注空间</h1>
-          <p>一次只做一件事。暂停、休息和睡眠不会计入工作时间。</p>
         </div>
         <div className="pill neutral">
           <Leaf size={14} />
@@ -37,7 +37,7 @@ export default function Focus({ state, call, selected, setSelected, todayMs }) {
         </div>
       </div>
       <div className="focus-layout">
-        <section className="focus-stage panel">
+        <Panel className="focus-stage panel">
           <div className="mode-tabs">
             {[
               ["focus", "番茄专注"],
@@ -185,7 +185,7 @@ export default function Focus({ state, call, selected, setSelected, todayMs }) {
           <p className="hint">
             到时自动记账；下一段由你点击开始。关闭窗口后可在托盘继续计时。
           </p>
-        </section>
+        </Panel>
         <aside className="focus-side">
           <QuickLog call={call} />
           <div className="panel">

@@ -24,6 +24,7 @@ release-v2.3/
 release-*/
 .cache/
 local-ops/
+android/app/src/main/assets/pi/
 *.pem
 *.key
 server/data/

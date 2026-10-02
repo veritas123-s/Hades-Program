@@ -1,3 +1,4 @@
+import Panel from "../shared/Panel.jsx";
 import React from "react";
 import { Settings2 } from "lucide-react";
 import { Boundary } from "./Boundary.jsx";
@@ -37,7 +38,7 @@ export function WidgetBoard({ state, call, actions }) {
       <div className="widget-board-heading">
         <div>
           <p className="eyebrow">我的工作台</p>
-          <h2>按你的节奏，组合每一天</h2>
+          <h2>小组件</h2>
         </div>
         <button
           className="button"
@@ -77,7 +78,7 @@ export function WidgetBoard({ state, call, actions }) {
         })}
       </div>
       {!ids.length && (
-        <section className="panel empty">
+        <Panel className="panel empty">
           <h3>为今天留一块空白</h3>
           <p>从小组件库添加课程、专注或随手记。</p>
           <button
@@ -86,7 +87,7 @@ export function WidgetBoard({ state, call, actions }) {
           >
             添加小组件
           </button>
-        </section>
+        </Panel>
       )}
     </>
   );

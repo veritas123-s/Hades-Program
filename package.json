@@ -1,9 +1,9 @@
 {
   "name": "ai-veritas",
-  "productName": "Hades",
-  "version": "4.0.0",
+  "productName": "Medstack",
+  "version": "5.0.0",
   "private": true,
-  "description": "MySHSMU 校园与专注工作台",
+  "description": "医栈通 · 医栈事，一站通",
   "author": "AI VERITAS local project",
   "license": "UNLICENSED",
   "type": "module",
@@ -23,13 +23,17 @@
     "test:assistant": "node scripts/assistant-test.mjs",
     "test:security": "node scripts/security-redteam.mjs",
     "dist:installer": "npm run build && electron-builder --win nsis --x64 --config.electronDist=node_modules/electron/dist",
-    "dist:installer:ia32": "npm run build && node scripts/prepare-ia32.mjs && electron-builder --win nsis --ia32 --config.electronVersion=43.7.5 --config.electronDist=.cache/electron-43.7.5-ia32"
+    "dist:installer:ia32": "npm run build && node scripts/prepare-ia32.mjs && electron-builder --win nsis --ia32 --config.electronVersion=43.7.5 --config.electronDist=.cache/electron-43.7.5-ia32",
+    "build:mobile-agent": "vite build --config vite.agent.config.js"
   },
   "dependencies": {
+    "@earendil-works/pi-agent-core": "1.0.0",
+    "@earendil-works/pi-ai": "1.0.0",
     "ical.js": "2.2.1",
     "lucide-react": "1.47.0",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "typebox": "1.3.27"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "6.1.1",
@@ -41,9 +45,9 @@
   },
   "build": {
     "appId": "local.ai.veritas",
-    "productName": "Hades",
+    "productName": "Medstack",
     "directories": {
-      "output": "release-v4.0"
+      "output": "release-medstack-5.0"
     },
     "files": [
       "dist/**/*",
@@ -53,6 +57,7 @@
       "package.json",
       "assets/**/*",
       "src/briefing.mjs",
+      "src/news-window.mjs",
       "src/domain/**/*.mjs",
       "src/platform/**/*.mjs",
       "src/themes/catalog.mjs",
@@ -61,7 +66,8 @@
       "src/themes/custom.mjs",
       "src/learning-policy.mjs",
       "src/calendar.mjs",
-      "src/cloud-data.mjs"
+      "src/cloud-data.mjs",
+      "src/agent/**/*.mjs"
     ],
     "win": {
       "target": "portable",
@@ -69,7 +75,7 @@
       "icon": "assets/icon.ico"
     },
     "portable": {
-      "artifactName": "Hades-${version}-Windows-${arch}.exe"
+      "artifactName": "Medstack-${version}-Windows-${arch}.exe"
     },
     "nsis": {
       "oneClick": false,
@@ -78,8 +84,8 @@
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "runAfterFinish": true,
-      "shortcutName": "Hades",
-      "artifactName": "Hades-Setup-${version}-${arch}.${ext}",
+      "shortcutName": "医栈通 Medstack",
+      "artifactName": "Medstack-Setup-${version}-${arch}.${ext}",
       "installerLanguages": [
         "zh_CN",
         "en_US"

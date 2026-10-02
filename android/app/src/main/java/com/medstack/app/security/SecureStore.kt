@@ -1,4 +1,4 @@
-package com.shsmuveritas.hades.security
+package com.medstack.app.security
 
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
@@ -11,8 +11,8 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
 class SecureStore(context: Context) {
-    private val preferences = context.getSharedPreferences("hades_secure_v1", Context.MODE_PRIVATE)
-    private val alias = "hades-mobile-aes-v1"
+    private val preferences = context.getSharedPreferences("medstack_secure_v1", Context.MODE_PRIVATE)
+    private val alias = "medstack-mobile-aes-v1"
 
     private fun key(): SecretKey {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }

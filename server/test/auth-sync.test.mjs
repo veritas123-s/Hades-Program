@@ -7,7 +7,7 @@ import { createBackend } from "../backend.mjs";
 import { cloudDocument } from "../../src/cloud-data.mjs";
 import { initialState, taskInput } from "../../src/domain.mjs";
 test("真实认证库：邮箱验证、账号隔离、并发版本、密码找回与会话撤销", async () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades-server-")),
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-server-")),
     outbox = [];
   const b = await createBackend({
     database: path.join(directory, "test.sqlite"),
@@ -89,7 +89,7 @@ test("真实认证库：邮箱验证、账号隔离、并发版本、密码找�
     );
     assert.equal(race.filter((r) => r.data.conflict).length, 1);
     assert.equal(
-      b.db.prepare("SELECT count(*) AS n FROM hades_history").get().n,
+      b.db.prepare("SELECT count(*) AS n FROM medstack_history").get().n,
       1,
     );
     await req("/api/auth/email-otp/request-password-reset", {

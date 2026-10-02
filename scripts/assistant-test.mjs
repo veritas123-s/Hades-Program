@@ -95,6 +95,8 @@ async function shot(name) {
 }
 try {
   await start();
+  const tour = page.getByRole('dialog', { name: '医栈通 新手教程' });
+  if(await tour.isVisible()) await tour.getByRole('button',{name:'跳过',exact:true}).click();
   await page.getByRole("button", { name: "打开 AI 助手", exact: true }).click();
   await page.getByLabel("API 密钥").fill("synthetic-api-key-never-real");
   await page
@@ -123,7 +125,7 @@ try {
   );
   ok("助手从配置、生成、编辑到批量入库全程可用，草稿不会提前写入或重复创建");
   await page.getByRole("button", { name: "查看早晚报", exact: true }).click();
-  await page.getByRole("heading", { name: "让计划，在恰当时刻抵达" }).waitFor();
+  await page.getByRole("heading", { name: "早晚报", exact:true }).waitFor();
   assert.ok(
     (await call("briefing.state")).preview.deadlines.some(
       (t) => t.title === "人工核对后的实验报告",

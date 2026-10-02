@@ -4,12 +4,12 @@ import path from "node:path";
 import os from "node:os";
 import assert from "node:assert/strict";
 const executablePath = process.argv[2] ? path.resolve(process.argv[2]) : undefined;
-const env = { ...process.env, VERITAS_TEST: "1", VERITAS_TEST_DATA: fs.mkdtempSync(path.join(os.tmpdir(), "hades-help-")) };
+const env = { ...process.env, VERITAS_TEST: "1", VERITAS_TEST_DATA: fs.mkdtempSync(path.join(os.tmpdir(), "medstack-help-")) };
 delete env.ELECTRON_RUN_AS_NODE;
 const app = await electron.launch({ executablePath, args: executablePath ? [] : ["."], env });
 try {
   const page = await app.firstWindow();
-  await page.getByRole("heading", { name: "登录 Hades", exact: true }).waitFor();
+  await page.getByRole("heading", { name: "登录 Medstack", exact: true }).waitFor();
   await app.evaluate(({shell}) => { globalThis.helpOpened = []; shell.openPath = async p => { globalThis.helpOpened.push(p); return ""; }; });
   for(const [title,name] of [["使用说明","USER-GUIDE.html"],["开发者手册 · Zeus","DEVELOPER-HANDBOOK.html"]]) {
     await page.getByRole("button", { name:title, exact:true }).click();

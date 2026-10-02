@@ -11,15 +11,15 @@ val signingProperties = Properties().apply {
 }
 
 android {
-    namespace = "com.shsmuveritas.hades"
+    namespace = "com.medstack.app"
     compileSdk { version = release(36) }
 
     defaultConfig {
-        applicationId = "com.shsmuveritas.hades"
+        applicationId = "com.medstack.app"
         minSdk = 28
         targetSdk = 36
-        versionCode = 32
-        versionName = "3.2.0"
+        versionCode = 500
+        versionName = "5.0.0"
         buildConfigField("String", "ACCOUNT_BASE_URL", "\"https://122.51.44.155\"")
     }
 

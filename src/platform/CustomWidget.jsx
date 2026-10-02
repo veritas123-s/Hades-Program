@@ -1,3 +1,4 @@
+import Panel from "../shared/Panel.jsx";
 import React, { useState } from "react";
 import { beijingDay } from "../briefing.mjs";
 import { CalendarClock, CheckSquare, Trash2, Settings2 } from "lucide-react";
@@ -25,7 +26,7 @@ export function CustomWidget({ id, state, call }) {
       86400000,
   );
   return (
-    <section className="panel custom-widget">
+    <Panel className="panel custom-widget">
       <div className="panel-heading">
         <h3>
           {config.kind === "countdown" ? (
@@ -145,6 +146,6 @@ export function CustomWidget({ id, state, call }) {
           <button className="button">保存</button>
         </form>
       )}
-    </section>
+    </Panel>
   );
 }

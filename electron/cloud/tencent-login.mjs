@@ -83,7 +83,7 @@ export class TencentLogin {
     res.setHeader("Referrer-Policy", "no-referrer");
     const reject = () => {
       res.writeHead(400);
-      res.end("授权请求无效，请回到 Hades 重新登录。");
+      res.end("授权请求无效，请回到 医栈通 重新登录。");
     };
     if (
       req.method !== "GET" ||
@@ -161,7 +161,7 @@ export class TencentLogin {
         message: "腾讯云身份已验证。请返回应用绑定微信，并确认独立开通服务。",
       });
       res.end(
-        "腾讯云登录成功。请关闭此页面，返回 Hades 继续。此时尚未创建云资源。",
+        "腾讯云登录成功。请关闭此页面，返回 医栈通 继续。此时尚未创建云资源。",
       );
     } catch {
       if (this.attempt === attempt)
@@ -171,7 +171,7 @@ export class TencentLogin {
             "腾讯云授权核验失败，请重新登录或在控制台完成实名及身份验证。",
         });
       res.statusCode = 400;
-      res.end("授权核验失败。请返回 Hades 重试。");
+      res.end("授权核验失败。请返回 医栈通 重试。");
     } finally {
       if (this.attempt === attempt) {
         clearTimeout(this.timer);

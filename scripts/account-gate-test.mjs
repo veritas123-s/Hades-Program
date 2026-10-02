@@ -8,7 +8,7 @@ import {
   unlockSyntheticAccount,
   clearSyntheticSession,
 } from "./account-test-fixture.mjs";
-const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades-gate-"));
+const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-gate-"));
 const seed = initialState();
 seed.tasks = [taskInput({ title: "不得在登录前显示的任务", quadrant: "plan" })];
 seed.logs = [
@@ -43,7 +43,7 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page
-    .getByRole("heading", { name: "登录 Hades", exact: true })
+    .getByRole("heading", { name: "登录 Medstack", exact: true })
     .waitFor();
   const call = (a, p) =>
     page.evaluate(([a, p]) => window.veritas.call(a, p), [a, p]);
@@ -103,7 +103,7 @@ try {
   await page.screenshot({ path: "test-results/v305-authenticated.png" });
   await page.evaluate(() => window.veritas.call("account.logout"));
   await page
-    .getByRole("heading", { name: "登录 Hades", exact: true })
+    .getByRole("heading", { name: "登录 Medstack", exact: true })
     .waitFor();
   assert.equal(
     (await page.evaluate(() => window.veritas.call("state"))).tasks,

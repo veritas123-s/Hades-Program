@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useEffect, useState, useRef } from "react";
 import {
   Sparkles,
@@ -40,7 +41,7 @@ function DraftBatch({ entry, run, busy, onBriefing }) {
           (t) => t.draftIndex === task.draftIndex,
         )?.added;
         return (
-          <section
+          <Panel
             className={`ai-draft ${added ? "is-added" : ""}`}
             key={task.draftIndex}
             data-draft={task.draftIndex}
@@ -158,7 +159,7 @@ function DraftBatch({ entry, run, busy, onBriefing }) {
                 />
               </label>
             </details>
-          </section>
+          </Panel>
         );
       })}
       <p className="hint">
@@ -347,7 +348,7 @@ export default function AssistantPanel({
         </div>
       )}
       {(config || (data && !data.configured)) && (
-        <section className="ai-config">
+        <Panel className="ai-config">
           <h3>模型连接 · 使用自己的 API</h3>
           <p className="hint">
             支持兼容 OpenAI 的 Chat Completions 接口。密钥用 Windows
@@ -462,7 +463,7 @@ export default function AssistantPanel({
               </div>
             </>
           )}
-        </section>
+        </Panel>
       )}
       {(error || data?.warning) && (
         <div className="ai-error" role="alert">

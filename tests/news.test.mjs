@@ -32,7 +32,7 @@ test("公众号公开索引严格匹配发布者与日期，不把关键词命�
   assert.throws(() => newsURL("https://user:pass@mp.weixin.qq.com/"));
 });
 test("采集更新保留删除墓碑，缺失来源不抹掉缓存；登录失效不提交迟到结果", async () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades-news-test-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-news-test-"));
   let allowed = true;
   const service = new NewsService({
     directory,
@@ -79,7 +79,7 @@ test("快讯摘要只同步当日未删除消息，旧摘要不能混入今天",
   assert.equal(feed.campus_news.items[0].date, undefined);
 });
 test("文章读取过程中登出不会保存迟到内容；损坏快讯缓存先备份", async () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades-news-race-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-news-race-"));
   let allowed = true,
     release;
   const service = new NewsService({

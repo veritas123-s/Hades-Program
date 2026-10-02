@@ -6,7 +6,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 export async function backupStore(directory) {
   const root = path.resolve(directory);
-  for (const name of ["hades.sqlite", "config.json"]) {
+  await databaseFile(root);
+  for (const name of ["medstack.sqlite", "config.json"]) {
     const stat = await fs.lstat(path.join(root, name));
     if (!stat.isFile() || stat.isSymbolicLink())
       throw Error("Backup requires regular database and configuration files");
@@ -19,15 +20,15 @@ export async function backupStore(directory) {
     throw Error("Backup directory must not be a symbolic link");
   const pending = path.join(parent, `${name}.pending`);
   await fs.mkdir(pending, { mode: 0o700 });
-  const source = new DatabaseSync(path.join(root, "hades.sqlite"), {
+  const source = new DatabaseSync(path.join(root, "medstack.sqlite"), {
     readOnly: true,
   });
   try {
-    await backup(source, path.join(pending, "hades.sqlite"));
+    await backup(source, path.join(pending, "medstack.sqlite"));
   } finally {
     source.close();
   }
-  const check = new DatabaseSync(path.join(pending, "hades.sqlite"), {
+  const check = new DatabaseSync(path.join(pending, "medstack.sqlite"), {
     readOnly: true,
   });
   try {
@@ -56,14 +57,16 @@ if (
 ) {
   try {
     await backupStore(
-      process.env.HADES_SERVER_DATA ||
+      process.env.MEDSTACK_SERVER_DATA ||
+        process.env[legacyDataVariable] ||
         path.join(path.dirname(fileURLToPath(import.meta.url)), "data"),
     );
-    console.log("Hades backup created and verified.");
+    console.log("Medstack backup created and verified.");
   } catch {
     console.error(
-      "Hades backup failed; existing data and backups were retained.",
+      "Medstack backup failed; existing data and backups were retained.",
     );
     process.exitCode = 1;
   }
 }
+import { databaseFile, legacyDataVariable } from './storage.mjs';

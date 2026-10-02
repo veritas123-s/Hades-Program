@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useEffect, useState } from "react";
 import { QrCode, Check, ExternalLink } from "lucide-react";
 import { createPortal } from "react-dom";
@@ -85,7 +86,7 @@ export default function CloudSetup({ call }) {
               <p className="hint">
                 独立云服务支持关机提醒，默认电子邮件，也可选择 PushPlus。
               </p>
-              <section className="cloud-setup-step">
+              <Panel className="cloud-setup-step">
                 <h4>
                   <span>1</span> 登录自己的腾讯云{" "}
                   {authorized && <Check size={16} />}
@@ -115,8 +116,8 @@ export default function CloudSetup({ call }) {
                     </button>
                   )}
                 </div>
-              </section>
-              <section className="cloud-setup-step">
+              </Panel>
+              <Panel className="cloud-setup-step">
                 <h4>
                   <span>2</span> 选择接收方式{" "}
                   {data?.deliveryConfigured && <Check size={16} />}
@@ -226,8 +227,8 @@ export default function CloudSetup({ call }) {
                     </form>
                   </>
                 )}
-              </section>
-              <section className="cloud-setup-step">
+              </Panel>
+              <Panel className="cloud-setup-step">
                 <h4>
                   <span>3</span> 开通并验证独立服务{" "}
                   {data?.plan?.completedAt && <Check size={16} />}
@@ -329,7 +330,7 @@ export default function CloudSetup({ call }) {
                     。自然定时送达请在后续晨晚报核对。
                   </p>
                 )}
-              </section>
+              </Panel>
               {(error || data?.warning) && (
                 <p className="error" role="alert">
                   {error || data.warning}

@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useMemo, useState } from "react";
 import {
   CalendarDays,
@@ -57,7 +58,7 @@ export default function CalendarPage({
   };
   const [date, setDate] = useState(today),
     [view, setView] = useState("month");
-  const [showCompleted, setShowCompleted] = useState(true),
+  const [showCompleted, setShowCompleted] = useState(false),
     [showTasks, setShowTasks] = useState(true),
     [showCourses, setShowCourses] = useState(true);
   const events = useMemo(
@@ -143,7 +144,7 @@ export default function CalendarPage({
     );
   };
   const dayList = (
-    <section
+    <Panel
       className={
         embedded ? "calendar-agenda embedded-agenda" : "panel calendar-agenda"
       }
@@ -280,7 +281,7 @@ export default function CalendarPage({
       {!selected.length && (
         <p className="empty-inbox">这一天暂无符合筛选的已保存安排。</p>
       )}
-    </section>
+    </Panel>
   );
   return (
     <>
@@ -289,7 +290,6 @@ export default function CalendarPage({
         <div className="page-heading">
           <div>
             <h1>日程日历</h1>
-            <p>把课程与任务放在同一张日历里，按自己的节奏安排。</p>
           </div>
           <button className="button" onClick={()=>setExchangeOpen(true)}>导入 / 导出日历</button>
           <button className="button" onClick={() => setPage("notifications")}>
@@ -298,7 +298,7 @@ export default function CalendarPage({
           </button>
         </div>
       )}
-      <section
+      <Panel
         className={`panel calendar-panel ${embedded ? "home-calendar" : ""}`}
         data-calendar="unified"
       >
@@ -429,7 +429,7 @@ export default function CalendarPage({
                   { length: 12 },
                   (_, i) => `${year}-${String(i + 1).padStart(2, "0")}-01`,
                 ).map((m) => (
-                  <section className="calendar-mini-month" key={m}>
+                  <Panel className="calendar-mini-month" key={m}>
                     <button
                       className="calendar-month-title"
                       aria-label={`查看 ${year} 年 ${Number(m.slice(5, 7))} 月`}
@@ -447,7 +447,7 @@ export default function CalendarPage({
                         renderDay(day, true, m.slice(0, 7)),
                       )}
                     </div>
-                  </section>
+                  </Panel>
                 ))}
               </div>
             )}
@@ -518,10 +518,10 @@ export default function CalendarPage({
             </button>
           </div>
         )}
-      </section>
+      </Panel>
       {!embedded && dayList}
       {!embedded && showTasks && unscheduled.length > 0 && (
-        <section className="panel calendar-unscheduled">
+        <Panel className="panel calendar-unscheduled">
           <header>
             <h2>
               待安排 <small>{unscheduled.length} 项</small>
@@ -540,7 +540,7 @@ export default function CalendarPage({
               </button>
             ))}
           </div>
-        </section>
+        </Panel>
       )}
       {detail && (
         <Modal title={detail.title} onClose={() => setDetail(null)}>

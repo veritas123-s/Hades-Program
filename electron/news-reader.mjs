@@ -3,13 +3,13 @@ export function openNewsReader(BrowserWindow, url) {
   const window = new BrowserWindow({
     width: 900,
     height: 900,
-    title: "Hades · 组织原文",
+    title: "医栈通 · 组织原文",
     autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
-      partition: "hades-public-article",
+      partition: "medstack-public-article",
     },
   });
   window.webContents.setWindowOpenHandler(({ url }) => {
@@ -36,7 +36,7 @@ export function openNewsReader(BrowserWindow, url) {
     event.preventDefault(),
   );
   window.loadURL(newsURL(url)).catch(() => {
-    window.setTitle("Hades · 原文暂时无法载入");
+    window.setTitle("医栈通 · 原文暂时无法载入");
   });
   return {
     close: () => {

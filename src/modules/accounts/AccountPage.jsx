@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useState } from "react";
 import { Cloud, RefreshCw, LogOut, UserRound, ShieldCheck } from "lucide-react";
 const summary = (s) =>
@@ -52,7 +53,6 @@ export default function AccountPage({ state, call, toast, locked = false }) {
         <div className="page-heading">
           <div>
             <h1>账号与同步</h1>
-            <p>在不同电脑间，接着完成你的计划。</p>
           </div>
           <Cloud size={30} />
         </div>
@@ -63,7 +63,7 @@ export default function AccountPage({ state, call, toast, locked = false }) {
         </div>
       )}
       <div className={locked ? "account-grid account-locked" : "account-grid"}>
-        <section className="panel">
+        <Panel className="panel">
           {a.user && (
             <div className="account-identity">
               <UserRound size={30} />
@@ -82,7 +82,7 @@ export default function AccountPage({ state, call, toast, locked = false }) {
             <>
               <h2>进入 {a.pendingUser.email} 的空间</h2>
               <p>
-                切换后会重新打开 Hades。当前空间的数据和备份会留在这台电脑。
+                切换后会重新打开 医栈通。当前空间的数据和备份会留在这台电脑。
               </p>
               <p>{summary(a.localSummary)}</p>
               <div className="data-actions">
@@ -112,7 +112,7 @@ export default function AccountPage({ state, call, toast, locked = false }) {
             <>
               <h2>
                 {mode === "login"
-                  ? "登录 Hades"
+                  ? "登录 医栈通"
                   : mode === "register"
                     ? "创建云端账号"
                     : "找回密码"}
@@ -278,9 +278,9 @@ export default function AccountPage({ state, call, toast, locked = false }) {
               退出账号并锁定个人空间
             </button>
           )}
-        </section>
+        </Panel>
         {!locked && (
-          <section className="panel">
+          <Panel className="panel">
             <h2>
               <Cloud size={21} /> 跨设备同步
             </h2>
@@ -307,7 +307,7 @@ export default function AccountPage({ state, call, toast, locked = false }) {
                         checked={consent}
                         onChange={(e) => setConsent(e.target.checked)}
                       />
-                      将上述数据上传到 Hades
+                      将上述数据上传到 医栈通
                       的账号服务器，供我登录的其他电脑读取。
                     </label>
                     <button
@@ -379,11 +379,11 @@ export default function AccountPage({ state, call, toast, locked = false }) {
             <div className="account-privacy">
               <ShieldCheck size={22} />
               <p>
-                登录会话在本机加密保存；Hades
+                登录会话在本机加密保存；医栈通
                 不记录密码、验证码或登录令牌日志，不采集操作轨迹。
               </p>
             </div>
-          </section>
+          </Panel>
         )}
       </div>
       {locked && (

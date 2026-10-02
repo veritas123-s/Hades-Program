@@ -5,7 +5,7 @@ import path from "node:path";
 import os from "node:os";
 import assert from "node:assert/strict";
 import { initialState, taskInput } from "../src/domain.mjs";
-const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades-v21-ui-"));
+const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-v21-ui-"));
 const env = { ...process.env, VERITAS_TEST: "1", VERITAS_TEST_DATA: directory };
 delete env.ELECTRON_RUN_AS_NODE;
 const seed = initialState();
@@ -183,7 +183,7 @@ try {
   const motion = await page
     .locator(".modal")
     .evaluate((e) => getComputedStyle(e).animationName);
-  assert.equal(motion, "hades-popup");
+  assert.equal(motion, "medstack-popup");
   await page.getByRole("button", { name: "关闭", exact: true }).click();
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page

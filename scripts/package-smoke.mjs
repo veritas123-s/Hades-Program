@@ -23,7 +23,7 @@ try {
   const page = await app.firstWindow();
   await page.getByRole("heading", { name: "今天的安排" }).waitFor();
   await page
-    .getByRole("dialog", { name: "Hades 新手教程" })
+    .getByRole("dialog", { name: "Medstack 新手教程" })
     .getByRole("button", { name: "跳过", exact: true })
     .click();
   assert.equal(await app.evaluate(({ app }) => app.isPackaged), true);

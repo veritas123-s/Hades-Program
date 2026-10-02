@@ -1,4 +1,4 @@
-package com.shsmuveritas.hades.ui
+package com.medstack.app.ui
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
@@ -10,7 +10,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-private val HadesColors = lightColorScheme(
+private val MedstackColors = lightColorScheme(
     primary = Color(0xFF713D66),
     onPrimary = Color.White,
     primaryContainer = Color(0xFFF0D9EA),
@@ -40,6 +40,6 @@ private val SongTypography = Typography(
 )
 
 @Composable
-fun HadesTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = HadesColors, typography = SongTypography, content = content)
+fun MedstackTheme(content: @Composable () -> Unit) {
+    MaterialTheme(colorScheme = MedstackColors, typography = SongTypography, content = content)
 }

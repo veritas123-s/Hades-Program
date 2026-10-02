@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React,{useState} from 'react';
 import {Download,Upload,CheckCircle2} from 'lucide-react';
 import {Modal} from '../../components.jsx';
@@ -25,12 +26,12 @@ export default function CalendarExchange({call,onClose}){
   </>:<>
    <p className="hint">按北京时间显示；支持全天、标准时区及常见重复日程。先预览再添加，重复导入会跳过已有事项，不覆盖手动修改，也不恢复已删除内容。</p>
    <button className="button" disabled={busy} onClick={()=>run('preview')}><Upload size={17}/>{busy?'正在读取…':'选择 ICS 文件'}</button>
-   {preview&&<section className="exchange-preview" aria-label="导入预览"><h3>将添加 {preview.count} 条日程</h3><p>已跳过 {preview.duplicates} 条重复，{preview.excluded} 条在范围外或已取消。</p>
+   {preview&&<Panel className="exchange-preview" aria-label="导入预览"><h3>将添加 {preview.count} 条日程</h3><p>已跳过 {preview.duplicates} 条重复，{preview.excluded} 条在范围外或已取消。</p>
     {preview.warningCount>0&&<details open><summary>{preview.warningCount} 项需要注意</summary><ul>{preview.warnings.map((w,i)=><li key={i}>{w}</li>)}</ul></details>}
     <div className="exchange-items">{preview.items.map((e,i)=><div key={i}><strong>{e.title}</strong><span>{e.start.replace('T',' ')} · {e.allDay?'全天':e.end.slice(11)}</span></div>)}</div>
     {preview.count>40&&<p className="hint">仅预览前40条；确认后将添加全部 {preview.count} 条。</p>}
     <button className="button primary" disabled={busy||!preview.count} onClick={()=>run('commit')}><CheckCircle2 size={17}/>确认添加 {preview.count} 条</button>
-   </section>}
+   </Panel>}
   </>}
   {message&&<p className="success" role="status">{message}</p>}{error&&<p className="error" role="alert">{error}</p>}
  </Modal>;

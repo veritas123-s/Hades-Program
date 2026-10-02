@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import assert from "node:assert/strict";
-const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades-v2-ui-"));
+const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-v2-ui-"));
 const env = { ...process.env, VERITAS_TEST: "1", VERITAS_TEST_DATA: directory };
 delete env.ELECTRON_RUN_AS_NODE;
 const app = await launchAuthenticated(
@@ -25,7 +25,7 @@ try {
   const call = (a, p = {}) =>
     page.evaluate(([a, p]) => window.veritas.call(a, p), [a, p]);
   await app.evaluate(({ session, net }) => {
-    const s = session.fromPartition("hades-learning");
+    const s = session.fromPartition("medstack-learning");
     s.fetch = async (url, options) => {
       if (url.includes("backclazzdata"))
         return new Response(
@@ -127,7 +127,7 @@ try {
     Date.now = () => Real() + 61000;
   });
   await app.evaluate(({ session }) => {
-    session.fromPartition("hades-learning").fetch = async () =>
+    session.fromPartition("medstack-learning").fetch = async () =>
       new Response("<html>login</html>");
   });
   await assert.rejects(() => call("learning.sync"));

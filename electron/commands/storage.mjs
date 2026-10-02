@@ -17,7 +17,7 @@ export default async function execute(action, p, context) {
   if (action === "export.backup" || action === "export.csv") {
     const csv = action === "export.csv";
     const result = await dialog.showSaveDialog(win, {
-      defaultPath: `Hades-${domain.dayKey()}.${csv ? "csv" : "json"}`,
+      defaultPath: `医栈通-${domain.dayKey()}.${csv ? "csv" : "json"}`,
       filters: [
         {
           name: csv ? "工作记录 CSV" : "完整备份 JSON",

@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useState } from "react";
 import {
   ImagePlus,
@@ -36,7 +37,7 @@ export default function ThemeEditor({ workspace, call, update, busy }) {
     setColors(t.colors);
   };
   return (
-    <section className="panel theme-editor">
+    <Panel className="panel theme-editor">
       <h2>背景图与自定义主题</h2>
       <p className="hint">
         图片保存在本机，随完整备份一起导出。预设主题可作为起点，再保存你自己的配色。
@@ -311,6 +312,6 @@ export default function ThemeEditor({ workspace, call, update, busy }) {
             ))}
         </details>
       )}
-    </section>
+    </Panel>
   );
 }

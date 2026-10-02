@@ -4,8 +4,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import nodemailer from "nodemailer";
 import { createBackend } from "./backend.mjs";
+import { databaseFile, legacyDataVariable } from './storage.mjs';
 const directory = path.resolve(
-  process.env.HADES_SERVER_DATA ||
+  process.env.MEDSTACK_SERVER_DATA ||
+    process.env[legacyDataVariable] ||
     path.join(path.dirname(fileURLToPath(import.meta.url)), "data"),
 );
 fs.mkdirSync(directory, { recursive: true });
@@ -41,20 +43,20 @@ mail
     console.log(JSON.stringify({ event: "smtp_connection", ok: false })),
   );
 const backend = await createBackend({
-  database: path.join(directory, "hades.sqlite"),
+  database: await databaseFile(directory),
   baseURL: config.baseURL,
   secret: config.secret,
   sendEmail: async ({ email, otp, type }) => {
     const started = Date.now();
     try {
       await mail.sendMail({
-        from: config.smtp.from,
+        from: { name: '医栈通 Medstack', address: config.smtp.user },
         to: email,
         subject:
           type === "forget-password"
-            ? "Hades 密码重置验证码"
-            : "Hades 邮箱验证码",
-        text: `你的 Hades 验证码是 ${otp}，10分钟内有效。如非本人操作，请忽略此邮件。`,
+            ? "Medstack 密码重置验证码"
+            : "Medstack 邮箱验证码",
+        text: `你的 Medstack 验证码是 ${otp}，10分钟内有效。如非本人操作，请忽略此邮件。`,
       });
       console.log(
         JSON.stringify({
@@ -111,7 +113,7 @@ const server = http.createServer(async (req, res) => {
   };
   try {
     const client = String(
-        req.headers["x-hades-client-ip"] || req.socket.remoteAddress,
+        req.headers["x-medstack-client-ip"] || req.socket.remoteAddress,
       ).slice(0, 100),
       now = Date.now();
     if (counts.size > 10000)
@@ -165,7 +167,7 @@ server.requestTimeout = 20000;
 server.headersTimeout = 10000;
 server.maxHeadersCount = 40;
 server.listen(config.port || 4318, "127.0.0.1", () =>
-  console.log("Hades account service listening on loopback."),
+  console.log("Medstack account service listening on loopback."),
 );
 for (const signal of ["SIGINT", "SIGTERM"])
   process.on(signal, () =>

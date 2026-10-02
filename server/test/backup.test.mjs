@@ -7,8 +7,8 @@ import { DatabaseSync } from "node:sqlite";
 import { backupStore } from "../backup.mjs";
 
 test("在线备份包含 WAL 写入，复制配置，可独立恢复，重复备份不覆盖", async () => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "hades-backup-"));
-  const db = new DatabaseSync(path.join(root, "hades.sqlite"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "medstack-backup-"));
+  const db = new DatabaseSync(path.join(root, "medstack.sqlite"));
   try {
     db.exec(
       "PRAGMA journal_mode=WAL; PRAGMA wal_autocheckpoint=0; CREATE TABLE sample (id INTEGER PRIMARY KEY, value TEXT); INSERT INTO sample VALUES (1, 'synthetic');",
@@ -25,7 +25,7 @@ test("在线备份包含 WAL 写入，复制配置，可独立恢复，重复备
       [first, 1],
       [second, 2],
     ]) {
-      const restored = new DatabaseSync(path.join(directory, "hades.sqlite"), {
+      const restored = new DatabaseSync(path.join(directory, "medstack.sqlite"), {
         readOnly: true,
       });
       try {
@@ -51,7 +51,7 @@ test("在线备份包含 WAL 写入，复制配置，可独立恢复，重复备
   } finally {
     db.close();
     assert.equal(path.dirname(path.resolve(root)), path.resolve(os.tmpdir()));
-    assert.ok(path.basename(root).startsWith("hades-backup-"));
+    assert.ok(path.basename(root).startsWith("medstack-backup-"));
     await fs.rm(root, { recursive: true, force: true });
   }
 });
