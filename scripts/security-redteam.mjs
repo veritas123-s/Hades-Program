@@ -210,7 +210,7 @@ try {
   });
   await record("安卓会话与缓存通过 KeyStore 加密", async () => {
     const source = fs.readFileSync(
-      "android/app/src/main/java/com/shsmuveritas/medstack/security/SecureStore.kt",
+      "android/app/src/main/java/com/medstack/app/security/SecureStore.kt",
       "utf8",
     );
     assert.match(source, /AndroidKeyStore/);

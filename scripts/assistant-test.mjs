@@ -125,7 +125,7 @@ try {
   );
   ok("助手从配置、生成、编辑到批量入库全程可用，草稿不会提前写入或重复创建");
   await page.getByRole("button", { name: "查看早晚报", exact: true }).click();
-  await page.getByRole("heading", { name: "早晚报", exact:true }).waitFor();
+  await page.getByRole("heading", { name: "快报", exact:true }).waitFor();
   assert.ok(
     (await call("briefing.state")).preview.deadlines.some(
       (t) => t.title === "人工核对后的实验报告",
