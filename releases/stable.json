@@ -16,10 +16,6 @@
     "windows": {
       "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.3.1/Medstack-Setup-5.3.1-x64.exe",
       "sha256": "29940cbc33b89c75eba7cebe20c92993796219fc90181152c7f1051a544b80b0"
-    },
-    "android": {
-      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.3.1/Medstack-5.3.1-Android.apk",
-      "sha256": "22e86a2b0e9954e3d44e1220de2efd8306c062adea589abe9c38dc76d392b8d0"
     }
   }
 }

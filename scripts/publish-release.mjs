@@ -11,7 +11,7 @@ const notes = JSON.parse(
 const directory = path.resolve(pkg.build.directories.output),
   assets = [],
   downloads = {};
-for (const platform of ["windows", "android"]) {
+for (const platform of ["windows"]) {
   const name =
     platform === "windows"
       ? `Medstack-Setup-${version}-x64.exe`

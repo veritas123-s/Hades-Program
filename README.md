@@ -1,5 +1,7 @@
 # Medstack-Program
 
+2026-10-03 起，仅支持 Windows。Android 开发、自动构建、发行和技术支持已停止，`android/` 与既有 APK 仅作为历史归档；不再要求桌面版本与归档安卓版本同步。
+
 ## 医栈通 Medstack V5.3.1
 
 登录页与设置的「关于」加入 Medtrix 团队原始品牌标识，Android 登录页同步展示。应用名称、图标及个人数据目录保持兼容。

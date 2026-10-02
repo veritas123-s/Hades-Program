@@ -1,6 +1,6 @@
 # Medstack development
 
-Windows Electron + React。主进程在 electron/，中文界面与领域模型在 src/。原生 Android 伴侣端在 android/，桌面与移动端共享 src/agent/ 中的 Pi 工具循环。
+Windows Electron + React。主进程在 electron/，中文界面与领域模型在 src/。2026-10-03 用户明确停止 Android 开发与支持；android/ 仅保留历史归档，不再构建、发行或要求桌面与安卓版本同步。
 
 - 用户明确授权：每次完成版本迭代，自动提交并推送经过验证的源码和版本说明至 https://github.com/veritas123-s/Medstack-Program 。无需重复申请推送许可。先拉取核对远端变更，不强制推送，不覆盖他人提交。
 - 禁止提交 API 密钥、密码、Cookie、云凭据、真实课表/通知/任务/专注数据、账号诊断、备份、用户配置或构建缓存。使用合成数据测试，发布前检查待提交文件与内容。
@@ -12,4 +12,4 @@ Windows Electron + React。主进程在 electron/，中文界面与领域模型�
 - 新增功能使用已有模块/小组件架构，保留七主题与自定义主题兼容。
 - 个人功能必须登录后使用；新模块默认经过主进程账号检查，未登录快照不可包含个人数据。保留旧数据与加密上下文，明确迁移后归入单一账号，禁止跨账号复用密钥。
 
-- 完成两端新版构建及发行验证后，使用 scripts/publish-release.mjs 上传安装包到 GitHub Release，核验 SHA256，再提交 releases/stable.json 并同步服务器公告；仅公开版本信息，不群发给未订阅用户。旧客户端首次切换至V5.1后才能收到后续应用内更新。
+- 完成 Windows 新版构建及发行验证后，使用 scripts/publish-release.mjs 上传 Windows 安装包到 GitHub Release，核验 SHA256，再提交 releases/stable.json 并同步服务器公告；不再发布 Android 更新。仅公开版本信息，不群发给未订阅用户。旧客户端首次切换至V5.1后才能收到后续应用内更新。
