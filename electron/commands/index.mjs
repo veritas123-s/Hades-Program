@@ -22,6 +22,7 @@ export function createCommandRouter(context) {
       {
         names: [
           "news.state",
+          "news.image",
           "news.collect",
           "news.configure",
           "news.import",

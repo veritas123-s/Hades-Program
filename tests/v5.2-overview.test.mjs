@@ -98,3 +98,61 @@ test("旧学习通作业关联任务不进入首页，刷新不复活已删除�
   assert.equal(v.tasks.length, 0);
   assert.ok(!v.notices.some((x) => x.title === "已删通知"));
 });
+
+test("首页校园快讯合并学习通通知和最近公开资讯，删除仍隐藏", () => {
+  const s = initialState();
+  s.learning = {
+    items: [
+      {
+        id: "notice:current",
+        kind: "notice",
+        title: "学习通消息",
+        publishedAt: now,
+      },
+    ],
+  };
+  s.news = {
+    items: [
+      {
+        id: "public",
+        title: "公开资讯",
+        source: "公开网站",
+        publishedAt: now - 1000,
+      },
+      { id: "old-public", title: "旧资讯", publishedAt: now - 2 * 86400000 },
+      {
+        id: "deleted-public",
+        title: "已删公开资讯",
+        publishedAt: now,
+        deletedAt: now,
+      },
+    ],
+  };
+  assert.deepEqual(
+    new Set(overview(s, now).notices.map((x) => x.title)),
+    new Set(["学习通消息", "公开资讯"]),
+  );
+});
+
+test("首页公开快讯合并同标题多来源", () => {
+  const s = initialState();
+  s.news = {
+    items: [
+      {
+        id: "one",
+        title: "校园医学科研交流讲座合成通知",
+        source: "组织甲",
+        publishedAt: now - 1000,
+      },
+      {
+        id: "two",
+        title: "校园医学科研交流讲座合成通知",
+        source: "组织乙",
+        publishedAt: now - 2000,
+      },
+    ],
+  };
+  const rows = overview(s, now).notices;
+  assert.equal(rows.length, 1);
+  assert.match(rows[0].subtitle, /2 个来源/);
+});

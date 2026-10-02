@@ -1,3 +1,4 @@
+import NewsCover from "./NewsCover.jsx";
 import Panel from "../../shared/Panel.jsx";
 import React, { useState } from "react";
 import { RefreshCw, ExternalLink, Trash2, Undo2 } from "lucide-react";
@@ -12,7 +13,25 @@ export default function NewsPage({ state, call }) {
     [newOrganization, setNewOrganization] = useState(""),
     [url, setURL] = useState(""),
     [error, setError] = useState(""),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [query, setQuery] = useState("");
+  const matches = (x) =>
+    !query.trim() ||
+    [x.title, x.excerpt, x.source].some((value) =>
+      String(value || "")
+        .toLowerCase()
+        .includes(query.trim().toLowerCase()),
+    );
+  const visibleNews = {
+    ...data,
+    recent: data.recent && {
+      ...data.recent,
+      groups: data.recent.groups.filter((g) => g.items.some(matches)),
+      uncertainGroups: data.recent.uncertainGroups.filter((g) =>
+        g.items.some(matches),
+      ),
+    },
+  };
   const run = async (action, p = {}) => {
     setBusy(true);
     setError("");
@@ -24,14 +43,16 @@ export default function NewsPage({ state, call }) {
       setBusy(false);
     }
   };
-  const items = (data.items || []).filter((x) =>
-    filter === "deleted"
-      ? x.deletedAt
-      : !x.deletedAt &&
-        (filter === "columns"
-          ? organization === "全部组织" || x.source === organization
-          : x.activityDate === date),
-  );
+  const items = (data.items || [])
+    .filter(matches)
+    .filter((x) =>
+      filter === "deleted"
+        ? x.deletedAt
+        : !x.deletedAt &&
+          (filter === "columns"
+            ? organization === "全部组织" || x.source === organization
+            : x.activityDate === date),
+    );
   const organizations = [
     ...new Set([
       "交大新闻网",
@@ -55,6 +76,13 @@ export default function NewsPage({ state, call }) {
           {data.busy ? "采集中…" : "采集最新信息"}
         </button>
       </div>
+      <input
+        className="news-search"
+        aria-label="搜索校园快讯"
+        placeholder="搜索标题、摘要或来源"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
       <div className="tabs">
         <button
           className={filter === "recent" ? "active" : ""}
@@ -87,7 +115,7 @@ export default function NewsPage({ state, call }) {
           onChange={(e) => setDate(e.target.value)}
         />
       </div>
-      <Panel className="panel" title="采集设置与来源" defaultCollapsed>
+      <Panel className="panel" title="来源与收录" defaultCollapsed>
         <label className="toggle-row">
           应用运行时每小时自动采集
           <input
@@ -129,6 +157,28 @@ export default function NewsPage({ state, call }) {
             ))}
           </div>
         </details>
+        <form
+          className="news-import"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            await run("news.import", { url });
+            setURL("");
+          }}
+        >
+          <label>
+            补充公众号文章链接
+            <input
+              type="url"
+              required
+              placeholder="https://mp.weixin.qq.com/…"
+              value={url}
+              onChange={(e) => setURL(e.target.value)}
+            />
+          </label>
+          <button className="button" disabled={busy || data.busy}>
+            读取文章
+          </button>
+        </form>
       </Panel>
       {filter === "columns" && (
         <Panel className="panel organization-directory">
@@ -184,47 +234,36 @@ export default function NewsPage({ state, call }) {
         </Panel>
       )}
       {data.summaryError && <p role="status">{data.summaryError}</p>}
-      <Panel className="panel" title="补充文章" defaultCollapsed>
-        <form
-          className="news-import"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            await run("news.import", { url });
-            setURL("");
-          }}
-        >
-          <label>
-            补充公众号文章链接
-            <input
-              type="url"
-              required
-              placeholder="https://mp.weixin.qq.com/…"
-              value={url}
-              onChange={(e) => setURL(e.target.value)}
-            />
-          </label>
-          <button className="button" disabled={busy || data.busy}>
-            读取文章
-          </button>
-        </form>
-      </Panel>
+
       {error && (
         <p className="error" role="alert">
           {error}
         </p>
       )}
-      {filter === "recent" && <RecentNews news={data} call={call} />}
+      {filter === "recent" && <RecentNews news={visibleNews} call={call} />}
       <div className="news-list" hidden={filter === "recent"}>
         {items.map((x) => (
-          <article className="panel" key={x.id}>
-            <small>
-              {x.source} · 发布于 {x.date}
-              {x.activityDate
-                ? ` · 活动 ${x.activityDate}`
-                : " · 活动日期待确认"}
-            </small>
-            <h2>{x.title}</h2>
-            {x.excerpt && <LinkedText text={x.excerpt} call={call} />}
+          <article className="panel news-article-row" key={x.id}>
+            <div className="news-visual-row">
+              <NewsCover item={x} call={call} />
+              <div className="news-copy">
+                <small>
+                  {x.source} · 发布于 {x.date}
+                  {x.activityDate
+                    ? ` · 活动 ${x.activityDate}`
+                    : " · 活动日期待确认"}
+                </small>
+                <h2>
+                  <button
+                    className="news-title-link"
+                    onClick={() => run("news.open", { url: x.url })}
+                  >
+                    {x.title}
+                  </button>
+                </h2>
+                {x.excerpt && <LinkedText text={x.excerpt} call={call} />}
+              </div>
+            </div>
             {!x.deletedAt && (
               <label className="activity-date">
                 核对活动日期

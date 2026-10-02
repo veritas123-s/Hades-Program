@@ -339,3 +339,107 @@
 .page-viewport.page-briefing .dispatch-details {
   margin: 10px 0 14px;
 }
+
+.overview-notices {
+  grid-column: 3 / 5;
+}
+
+.page-campus-news .news-visual-row {
+  display: grid;
+  grid-template-columns:
+    clamp(90px, calc(120px * var(--layout-scale, 1)), 148px)
+    minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(12px, 2cqw, 22px);
+}
+.page-campus-news .news-cover {
+  width: 100%;
+  aspect-ratio: 1.5;
+  overflow: hidden;
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface-alt, var(--surface));
+  color: var(--muted);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+.page-campus-news .news-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.page-campus-news .news-cover span {
+  font-size: clamp(11px, calc(12px * var(--layout-scale, 1)), 14px);
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.page-campus-news .news-copy {
+  min-width: 0;
+}
+.page-campus-news .news-title-link {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.page-campus-news .news-title-link:hover {
+  color: var(--accent);
+}
+.page-campus-news .news-copy .linked-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--muted);
+  line-height: 1.6;
+}
+.page-campus-news .recent-news-card {
+  padding: 14px 18px !important;
+}
+.page-campus-news .recent-news-card h3,
+.page-campus-news .news-copy h2 {
+  margin: 0 0 7px;
+}
+.page-campus-news .recent-news-card details {
+  margin-top: 8px;
+}
+.page-campus-news .news-search {
+  width: 100%;
+  margin: 0 0 12px;
+}
+@container workspace (max-width: 500px) {
+  .page-campus-news .news-visual-row {
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 10px;
+  }
+}
+@container workspace (max-width: 850px) {
+  .page-viewport .overview-notices {
+    grid-column: 1 / -1;
+  }
+}
+
+.page-campus-news .recent-news > .panel-body {
+  display: block;
+  max-height: max(240px, calc(var(--workspace-height, 680px) - 265px));
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+.page-campus-news .news-list {
+  max-height: max(240px, calc(var(--workspace-height, 680px) - 265px));
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}

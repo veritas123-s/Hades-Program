@@ -1,3 +1,4 @@
+import WorkflowSettings from "./WorkflowSettings.jsx";
 import UpdateCenter from "./UpdateCenter.jsx";
 import React, { useState } from "react";
 import { Download, Upload, FolderOpen } from "lucide-react";
@@ -110,6 +111,10 @@ export default function SettingsPage({
                 </button>
               </form>
             </Panel>
+            <WorkflowSettings state={state} call={call} />
+            <button className="button" onClick={() => setPage("briefing")}>
+              早晚报与推送
+            </button>
           </div>
           <div hidden={tab !== "appearance"}>
             <Panel className="panel">

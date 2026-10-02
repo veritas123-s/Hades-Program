@@ -293,10 +293,6 @@ export default function CalendarPage({
           <button className="button" onClick={() => setExchangeOpen(true)}>
             导入 / 导出日历
           </button>
-          <button className="button" onClick={() => setPage("notifications")}>
-            <Bell size={16} />
-            通知中心
-          </button>
         </div>
       )}
       <Panel

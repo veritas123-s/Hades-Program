@@ -85,7 +85,7 @@ try {
       "时间记录",
       "设置与数据",
       "主题与小组件",
-      "日程与通知",
+      "校园快讯",
     ]) {
       await open(title);
       await measure(`${size.width}x${size.height}/${title}`);

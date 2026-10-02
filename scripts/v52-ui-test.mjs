@@ -54,6 +54,24 @@ fs.writeFileSync(
     lastSuccess: Date.now(),
   }),
 );
+fs.writeFileSync(
+  path.join(profile, "campus-news.json"),
+  JSON.stringify({
+    version: 1,
+    automatic: false,
+    items: [
+      {
+        id: "synthetic-public",
+        title: "合成公开平台快讯",
+        source: "合成新闻网",
+        publishedAt: Date.now() - 120000,
+        date: today,
+        url: "https://news.sjtu.edu.cn/synthetic",
+      },
+    ],
+    coverage: [],
+  }),
+);
 const env = { ...process.env, VERITAS_TEST: "1", VERITAS_TEST_DATA: directory };
 delete env.ELECTRON_RUN_AS_NODE;
 const app = await launchAuthenticated(
@@ -72,6 +90,40 @@ try {
     await page
       .locator(".sidebar nav button")
       .filter({ hasText: "Poseidon" })
+      .count(),
+    0,
+  );
+  assert.equal(
+    await page
+      .locator(".sidebar nav")
+      .getByRole("button", { name: "日程与通知", exact: true })
+      .count(),
+    0,
+  );
+  assert.equal(await page.locator(".overview-learning").count(), 0);
+  assert.equal(
+    await page
+      .locator(".overview-notices")
+      .getByRole("heading", { name: "校园快讯", exact: true })
+      .count(),
+    1,
+  );
+  assert.ok(
+    await page
+      .locator(".overview-notices")
+      .getByText("合成超星通知", { exact: true })
+      .isVisible(),
+  );
+  assert.ok(
+    await page
+      .locator(".overview-notices")
+      .getByText("合成公开平台快讯", { exact: true })
+      .isVisible(),
+  );
+  assert.equal(
+    await page
+      .locator(".sidebar nav")
+      .getByRole("button", { name: "快报与提醒", exact: true })
       .count(),
     0,
   );
@@ -126,7 +178,7 @@ try {
       ["四象限", "四象限"],
       ["专注空间", "专注空间"],
       ["超星学习通", "超星学习通"],
-      ["日程与通知", "日程与通知"],
+      ["校园快讯", "校园快讯"],
       ["校园与课表", "校园与课表"],
       ["设置与数据", "设置"],
       ["主题与小组件", "主题与小组件"],
@@ -162,7 +214,19 @@ try {
   await page
     .getByRole("button", { name: "学习通扫码登录", exact: true })
     .waitFor();
-  await open("日程与通知");
+  await open("设置与数据", "设置");
+  await page
+    .getByRole("button", { name: "展开自动工作流", exact: true })
+    .click();
+  assert.ok(
+    await page
+      .getByRole("checkbox", {
+        name: "学习通未交作业自动加入任务清单",
+        exact: true,
+      })
+      .isVisible(),
+  );
+  await open("校园快讯");
   assert.equal(
     await page.getByRole("button", { name: "学习通连接", exact: true }).count(),
     0,

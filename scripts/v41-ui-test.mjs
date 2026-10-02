@@ -127,6 +127,7 @@ try {
   await page.locator(".home-extras > summary").click();
   await page.getByRole("heading", { name: "期末考试", exact: true }).waitFor();
   await page.getByRole("button", { name: "删除期末考试", exact: true }).click();
+  await page.getByRole("heading", {name:"期末考试", exact:true}).waitFor({state:"detached"});
   assert.equal(
     await page.getByRole("heading", { name: "期末考试", exact: true }).count(),
     0,
@@ -214,7 +215,11 @@ try {
       });
     };
   });
-  await page.getByRole("button", { name: "快报与提醒", exact: true }).click();
+  await page
+    .locator(".sidebar")
+    .getByRole("button", { name: "设置与数据", exact: true })
+    .click();
+  await page.getByRole("button", { name: "早晚报与推送", exact: true }).click();
   await page.getByRole("button", { name: "采集最新信息", exact: true }).click();
   await page
     .getByRole("button", { name: "展开最近24小时消息", exact: true })
@@ -245,7 +250,11 @@ try {
     path: path.join(root, "test-results/v41-briefing.png"),
   });
   checks.push("实际按钮触发采集与快报更新，13个来源合并为一项、旧消息排除");
-  await page.getByRole("button", { name: "快报与提醒", exact: true }).click();
+  await page
+    .locator(".sidebar")
+    .getByRole("button", { name: "设置与数据", exact: true })
+    .click();
+  await page.getByRole("button", { name: "早晚报与推送", exact: true }).click();
   await page
     .getByRole("button", { name: "开通我的早晚报", exact: true })
     .click();
