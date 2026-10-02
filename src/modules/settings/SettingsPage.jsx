@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Download, Upload, FolderOpen } from "lucide-react";
 import { APP_LABEL } from "../../version.mjs";
 import Panel from "../../shared/Panel.jsx";
+import LinkedText from "../../shared/LinkedText.jsx";
 export default function SettingsPage({
   state,
   call,
@@ -220,7 +221,39 @@ export default function SettingsPage({
             <Panel className="panel">
               <h2>医栈通</h2>
               <p>{APP_LABEL}</p>
-              <small>校园接口参考 tototwoto/MySHSMU。</small>
+              <p>由 Medtrix 团队制作</p>
+            </Panel>
+            <Panel className="panel" title="联系我们">
+              <p>
+                微信：<span className="contact-wechat">Veritas_Enterprise</span>
+              </p>
+              <button
+                className="button"
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText("Veritas_Enterprise");
+                    toast("微信号已复制");
+                  } catch {
+                    toast("请选中微信号复制");
+                  }
+                }}
+              >
+                复制微信号
+              </button>
+            </Panel>
+            <Panel className="panel" title="鸣谢 MySHSMU">
+              <LinkedText
+                text="感谢 [tototwoto/MySHSMU](https://github.com/tototwoto/MySHSMU) 为校园功能提供参考。"
+                call={call}
+              />
+              <p>
+                教务接口与字段映射参考 ShsmuService.kt，课表解析与展示逻辑参考
+                CurriculumUtils.kt、MainViewModel.kt；一次登录后的会话恢复参考
+                PersistentCookieJar 与 MainViewModel。
+              </p>
+              <p>
+                这些逻辑已改写为桌面端实现，登录信息使用本机加密保存。任务、专注、Poseidon、校园快讯与云账号等模块由本项目独立实现。
+              </p>
             </Panel>
           </div>
         </div>

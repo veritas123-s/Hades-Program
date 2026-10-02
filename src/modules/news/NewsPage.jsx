@@ -2,12 +2,10 @@ import NewsCover from "./NewsCover.jsx";
 import Panel from "../../shared/Panel.jsx";
 import React, { useState } from "react";
 import { RefreshCw, ExternalLink, Trash2, Undo2 } from "lucide-react";
-import { beijingDay } from "../../briefing.mjs";
 import LinkedText from "../../shared/LinkedText.jsx";
 import RecentNews from "./RecentNews.jsx";
 export default function NewsPage({ state, call }) {
   const data = state.news || {},
-    [date, setDate] = useState(beijingDay()),
     [filter, setFilter] = useState("recent"),
     [organization, setOrganization] = useState("全部组织"),
     [newOrganization, setNewOrganization] = useState(""),
@@ -49,9 +47,7 @@ export default function NewsPage({ state, call }) {
       filter === "deleted"
         ? x.deletedAt
         : !x.deletedAt &&
-          (filter === "columns"
-            ? organization === "全部组织" || x.source === organization
-            : x.activityDate === date),
+          (organization === "全部组织" || x.source === organization),
     );
   const organizations = [
     ...new Set([
@@ -91,12 +87,6 @@ export default function NewsPage({ state, call }) {
           最近24小时
         </button>
         <button
-          className={filter === "today" ? "active" : ""}
-          onClick={() => setFilter("today")}
-        >
-          当日活动
-        </button>
-        <button
           className={filter === "columns" ? "active" : ""}
           onClick={() => setFilter("columns")}
         >
@@ -108,12 +98,6 @@ export default function NewsPage({ state, call }) {
         >
           已删除
         </button>
-        <input
-          aria-label="快讯日期"
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-        />
       </div>
       <Panel className="panel" title="来源与收录" defaultCollapsed>
         <label className="toggle-row">
@@ -227,12 +211,6 @@ export default function NewsPage({ state, call }) {
             )}
         </Panel>
       )}
-      {data.summary?.date === date && filter === "today" && (
-        <Panel className="panel">
-          <h2>Poseidon 整理</h2>
-          <LinkedText text={data.summary.text} call={call} />
-        </Panel>
-      )}
       {data.summaryError && <p role="status">{data.summaryError}</p>}
 
       {error && (
@@ -249,9 +227,6 @@ export default function NewsPage({ state, call }) {
               <div className="news-copy">
                 <small>
                   {x.source} · 发布于 {x.date}
-                  {x.activityDate
-                    ? ` · 活动 ${x.activityDate}`
-                    : " · 活动日期待确认"}
                 </small>
                 <h2>
                   <button
@@ -264,23 +239,6 @@ export default function NewsPage({ state, call }) {
                 {x.excerpt && <LinkedText text={x.excerpt} call={call} />}
               </div>
             </div>
-            {!x.deletedAt && (
-              <label className="activity-date">
-                核对活动日期
-                <input
-                  aria-label={`${x.title}活动日期`}
-                  type="date"
-                  value={x.activityDate || ""}
-                  onChange={(event) => {
-                    if (event.target.value)
-                      run("news.activity", {
-                        id: x.id,
-                        date: event.target.value,
-                      });
-                  }}
-                />
-              </label>
-            )}
             <div className="agenda-actions">
               <button
                 className="button"
@@ -309,9 +267,7 @@ export default function NewsPage({ state, call }) {
           <p>
             {filter === "deleted"
               ? "没有已删除消息"
-              : filter === "columns"
-                ? "该组织尚未收录文章，可补充原文链接或重新采集。"
-                : "没有已确认在这一天举行的活动，其他消息请到组织专栏查看。"}
+              : "该组织尚未收录文章，可补充原文链接或重新采集。"}
           </p>
         </Panel>
       )}
