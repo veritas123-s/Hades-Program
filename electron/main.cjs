@@ -10,6 +10,7 @@ const {
   nativeImage,
   powerMonitor,
   shell,
+  clipboard,
   protocol,
   net,
   safeStorage,
@@ -128,6 +129,10 @@ function createWindow() {
 }
 async function handle(action, p = {}) {
   requireAccount(accounts, action);
+  if (action === "contact.copy") {
+    clipboard.writeText("Veritas_Enterprise");
+    return { ok: true };
+  }
   if (action === "help.open") {
     const { openHelp } = await import("./help.mjs");
     return openHelp(app, shell, p?.kind);

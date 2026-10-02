@@ -224,6 +224,7 @@ export default function SettingsPage({
               <p>由 Medtrix 团队制作</p>
             </Panel>
             <Panel className="panel" title="联系我们">
+              <h2>联系我们</h2>
               <p>
                 微信：<span className="contact-wechat">Veritas_Enterprise</span>
               </p>
@@ -231,7 +232,7 @@ export default function SettingsPage({
                 className="button"
                 onClick={async () => {
                   try {
-                    await navigator.clipboard.writeText("Veritas_Enterprise");
+                    await call("contact.copy");
                     toast("微信号已复制");
                   } catch {
                     toast("请选中微信号复制");
@@ -242,6 +243,7 @@ export default function SettingsPage({
               </button>
             </Panel>
             <Panel className="panel" title="鸣谢 MySHSMU">
+              <h2>鸣谢 MySHSMU</h2>
               <LinkedText
                 text="感谢 [tototwoto/MySHSMU](https://github.com/tototwoto/MySHSMU) 为校园功能提供参考。"
                 call={call}

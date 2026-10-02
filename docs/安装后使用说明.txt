@@ -1,7 +1,7 @@
-医栈通 V5.2.1
+医栈通 V5.2.2
 
-Windows：Medstack-Setup-5.2.1-x64.exe
-安卓：Medstack-5.2.1-Android.apk。使用同一账号连接电脑，安卓实机同步仍待验证。
+Windows：Medstack-Setup-5.2.2-x64.exe
+安卓：Medstack-5.2.2-Android.apk。使用同一账号连接电脑，安卓实机同步仍待验证。
 安装包包含运行环境与离线手册，无需开发工具。
 
 升级前从托盘选择“退出（保存并暂停计时）”。关闭窗口可能只收起到托盘。
