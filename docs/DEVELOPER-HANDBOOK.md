@@ -1,4 +1,4 @@
-# 医栈通 V5.0 开发者手册
+# 医栈通 V5.2.0 开发者手册
 
 本轮实测及接入约束见[致远一号编程实测](MODEL-CODING-EVALUATION.md)。Poseidon 的组件命令使用 `widget-recipes.mjs` 的受限类型和参数，由主进程保存；目前不会把模型返回的 JavaScript 当作插件执行。新增功能仍走源码、测试、发行流程。
 
@@ -241,3 +241,9 @@ npm run dist:installer:ia32
 版本统一来自package.json、src/version.mjs与Android配置。更新releases/notes-版本.json，构建并核验两端安装包后，执行 node scripts/publish-release.mjs releases/notes-版本.json 预览；加 --publish 创建GitHub草稿、上传并核验两端附件的GitHub SHA256 digest，随后发布。工具生成releases/stable.json，提交同步这份公开公告后，客户端与服务器读取同一份公告。禁止将安装包或签名私钥提交到源码Git；附件使用GitHub Release。GitHub REST字段依据 https://docs.github.com/en/rest/releases/assets 。
 
 服务器也支持data/releases/stable.json本地公告，公开源不可达时可使用本地公告，适合国内服务主动部署；每分钟检查并处理最多10封订阅邮件。发布新本地公告须原子替换。邮件默认无订阅，仅已验证并在公告发布前主动订阅的账号收到本次邮件。每用户每版本唯一发件记录，待发邮件退订会取消；SMTP失败或中断的sending状态不盲目重试，以免已经投递却重复发送，需运维核对后处理。公开GET仅返回公告，偏好接口必须登录且验证邮箱，退订令牌只允许取消版本邮件，不能登录或访问个人数据。
+
+## V5.2 界面扩展
+
+今日概览是独立入口；`overview.mjs` 聚合已有任务、课程、日程和通知，并遵守学习通删除与历史筛选规则。学习通使用独立路由，复用通知组件的连接、课程和删除逻辑。Poseidon 保留全局抽屉，旧助手路由只触发抽屉，不再占据空白页面。
+
+`ResponsiveViewport` 观测实际内容区宽高，提供布局尺寸与字号比例；`v5.2.css` 结合受限字号和容器单位调整标题、正文、按钮与卡片数字。不要通过缩放整页替代响应式布局，也不要无限缩小字体。窄窗口允许必要的局部和页面滚动。合成数据需先通过 `validateState`，再启动隔离的 Electron 测试实例。

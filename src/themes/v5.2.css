@@ -1,0 +1,341 @@
+:root[data-theme] .page-viewport {
+  --content-font: clamp(14px, calc(15px * var(--layout-scale, 1)), 18px);
+  font-size: var(--content-font);
+}
+:root[data-theme]
+  .page-viewport
+  :is(button, input, select, textarea, p, td, th, label, .task-title) {
+  font-size: var(--content-font);
+}
+:root[data-theme] .page-viewport h1 {
+  font-size: clamp(21px, calc(25px * var(--layout-scale, 1)), 30px);
+}
+:root[data-theme] .page-viewport :is(h2, h3) {
+  font-size: clamp(16px, calc(18px * var(--layout-scale, 1)), 22px);
+}
+:root[data-theme] .page-viewport :is(small, .task-meta, .hint) {
+  font-size: clamp(12px, calc(13px * var(--layout-scale, 1)), 16px);
+}
+:root[data-theme] .page-viewport .timer-display {
+  font-size: clamp(44px, calc(60px * var(--layout-scale, 1)), 76px);
+}
+:root[data-theme] .sidebar nav button {
+  font-size: clamp(14px, calc(14px * var(--layout-scale, 1)), 17px);
+}
+:root[data-theme] .topbar {
+  position: relative;
+  z-index: 20;
+}
+:root[data-theme] .topbar .assistant-launch {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.sidebar .overview-nav {
+  margin: 0 0 12px;
+}
+.overview-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 2fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.overview-summary {
+  min-width: 0;
+  height: clamp(118px, calc(var(--workspace-height, 680px) * 0.19), 156px);
+  padding: 18px 22px;
+  border-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  container-type: inline-size;
+}
+:root[data-theme] .overview-clock {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  align-items: center;
+  text-align: center;
+}
+.overview-metric {
+  display: block;
+  font-size: clamp(26px, 12cqw, 44px);
+  line-height: 1.15;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.overview-focus .overview-metric {
+  font-size: clamp(22px, 8cqw, 34px);
+  color: var(--accent);
+}
+.overview-progress {
+  height: 5px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-soft);
+}
+.overview-progress i {
+  display: block;
+  height: 100%;
+  border-radius: 8px;
+  background: var(--green);
+}
+.overview-summary small {
+  color: var(--muted);
+}
+.overview-deadlines > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent);
+}
+.overview-deadline-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.35;
+  font-size: clamp(19px, 5.5cqw, 27px);
+}
+.overview-information-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  height: clamp(280px, calc(var(--workspace-height, 680px) - 275px), 450px);
+  gap: 16px;
+}
+:root[data-theme] .overview-information-grid .overview-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 16px 20px;
+  border-radius: 18px;
+  box-shadow: 0 1px 3px var(--shadow);
+  margin: 0;
+}
+.overview-tasks {
+  grid-column: 1 / 3;
+  grid-row: 1 / 3;
+}
+.overview-schedule {
+  grid-column: 3 / 5;
+  grid-row: 1;
+}
+.overview-notices {
+  grid-column: 3;
+  grid-row: 2;
+}
+.overview-learning {
+  grid-column: 4;
+  grid-row: 2;
+}
+.overview-card .panel-heading {
+  flex-shrink: 0;
+  padding-right: 24px;
+  margin-bottom: 8px;
+}
+.overview-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.overview-card-list {
+  min-height: 0;
+  flex: 1;
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+}
+:root[data-theme] .overview-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 12px;
+  text-align: left;
+  padding: 12px 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  min-height: 52px;
+}
+.overview-row:last-child {
+  border-bottom: 0;
+}
+.overview-row > span {
+  min-width: 0;
+  flex: 1;
+}
+.overview-row b {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 550;
+}
+.overview-row small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.overview-row em {
+  color: var(--muted);
+  font-style: normal;
+  font-size: clamp(12px, calc(13px * var(--layout-scale, 1)), 16px);
+  white-space: nowrap;
+}
+.overview-row > svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.overview-empty {
+  color: var(--muted);
+  margin: 10px 0;
+}
+.overview-status {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-size: 12px;
+  margin: 0 0 6px;
+}
+.overview-status.connected {
+  color: var(--green);
+}
+.overview-learning-state {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.overview-learning-state > strong {
+  font-size: clamp(25px, calc(30px * var(--layout-scale, 1)), 38px);
+  color: var(--accent);
+}
+.overview-learning-state small {
+  font-weight: 400;
+  color: var(--muted);
+}
+:root[data-theme] .overview-card.panel-folded {
+  height: auto;
+  align-self: start;
+}
+.page-learning .notification-list {
+  max-height: max(150px, calc(var(--workspace-height, 680px) - 290px));
+  overflow: auto;
+}
+.page-learning .learning-connect {
+  max-height: max(200px, calc(var(--workspace-height, 680px) - 130px));
+  overflow: auto;
+}
+@container workspace (max-width:850px) {
+  .page-viewport .overview-summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .page-viewport .overview-deadlines {
+    grid-column: 1 / 3;
+    height: auto;
+    min-height: 98px;
+  }
+  .page-viewport .overview-information-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto;
+    height: auto;
+  }
+  .page-viewport .overview-tasks {
+    grid-column: 1 / 3;
+    grid-row: auto;
+  }
+  .page-viewport .overview-schedule {
+    grid-column: 1 / 3;
+    grid-row: auto;
+  }
+  .page-viewport .overview-notices,
+  .page-viewport .overview-learning {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .page-viewport .overview-card-list {
+    max-height: 220px;
+  }
+}
+@container workspace (max-width:500px) {
+  .page-viewport .overview-summary-grid,
+  .page-viewport .overview-information-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .page-viewport :is(.overview-tasks, .overview-schedule, .overview-deadlines) {
+    grid-column: auto;
+  }
+  .page-viewport .overview-metric {
+    font-size: clamp(28px, 10cqw, 40px);
+  }
+}
+
+.sidebar.collapsed nav .overview-nav span {
+  display: inline;
+}
+.sidebar.collapsed nav .overview-nav {
+  justify-content: flex-start;
+  width: 100%;
+}
+:root[data-theme] .topbar :is(button, input) {
+  font-size: clamp(13px, calc(14px * var(--layout-scale, 1)), 17px);
+}
+
+.page-viewport:is(.page-notifications, .page-learning) .notification-list {
+  max-height: max(120px, calc(var(--workspace-height, 680px) - 330px));
+}
+.sidebar-bottom > button {
+  gap: 6px;
+}
+.sidebar-bottom > button b {
+  white-space: nowrap;
+  font-size: clamp(13px, calc(13px * var(--layout-scale, 1)), 15px);
+}
+
+.page-viewport .calendar-view-year .calendar-agenda header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.page-viewport .calendar-agenda header button {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+:root[data-theme] .page-viewport .calendar-mini-month .calendar-month-title {
+  font-size: clamp(12px, calc(13px * var(--layout-scale, 1)), 16px);
+}
+
+.page-viewport .calendar-view-year {
+  grid-template-columns: minmax(0, 1fr) clamp(
+      240px,
+      calc(260px * var(--layout-scale, 1)),
+      300px
+    );
+}
+@container workspace (max-width: 780px) {
+  .page-viewport .calendar-view-year {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.page-viewport .calendar-view-year .calendar-day-events {
+  max-height: max(120px, calc(var(--workspace-height, 680px) - 480px));
+}
+
+.page-viewport.page-briefing .briefing-preview > .panel-body {
+  max-height: max(150px, calc(var(--workspace-height, 680px) - 285px));
+}
+
+.page-viewport.page-briefing .dispatch-details {
+  margin: 10px 0 14px;
+}

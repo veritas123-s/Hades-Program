@@ -1,7 +1,7 @@
 {
   "name": "ai-veritas",
   "productName": "Medstack",
-  "version": "5.1.2",
+  "version": "5.2.0",
   "private": true,
   "description": "医栈通 · 医栈事，一站通",
   "author": "AI VERITAS local project",
@@ -47,7 +47,7 @@
     "appId": "local.ai.veritas",
     "productName": "Medstack",
     "directories": {
-      "output": "release-medstack-5.1.2"
+      "output": "release-medstack-5.2"
     },
     "files": [
       "dist/**/*",

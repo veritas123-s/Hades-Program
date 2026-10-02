@@ -14,6 +14,13 @@ export default function ResponsiveViewport({ className, children }) {
         node.clientHeight -
         parseFloat(style.paddingTop) -
         parseFloat(style.paddingBottom);
+      const scale = Math.min(
+        1.18,
+        Math.max(0.92, Math.min(width / 1120, height / 680)),
+      );
+      node
+        .closest(".app-shell")
+        .style.setProperty("--layout-scale", scale.toFixed(3));
       node.style.setProperty("--workspace-width", `${Math.round(width)}px`);
       node.style.setProperty("--workspace-height", `${Math.round(height)}px`);
     };

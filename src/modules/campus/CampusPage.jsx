@@ -164,10 +164,7 @@ export default function Campus({ state, call, setPage, widgetActions }) {
           <KeyRound size={15} />
           登录设置
         </button>
-        <button
-          className="button primary"
-          onClick={() => setPage("notifications")}
-        >
+        <button className="button primary" onClick={() => setPage("learning")}>
           学习通{state.learning?.connected ? " · 已连接" : " · 连接"}
         </button>
         <button className="button" onClick={() => call("school.canvas.open")}>

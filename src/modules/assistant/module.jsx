@@ -10,6 +10,7 @@ export default {
   routes: [
     {
       id: "assistant",
+      hiddenNav: true,
       title: "Poseidon 助手",
       icon: Sparkles,
       Component: lazy(() => import("./AssistantPage.jsx")),

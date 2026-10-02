@@ -1,135 +1,224 @@
 import React from "react";
 import Panel from "../../shared/Panel.jsx";
 import {
-  CheckSquare2,
-  Columns2,
-  CalendarDays,
   Clock3,
-  Flame,
+  ArrowUpRight,
+  CalendarDays,
+  CheckSquare2,
+  Bell,
+  GraduationCap,
 } from "lucide-react";
-import { dayKey } from "../../domain.mjs";
 import { duration } from "../../components.jsx";
-import CalendarPage from "../notifications/CalendarPage.jsx";
-import { Stat } from "../../shared/StatsElements.jsx";
 import { WidgetBoard } from "../../platform/WidgetHost.jsx";
+import { overview } from "./overview.mjs";
+const Row = ({ title, detail, tag, onClick }) => (
+  <button className="overview-row" onClick={onClick}>
+    <span>
+      <b>{title}</b>
+      {detail && <small>{detail}</small>}
+    </span>
+    {tag && <em>{tag}</em>}
+    <ArrowUpRight size={14} />
+  </button>
+);
 export default function DashboardPage({
   state,
   call,
-  active,
-  today,
   todayMs,
   setPage,
   setFilter,
   setProject,
   widgetActions,
-  openAssistant,
-  card,
 }) {
+  const model = overview(state),
+    now = new Date();
+  const taskPage = () => {
+    setPage("tasks");
+    setFilter("active");
+    setProject("全部清单");
+  };
+  const goal = state.settings.dailyGoal * 60000,
+    progress = goal ? Math.min(100, Math.round((todayMs / goal) * 100)) : 0;
+  const heading = (title, route, Icon) => (
+    <div className="panel-heading">
+      <h2>
+        <Icon size={18} />
+        {title}
+      </h2>
+      <button
+        className="icon-button"
+        aria-label={"查看" + title}
+        onClick={() => setPage(route)}
+      >
+        <ArrowUpRight size={17} />
+      </button>
+    </div>
+  );
   return (
     <>
       <div className="page-heading dashboard-heading">
-        <div>
-          <p className="eyebrow">
-            {new Date().toLocaleDateString("zh-CN", {
-              year: "numeric",
+        <h1>今天的安排</h1>
+        <button className="button" onClick={() => setPage("workbench")}>
+          卡片布局
+        </button>
+      </div>
+      <div className="overview-summary-grid">
+        <section
+          className="overview-summary overview-clock"
+          aria-label="当前时间"
+        >
+          <Clock3 size={22} />
+          <strong className="overview-metric">
+            {now.toLocaleTimeString("zh-CN", {
+              timeZone: "Asia/Shanghai",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </strong>
+          <span>
+            {now.toLocaleDateString("zh-CN", {
+              timeZone: "Asia/Shanghai",
               month: "long",
               day: "numeric",
               weekday: "long",
             })}
-          </p>
-          <h1>今天的安排</h1>
-        </div>
-        <button
-          className="button"
-          onClick={() => {
-            setPage("tasks");
-            setFilter("today");
-            setProject("全部清单");
-          }}
+          </span>
+        </section>
+        <section
+          className="overview-summary overview-focus"
+          aria-label="今日专注"
         >
-          <CalendarDays size={16} />
-          查看今日任务
-        </button>
-      </div>
-      <div className="home-primary">
-        <Panel className="panel home-task-focus" title="待办任务">
-          <div className="panel-heading">
-            <h2>
-              待办任务 <span className="count">{active.length}</span>
-            </h2>
-            <button
-              className="text-button"
-              onClick={() => {
-                setPage("tasks");
-                setFilter("active");
-                setProject("全部清单");
-              }}
-            >
-              查看全部
-            </button>
+          <span>今日专注</span>
+          <strong className="overview-metric">{duration(todayMs)}</strong>
+          <div className="overview-progress">
+            <i style={{ width: progress + "%" }} />
           </div>
-          {active
-            .toSorted(
-              (a, b) =>
-                (a.quadrant === "do" ? 0 : 1) - (b.quadrant === "do" ? 0 : 1) ||
-                (a.due || "9999").localeCompare(b.due || "9999"),
-            )
-            .slice(0, 3)
-            .map(card)}
-          {!active.length && <p>暂无待办</p>}
+          <small>
+            目标 {state.settings.dailyGoal} 分钟 · {progress}%
+          </small>
+        </section>
+        <section
+          className="overview-summary overview-deadlines"
+          aria-label="今日截止"
+        >
+          <div>
+            <CalendarDays size={19} />
+            <b>今日截止</b>
+            <span className="count">{model.deadlines.length}</span>
+          </div>
+          <strong className="overview-deadline-title">
+            {model.deadlines[0]?.title || "今天没有截止事项"}
+          </strong>
+          <small>
+            {model.deadlines.length > 1
+              ? "另有 " + (model.deadlines.length - 1) + " 项 · "
+              : ""}
+            {model.overdue
+              ? model.overdue + " 项已逾期"
+              : model.tasks.length + " 项待办"}
+          </small>
+        </section>
+      </div>
+      <div className="overview-information-grid">
+        <Panel className="panel overview-card overview-tasks" title="待办任务">
+          {heading("待办任务", "tasks", CheckSquare2)}
+          <div className="overview-card-list">
+            {model.tasks.map((t) => (
+              <Row
+                key={t.id}
+                title={t.title}
+                detail={t.project || "收集箱"}
+                tag={t.due || ""}
+                onClick={() =>
+                  widgetActions?.editTask
+                    ? widgetActions.editTask(t)
+                    : taskPage()
+                }
+              />
+            ))}
+            {!model.tasks.length && <p className="overview-empty">暂无待办</p>}
+          </div>
         </Panel>
-        <CalendarPage {...{ state, call, setPage, widgetActions }} embedded />
+        <Panel
+          className="panel overview-card overview-schedule"
+          title="今日日程"
+        >
+          {heading("今日日程", "calendar", CalendarDays)}
+          {model.coverage.status !== "fresh" && (
+            <span className="overview-status">
+              {model.coverage.status === "missing"
+                ? "课表未同步"
+                : "课表需更新"}
+            </span>
+          )}
+          <div className="overview-card-list">
+            {model.schedule.map((e) => (
+              <Row
+                key={e.id}
+                title={e.title}
+                detail={e.detail}
+                tag={e.clock}
+                onClick={() => setPage("calendar")}
+              />
+            ))}
+            {!model.schedule.length && (
+              <p className="overview-empty">暂无已保存安排</p>
+            )}
+          </div>
+        </Panel>
+        <Panel
+          className="panel overview-card overview-notices"
+          title="通知快讯"
+        >
+          {heading("通知快讯", "notifications", Bell)}
+          <div className="overview-card-list">
+            {model.notices.map((e) => (
+              <Row
+                key={e.id}
+                title={e.title}
+                detail={e.subtitle}
+                tag={e.kind === "news" ? "校园" : "超星"}
+                onClick={() =>
+                  setPage(e.kind === "news" ? "campus-news" : "learning")
+                }
+              />
+            ))}
+            {!model.notices.length && (
+              <p className="overview-empty">暂无新消息</p>
+            )}
+          </div>
+        </Panel>
+        <Panel
+          className="panel overview-card overview-learning"
+          title="超星学习通"
+        >
+          {heading("超星学习通", "learning", GraduationCap)}
+          <div className="overview-learning-state">
+            <span
+              className={
+                "overview-status " +
+                (state.learning?.connected ? "connected" : "")
+              }
+            >
+              {state.learning?.connected ? "已连接" : "未连接"}
+            </span>
+            <strong>
+              {model.assignments.length}
+              <small> 项待完成作业</small>
+            </strong>
+            {state.learning?.lastSuccess && (
+              <small>
+                同步于{" "}
+                {new Date(state.learning.lastSuccess).toLocaleDateString(
+                  "zh-CN",
+                )}
+              </small>
+            )}
+          </div>
+        </Panel>
       </div>
       <details className="home-extras">
-        <summary>统计与小组件</summary>
-        <Panel className="panel" title="专注统计" defaultCollapsed>
-          <div className="stat-grid">
-            <Stat
-              label="今日专注"
-              value={duration(todayMs)}
-              icon={Clock3}
-              foot={`每日目标 ${state.settings.dailyGoal} 分钟`}
-              progress={Math.min(
-                100,
-                todayMs / (state.settings.dailyGoal * 600),
-              )}
-            />
-            <Stat
-              label="今日完成"
-              value={String(
-                state.tasks.filter(
-                  (t) =>
-                    t.completedAt &&
-                    !t.deletedAt &&
-                    dayKey(t.completedAt) === today,
-                ).length,
-              )}
-              unit="个任务"
-              icon={CheckSquare2}
-            />
-            <Stat
-              label="待办任务"
-              value={String(active.length)}
-              unit="个任务"
-              icon={Columns2}
-              foot={`${active.filter((t) => t.due && t.due < today).length} 个已逾期 · ${active.filter((t) => t.quadrant === "do").length} 个重要且紧急`}
-            />
-            <Stat
-              label="今日番茄"
-              value={String(
-                state.logs.filter(
-                  (l) =>
-                    !l.deletedAt &&
-                    l.completed &&
-                    l.mode === "focus" &&
-                    dayKey(l.endedAt) === today,
-                ).length,
-              )}
-              unit="个番茄"
-              icon={Flame}
-            />
-          </div>
-        </Panel>
+        <summary>小组件</summary>
         <WidgetBoard state={state} call={call} actions={widgetActions} />
       </details>
     </>
