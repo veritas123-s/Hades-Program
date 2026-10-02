@@ -1,10 +1,10 @@
 {
   "name": "ai-veritas",
   "productName": "Medstack",
-  "version": "5.2.1",
+  "version": "5.2.2",
   "private": true,
   "description": "医栈通 · 医栈事，一站通",
-  "author": "AI VERITAS local project",
+  "author": "Medtrix",
   "license": "UNLICENSED",
   "type": "module",
   "main": "electron/main.cjs",
@@ -47,7 +47,7 @@
     "appId": "local.ai.veritas",
     "productName": "Medstack",
     "directories": {
-      "output": "release-medstack-5.2.1"
+      "output": "release-medstack-5.2.2"
     },
     "files": [
       "dist/**/*",

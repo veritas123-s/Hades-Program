@@ -112,6 +112,14 @@ try {
   await page.getByLabel("搜索校园快讯").fill("");
   await page.getByRole("button", { name: "组织专栏", exact: true }).click();
   assert.equal(await page.locator(".news-article-row").count(), 2);
+  assert.equal(
+    await page.getByRole("button", { name: "当日活动", exact: true }).count(),
+    0,
+  );
+  assert.equal(
+    await page.getByText("核对活动日期", { exact: true }).count(),
+    0,
+  );
   await page.getByRole("button", { name: "最近24小时", exact: true }).click();
   await page.getByText("来源与原文 · 1", { exact: true }).first().click();
   await page
@@ -136,6 +144,31 @@ try {
   await page.screenshot({
     animations: "disabled",
     path: path.join(root, "test-results/news-visual.png"),
+  });
+  await page.getByRole("button", { name: "设置与数据", exact: true }).click();
+  await page.getByRole("button", { name: "关于", exact: true }).click();
+  await page.getByText("由 Medtrix 团队制作", { exact: true }).waitFor();
+  await page.getByText("鸣谢 MySHSMU", { exact: true }).waitFor();
+  await page.getByRole("button", { name: "复制微信号", exact: true }).click();
+  assert.equal(
+    await app.evaluate(({ clipboard }) => clipboard.readText()),
+    "Veritas_Enterprise",
+  );
+  await app.evaluate(({ shell }) => {
+    shell.openExternal = async (url) => {
+      globalThis.syntheticAboutLink = url;
+    };
+  });
+  await page
+    .getByRole("link", { name: "tototwoto/MySHSMU", exact: true })
+    .click();
+  assert.equal(
+    await app.evaluate(() => globalThis.syntheticAboutLink),
+    "https://github.com/tototwoto/MySHSMU",
+  );
+  await page.screenshot({
+    animations: "disabled",
+    path: path.join(root, "test-results/about-v522.png"),
   });
   fs.writeFileSync(
     path.join(root, "test-results/news-visual-ui.json"),
