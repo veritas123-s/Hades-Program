@@ -5,7 +5,6 @@ export default function NewsCover({ item, call }) {
     [image, setImage] = useState("");
   useEffect(() => {
     setImage("");
-    if (!item.imageURL) return;
     let active = true;
     const observer = new IntersectionObserver(
       (entries) => {

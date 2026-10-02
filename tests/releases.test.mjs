@@ -5,6 +5,17 @@ import os from "node:os";
 import path from "node:path";
 import { validateRelease, newerVersion } from "../src/releases.mjs";
 import { Updates } from "../electron/updates.mjs";
+import { APP_VERSION } from "../src/version.mjs";
+test("界面、安装目录、桌面和安卓版本保持一致", () => {
+  const pkg = JSON.parse(fs.readFileSync("package.json"));
+  assert.equal(APP_VERSION, pkg.version);
+  assert.ok(pkg.build.directories.output.endsWith(pkg.version));
+  assert.ok(
+    fs
+      .readFileSync("android/app/build.gradle.kts", "utf8")
+      .includes(`versionName = "${pkg.version}"`),
+  );
+});
 const release = (version = "5.2.0") => ({
   schema: 1,
   version,

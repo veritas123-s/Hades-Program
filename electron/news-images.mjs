@@ -1,4 +1,7 @@
 import { decodeEntities } from "./news-text.mjs";
+import { tagAttributes, metadata } from "./news-markup.mjs";
+import { publicResponse, boundedBytes } from "./public-fetch.mjs";
+import { imageDimensions } from "./image-dimensions.mjs";
 
 const hosts = new Set([
   "news.sjtu.edu.cn",
@@ -12,6 +15,7 @@ const hosts = new Set([
 ]);
 export function newsImageURL(raw, base) {
   try {
+    if (!String(raw || "").trim()) return "";
     const url = new URL(decodeEntities(String(raw || "")), base);
     if (
       url.protocol !== "https:" ||
@@ -27,19 +31,23 @@ export function newsImageURL(raw, base) {
   }
 }
 export function articleCover(html, base) {
+  const candidates = [
+    metadata(html, "og:image"),
+    metadata(html, "twitter:image"),
+    html.match(/(?:var\s+)?msg_cdn_url\s*=\s*["']([^"']+)["']/)?.[1],
+  ];
+  for (const raw of candidates) {
+    const url = newsImageURL(raw?.replace(/^http:\/\//i, "https://"), base);
+    if (url) return url;
+  }
   for (const tag of html.matchAll(/<meta\b[^>]*>|<img\b[^>]*>/gi)) {
-    const attrs = Object.fromEntries(
-      [...tag[0].matchAll(/([\w-]+)\s*=\s*["']([^"']*)["']/g)].map((x) => [
-        x[1].toLowerCase(),
-        x[2],
-      ]),
-    );
+    const attrs = tagAttributes(tag[0]);
     const raw = /^<meta/i.test(tag[0])
       ? ["og:image", "twitter:image"].includes(attrs.property || attrs.name)
         ? attrs.content
         : ""
       : attrs["data-src"] || attrs["data-original"] || attrs.src;
-    const url = newsImageURL(raw, base);
+    const url = newsImageURL(raw?.replace(/^http:\/\//i, "https://"), base);
     if (url) return url;
   }
   return "";
@@ -48,32 +56,38 @@ export function articleCover(html, base) {
 export async function loadNewsThumbnail(url, nativeImage, fetcher = fetch) {
   const safe = newsImageURL(url);
   if (!safe || !nativeImage) return "";
-  const response = await fetcher(safe, {
-    redirect: "error",
-    credentials: "omit",
-    signal: AbortSignal.timeout(6000),
+  const signal = AbortSignal.timeout(12000);
+  const response = await publicResponse(safe, {
+    validate: (raw) => {
+      const u = newsImageURL(raw);
+      if (!u) throw Error("图片来源不受信任");
+      return u;
+    },
+    fetcher,
+    signal,
+    headers: {
+      Referer: new URL(safe).hostname.startsWith("mmbiz.")
+        ? "https://mp.weixin.qq.com/"
+        : "https://news.sjtu.edu.cn/",
+    },
   });
   if (
     !response.ok ||
-    !/^image\/(?:jpeg|png|webp)(?:;|$)/i.test(
+    !/^image\/(?:jpeg|png|webp|gif)(?:;|$)/i.test(
       response.headers.get("content-type") || "",
     )
   )
     return "";
-  const chunks = [];
-  let size = 0;
-  const reader = response.body.getReader();
-  for (;;) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    size += value.length;
-    if (size > 2 * 1024 * 1024) {
-      await reader.cancel();
-      return "";
-    }
-    chunks.push(Buffer.from(value));
+  let buffer;
+  try {
+    buffer = await boundedBytes(response, 2 * 1024 * 1024, signal);
+  } catch {
+    return "";
   }
-  const image = nativeImage.createFromBuffer(Buffer.concat(chunks));
+  const size = imageDimensions(buffer);
+  if (!size || size.some((x) => x < 32) || size[0] * size[1] > 24000000)
+    return "";
+  const image = nativeImage.createFromBuffer(buffer);
   if (image.isEmpty()) return "";
   const dimensions = image.getSize();
   if (

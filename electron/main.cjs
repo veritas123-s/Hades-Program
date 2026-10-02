@@ -146,6 +146,7 @@ async function handle(action, p = {}) {
   if (action === "updates.check") return updates.check();
   if (action === "updates.dismiss") return updates.dismiss();
   if (action === "updates.download") return updates.download(p.platform);
+  if (action === "updates.install") return updates.install();
   if (action === "updates.email") {
     const uid = accounts.status().user?.id;
     const result = await updates.email(
@@ -218,7 +219,29 @@ else {
         { fetcher: (...args) => net.fetch(...args) },
       );
       const { Updates } = await import("./updates.mjs");
+      const { UpdateInstaller } = await import("./update-installer.mjs");
       updates = new Updates({
+        installer: new UpdateInstaller({
+          directory: app.getPath("userData"),
+          version: APP_VERSION,
+          executable: process.execPath,
+          packaged: app.isPackaged,
+          changed: broadcast,
+          fetcher: (...args) => fetch(...args),
+          exit: async (launch) => {
+            store.change((s) => domain.timerAction(s, "pause"));
+            accountSync?.stop();
+            assistant?.cancel();
+            if (connectorInitialization) {
+              await auth?.persist();
+              await learning?.persist();
+            }
+            await launch();
+            authFlushed = true;
+            quitting = true;
+            app.quit();
+          },
+        }),
         directory: app.getPath("userData"),
         version: APP_VERSION,
         provider: accountProvider,
@@ -449,7 +472,7 @@ else {
         nativeImage,
         directory: dataDirectory,
         openReader: (url) => openNewsReader(BrowserWindow, url),
-        fetcher: (...args) => net.fetch(...args),
+        fetcher: (...args) => fetch(...args),
         allowed: () => accounts.authenticated && personalReady,
         changed: () => {
           broadcast();

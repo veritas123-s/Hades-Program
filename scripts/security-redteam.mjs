@@ -242,7 +242,7 @@ try {
 }
 
 const report = {
-  version: "3.2.0",
+  version: JSON.parse(fs.readFileSync("package.json")).version,
   generatedAt: new Date().toISOString(),
   scope: "isolated synthetic backend and static client controls",
   productionTraffic: false,
@@ -252,11 +252,11 @@ const report = {
 };
 fs.mkdirSync("test-results", { recursive: true });
 fs.writeFileSync(
-  "test-results/security-redteam-v3.2.json",
+  `test-results/security-redteam-v${report.version}.json`,
   JSON.stringify(report, null, 2),
 );
 console.log(
-  `Medstack V3.2 security exercise: ${report.passed}/${report.total} passed`,
+  `Medstack V${report.version} security exercise: ${report.passed}/${report.total} passed`,
 );
 for (const item of results.filter((entry) => !entry.passed))
   console.error(`FAIL ${item.name}: ${item.error}`);

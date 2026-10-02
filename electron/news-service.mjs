@@ -3,7 +3,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { beijingDay } from "../src/briefing.mjs";
-import { decodeNews, decodeEntities } from "./news-text.mjs";
+import { decodeNews, decodeEntities, repairNewsText } from "./news-text.mjs";
+import { metadata, articleLinks, articleBody } from "./news-markup.mjs";
+import { publicResponse, boundedBytes } from "./public-fetch.mjs";
 import { organizationName, activityDetails } from "./news-organizations.mjs";
 import { validDay } from "../src/domain.mjs";
 import { recentNews } from "../src/news-window.mjs";
@@ -30,8 +32,10 @@ const domains = new Set([
 ]);
 const clean = (s) =>
   decodeEntities(
-    String(s || "")
+    repairNewsText(s)
       .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+      .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, "")
+      .replace(/<(?:br|\/p|\/div)\b[^>]*>/gi, " ")
       .replace(/<[^>]*>/g, "")
       .replace(
         /&(?:nbsp|amp|lt|gt|quot|apos);/g,
@@ -130,12 +134,15 @@ export function parseUniversityIndex(html) {
   const rows = [];
   for (const m of html.matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)) {
     const block = m[1],
-      href = block.match(/<a[^>]*href=["'](\/zhxw\/(\d{8})\/\d+\.html)["']/i);
+      href = block.match(
+        /<a[^>]*href=["'](\/(?:zhxw|jdyw|tsfx|hlxy)\/(\d{8})\/\d+\.html)["']/i,
+      );
     if (!href) continue;
     const title =
       block.match(/<p[^>]*class=["']dot["'][^>]*>([\s\S]*?)<\/p>/i)?.[1] ||
       block.match(/<h[23][^>]*>([\s\S]*?)<\/h[23]>/i)?.[1];
-    const day = href[2],
+    const shownDate = block.match(/(20\d{2})年(\d{2})月(\d{2})日/),
+      day = shownDate ? shownDate.slice(1).join("") : href[2],
       time = Date.parse(
         `${day.slice(0, 4)}-${day.slice(4, 6)}-${day.slice(6)}T00:00:00+08:00`,
       );
@@ -157,6 +164,7 @@ export function parseUniversityIndex(html) {
 }
 export function parseArticle(html, url) {
   const title =
+    metadata(html, "og:title") ||
     html.match(
       /<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i,
     )?.[1] ||
@@ -164,11 +172,14 @@ export function parseArticle(html, url) {
       /<td[^>]*class=["']mod_font08 mod_bold mod_align["'][^>]*>([\s\S]*?)<\/td>/i,
     )?.[1] ||
     html.match(/<h[12][^>]*>([\s\S]*?)<\/h[12]>/i)?.[1];
-  const nickname = html.match(/var\s+nickname\s*=\s*["']([^"']+)["']/)?.[1];
+  const nickname =
+    html.match(/var\s+nickname\s*=\s*["']([^"']+)["']/)?.[1] ||
+    html.match(/id=["']js_name["'][^>]*>([\s\S]*?)<\/a>/i)?.[1];
   const unix = html.match(
     /(?:var\s+(?:create_time|ct)\s*=\s*["']?|data-publish-time=["'])(\d{10})/i,
   )?.[1];
   const date = (
+    metadata(html, "article:published_time")?.slice(0, 10) ||
     html.match(
       /<td[^>]*class=["']mod_font08_t[^"']*["'][^>]*>\s*(20\d\d-\d{2}-\d{2})\s*<\/td>/i,
     )?.[1] ||
@@ -181,12 +192,7 @@ export function parseArticle(html, url) {
     : date
       ? Date.parse(date + "T00:00:00+08:00")
       : NaN;
-  const body =
-    html.match(/<div[^>]*id=["']js_content["'][^>]*>([\s\S]*?)<\/div>/i)?.[1] ||
-    html.match(
-      /<div[^>]*id=["']vsb_content[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
-    )?.[1] ||
-    "";
+  const body = articleBody(html);
   const parsed = item(
     clean(nickname) || "医学院新闻网",
     clean(title),
@@ -250,6 +256,20 @@ export class NewsService {
         )
           throw Error();
         this.data = d;
+        const repaired = d.items.map((x) => ({
+          ...x,
+          title: clean(x.title),
+          excerpt: clean(x.excerpt),
+          source: clean(x.source),
+        }));
+        if (JSON.stringify(repaired) !== JSON.stringify(d.items)) {
+          fs.copyFileSync(
+            this.file,
+            this.file + ".encoding-backup-" + Date.now(),
+            fs.constants.COPYFILE_EXCL,
+          );
+          this.data.items = repaired;
+        }
         if (this.data.summary?.kind !== "activities") this.data.summary = null;
       } catch {
         fs.copyFileSync(
@@ -326,8 +346,20 @@ export class NewsService {
   async image({ id }) {
     if (!this.allowed()) throw Error("请先登录");
     const row = this.data.items.find((x) => x.id === id && !x.deletedAt);
-    if (!row?.imageURL) return { image: "" };
+    if (!row) return { image: "" };
     const generation = this.generation;
+    if ((!row.imageURL || row.imageURL === row.url) && !row.searchResult) {
+      try {
+        const parsed = parseArticle(
+          await this.read(row.url, AbortSignal.timeout(10000)),
+          row.url,
+        );
+        if (generation !== this.generation || !this.allowed() || row.deletedAt)
+          return { image: "" };
+        row.imageURL = parsed?.imageURL || "";
+      } catch {}
+    }
+    if (!row.imageURL) return { image: "" };
     if (!this.imageCache.has(row.imageURL)) {
       if (this.imageCache.size >= 24)
         this.imageCache.delete(this.imageCache.keys().next().value);
@@ -341,9 +373,12 @@ export class NewsService {
       );
     }
     const image = await this.imageCache.get(row.imageURL);
+    if (!image) this.imageCache.delete(row.imageURL);
     return {
       image:
-        generation === this.generation && this.allowed() && !row.deletedAt
+        generation === this.generation &&
+        this.allowed() &&
+        this.data.items.some((x) => x.id === id && !x.deletedAt)
           ? image
           : "",
     };
@@ -384,30 +419,19 @@ export class NewsService {
     if (automatic) this.start();
     return this.status();
   }
-  async read(url) {
-    const r = await this.fetcher(newsURL(url), {
-      redirect: "error",
-      signal: AbortSignal.any([
-        this.controller.signal,
-        AbortSignal.timeout(12000),
-      ]),
+  async read(url, signal = this.controller?.signal) {
+    const activeSignal = AbortSignal.any([
+      ...(signal ? [signal] : []),
+      AbortSignal.timeout(12000),
+    ]);
+    const r = await publicResponse(url, {
+      validate: newsURL,
+      fetcher: this.fetcher,
+      signal: activeSignal,
+      headers: { Accept: "text/html", "User-Agent": "Medstack-PublicNews/5.3" },
     });
-    if (!r.ok) throw Error("来源暂不可用");
-    const reader = r.body.getReader();
-    let size = 0;
-    const chunks = [];
-    for (;;) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      size += value.length;
-      if (size > 2 * 1024 * 1024) {
-        await reader.cancel();
-        throw Error("来源内容过大");
-      }
-      chunks.push(Buffer.from(value));
-    }
     const html = decodeNews(
-      Buffer.concat(chunks),
+      await boundedBytes(r, 2 * 1024 * 1024, activeSignal),
       r.headers.get("content-type") || "",
     );
     if (/请输入验证码|访问过于频繁|安全验证|antispider/i.test(html))
@@ -417,9 +441,15 @@ export class NewsService {
   merge(rows) {
     const prior = new Map(this.data.items.map((x) => [x.id, x]));
     for (const x of rows) {
-      const old = prior.get(x.id);
-      prior.set(x.id, {
+      const old =
+        prior.get(x.id) ||
+        [...prior.values()].find(
+          (y) => y.url === x.url && !y.searchResult && !x.searchResult,
+        );
+      const id = old?.id || x.id;
+      prior.set(id, {
         ...x,
+        id,
         imageURL: x.imageURL || old?.imageURL || "",
         deletedAt: old?.deletedAt || null,
         ...(old?.activityProvenance === "manual"
@@ -441,22 +471,33 @@ export class NewsService {
     if (!this.allowed()) throw Error("请先登录");
     this.busy = true;
     this.controller = new AbortController();
+    const controller = this.controller;
+    const deadline = setTimeout(() => controller.abort(), 90000);
     const generation = this.generation,
       coverage = [],
       rows = [];
     this.changed();
     try {
       try {
-        const found = parseUniversityIndex(
-          await this.read("https://news.sjtu.edu.cn/zhxw/index.html"),
-        );
+        const found = [];
+        for (const section of ["zhxw", "jdyw", "tsfx", "hlxy"]) {
+          try {
+            found.push(
+              ...parseUniversityIndex(
+                await this.read(
+                  `https://news.sjtu.edu.cn/${section}/index.html`,
+                ),
+              ),
+            );
+          } catch {}
+        }
         if (!found.length) throw Error();
         rows.push(...found);
         coverage.push({
           source: "交大新闻网",
           status: "partial",
           count: found.length,
-          note: "已读取综合新闻首页，非全站覆盖",
+          note: "官方综合新闻、交大要闻、探索发现、活力校园栏目；按页面发布日期筛选，非全站覆盖",
         });
       } catch {
         coverage.push({
@@ -466,29 +507,44 @@ export class NewsService {
         });
       }
       try {
-        const html = await this.read("https://www.shsmu.edu.cn/news/");
-        const urls = [
-          ...new Set(
-            [...html.matchAll(/href=["'](info\/\d+\/\d+\.htm)["']/g)].map(
-              (x) => new URL(x[1], "https://www.shsmu.edu.cn/news/").href,
-            ),
-          ),
-        ].slice(0, 12);
-        let count = 0;
-        for (const url of urls) {
+        const lists = [];
+        for (const section of [
+          "",
+          "xykx.htm",
+          "tzgg.htm",
+          "jzlt.htm",
+          "jjxy.htm",
+        ]) {
           try {
-            const row = parseArticle(await this.read(url), url);
-            if (row) {
-              rows.push(row);
-              count++;
-            }
+            const base = "https://www.shsmu.edu.cn/news/" + section;
+            lists.push(articleLinks(await this.read(base), base));
           } catch {}
         }
+        let count = 0;
+        const urls = new Set();
+        for (let i = 0; i < 36 && urls.size < 36; i++)
+          for (const list of lists)
+            if (list[i] && urls.size < 36) urls.add(list[i]);
+        const queue = [...urls];
+        await Promise.all(
+          Array.from({ length: 3 }, async () => {
+            while (queue.length) {
+              const url = queue.shift();
+              try {
+                const row = parseArticle(await this.read(url), url);
+                if (row) {
+                  rows.push(row);
+                  count++;
+                }
+              } catch {}
+            }
+          }),
+        );
         coverage.push({
           source: "医学院新闻网",
           status: count ? "partial" : "unavailable",
           count,
-          note: "首页最近12篇，只有明确发布日期的文章入库",
+          note: "官方首页、学院快讯、公告、讲座、校园栏目及其中的微信原文；最多36篇，只有明确发布日期入库",
         });
       } catch {
         coverage.push({
@@ -497,32 +553,38 @@ export class NewsService {
           note: "来源读取失败",
         });
       }
-      for (const source of this.sources()) {
-        if (generation !== this.generation || !this.allowed())
-          return this.status();
-        try {
-          let count = 0;
-          for (let page = 1; page <= 2; page++) {
-            const html = await this.read(searchURL(source, page));
-            if (!/news-list|没有找到|未找到/.test(html)) throw Error();
-            const found = parseWechatIndex(html, source);
-            rows.push(...found);
-            count += found.length;
+      const sourceQueue = [...this.sources()];
+      await Promise.all(
+        Array.from({ length: 3 }, async () => {
+          while (sourceQueue.length) {
+            const source = sourceQueue.shift();
+            if (generation !== this.generation || !this.allowed())
+              return this.status();
+            try {
+              let count = 0;
+              for (let page = 1; page <= 2; page++) {
+                const html = await this.read(searchURL(source, page));
+                if (!/news-list|没有找到|未找到/.test(html)) throw Error();
+                const found = parseWechatIndex(html, source);
+                rows.push(...found);
+                count += found.length;
+              }
+              coverage.push({
+                source,
+                status: "partial",
+                count,
+                note: "公众号名称精确匹配；公开索引最近2页，索引可能延迟或遗漏",
+              });
+            } catch {
+              coverage.push({
+                source,
+                status: "unavailable",
+                note: "公开索引未通过检查，可能需要验证码；未判定为无新文章",
+              });
+            }
           }
-          coverage.push({
-            source,
-            status: "partial",
-            count,
-            note: "公众号名称精确匹配；公开索引最近2页，索引可能延迟或遗漏",
-          });
-        } catch {
-          coverage.push({
-            source,
-            status: "unavailable",
-            note: "公开索引未通过检查，可能需要验证码；未判定为无新文章",
-          });
-        }
-      }
+        }),
+      );
       if (generation !== this.generation || !this.allowed())
         return this.status();
       const window = recentNews(rows);
@@ -562,6 +624,7 @@ export class NewsService {
       }
       return this.status();
     } finally {
+      clearTimeout(deadline);
       this.busy = false;
       this.changed();
     }
@@ -585,6 +648,10 @@ export class NewsService {
       this.data.summary = null;
       this.save();
       return this.status();
+    } catch (error) {
+      if (generation !== this.generation || !this.allowed())
+        throw Error("登录状态已变更，未保存文章");
+      throw error;
     } finally {
       this.busy = false;
       this.changed();

@@ -335,6 +335,69 @@
   max-height: max(120px, calc(var(--workspace-height, 680px) - 480px));
 }
 
+.page-viewport .calendar-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 34px;
+  white-space: normal;
+  flex: none;
+}
+.page-viewport .calendar-panel {
+  margin-bottom: 8px;
+}
+.page-viewport .calendar-chip .calendar-chip-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1.3;
+  opacity: 1;
+  color: var(--text);
+}
+.page-viewport .calendar-chip .calendar-chip-time {
+  font-size: 10px;
+  line-height: 1.2;
+}
+.calendar-mini-count {
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--green);
+  white-space: nowrap;
+}
+.page-viewport .mini .calendar-day {
+  height: auto;
+  min-height: 26px;
+}
+.page-viewport .calendar-view-year .calendar-mini-month .calendar-weekdays {
+  padding: 2px 0;
+}
+.page-viewport .mini .calendar-dots {
+  height: auto;
+  min-height: 0;
+  align-items: center;
+}
+.page-viewport .calendar-month-grid:not(.mini) .calendar-day {
+  min-height: clamp(
+    32px,
+    calc((var(--workspace-height, 680px) - 410px) / 6),
+    64px
+  );
+}
+.page-viewport .home-calendar .calendar-month-grid:not(.mini) .calendar-day {
+  height: auto;
+  min-height: clamp(
+    32px,
+    calc((var(--workspace-height, 680px) - 460px) / 6),
+    54px
+  );
+}
+.page-viewport .home-calendar .calendar-chip .calendar-chip-title {
+  -webkit-line-clamp: 1;
+  font-size: 11px;
+}
+
 .page-viewport.page-briefing .briefing-preview > .panel-body {
   max-height: max(150px, calc(var(--workspace-height, 680px) - 285px));
 }
