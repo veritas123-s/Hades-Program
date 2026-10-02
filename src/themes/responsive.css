@@ -115,7 +115,7 @@
   max-width: 100%;
   min-width: 0;
 }
-@container workspace (max-width: 1060px) {
+@container workspace (max-width: 960px) {
   .home-primary {
     grid-template-columns: minmax(205px, 0.65fr) minmax(0, 1.7fr);
   }
@@ -250,7 +250,7 @@
   }
 }
 
-@container workspace (max-width: 1060px) {
+@container workspace (max-width: 960px) {
   .page-viewport .home-calendar .calendar-content-layout {
     grid-template-columns: minmax(0, 1fr);
   }

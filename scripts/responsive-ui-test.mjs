@@ -13,7 +13,7 @@ try {
  const page=await app.firstWindow();
  const tour=page.getByRole('dialog',{name:'医栈通 新手教程'});
  if(await tour.isVisible())await tour.getByRole('button',{name:'跳过',exact:true}).click();
- const open=async(name)=>{await page.locator('.sidebar button:not(.nav-group-button)').filter({hasText:name}).first().click();await page.waitForTimeout(100);};
+ const open=async(name)=>{await page.locator('.sidebar button:not(.nav-group-button)').filter({hasText:name}).first().click();await page.getByRole('heading',{name:({'今日概览':'今天的安排','设置与数据':'设置'}[name]||name),exact:true}).first().waitFor();await page.waitForTimeout(100);};
  const measure=async(label)=>{
   const value=await page.evaluate(()=>{const main=document.querySelector('main.page-viewport');const s=getComputedStyle(main);return {label:document.querySelector('.page-heading h1')?.textContent,width:main.clientWidth,height:main.clientHeight,measuredWidth:parseFloat(s.getPropertyValue('--workspace-width')),horizontal:document.documentElement.scrollWidth-innerWidth,mainHorizontal:main.scrollWidth-main.clientWidth,columns:getComputedStyle(document.querySelector('.home-primary')||main).gridTemplateColumns,dial:document.querySelector('.timer-dial')?.getBoundingClientRect().width};});
   assert.ok(value.horizontal<=1&&value.mainHorizontal<=1,label+' horizontal overflow '+JSON.stringify(value));
@@ -32,6 +32,7 @@ try {
  assert.ok(home[0].columns.split(' ').length===2&&home.at(-1).columns.split(' ').length===1,'home must reflow with available width');
  await page.setViewportSize({width:1280,height:720});await open('今日概览');const before=await measure('sidebar expanded');
  await page.getByRole('button',{name:'收起侧栏',exact:true}).click();await page.waitForTimeout(100);const after=await measure('sidebar collapsed');assert.ok(after.measuredWidth>=before.measuredWidth,'sidebar changes must be measured');
+ await page.getByRole('button',{name:'展开侧栏',exact:true}).click();
  await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].webContents.setZoomFactor(1.25));
  await open('日程日历');await measure('125% display scaling');
  await app.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].webContents.setZoomFactor(1));
