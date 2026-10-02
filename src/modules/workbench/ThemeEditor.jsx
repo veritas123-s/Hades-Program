@@ -39,9 +39,6 @@ export default function ThemeEditor({ workspace, call, update, busy }) {
   return (
     <Panel className="panel theme-editor">
       <h2>背景图与自定义主题</h2>
-      <p className="hint">
-        图片保存在本机，随完整备份一起导出。预设主题可作为起点，再保存你自己的配色。
-      </p>
       <div className="theme-editor-grid">
         <div>
           <div
@@ -224,9 +221,6 @@ export default function ThemeEditor({ workspace, call, update, busy }) {
               </button>
             )}
           </div>
-          <p className="hint">
-            保存时一并记住当前背景、位置和模糊设置。请保持文字与卡片有足够对比。
-          </p>
         </form>
       </div>
       {error && (
@@ -236,7 +230,7 @@ export default function ThemeEditor({ workspace, call, update, busy }) {
       )}
       <h3>我的主题</h3>
       {!workspace.customThemes.filter((t) => !t.deletedAt).length && (
-        <p className="hint">还没有自定义主题。</p>
+        <p className="hint">暂无自定义主题</p>
       )}
       {workspace.customThemes
         .filter((t) => !t.deletedAt)

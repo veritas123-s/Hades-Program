@@ -1,7 +1,7 @@
 import React from "react";
 import Panel from "../../shared/Panel.jsx";
 import LinkedText from "../../shared/LinkedText.jsx";
-export default function RecentNews({ news, call }) {
+export default function RecentNews({ news, call, defaultCollapsed = false }) {
   const recent = news?.recent;
   const cards = (groups) =>
     groups.map((group) => (
@@ -57,7 +57,11 @@ export default function RecentNews({ news, call }) {
       </Panel>
     ));
   return (
-    <Panel className="panel recent-news" title="最近24小时消息">
+    <Panel
+      className="panel recent-news"
+      title="最近24小时消息"
+      defaultCollapsed={defaultCollapsed}
+    >
       <h2>最近24小时消息</h2>
       {recent && (
         <small>

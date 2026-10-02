@@ -23,14 +23,7 @@ export default function TasksPage({
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">
-            {page === "matrix" ? "PRIORITIES / 优先级" : "TASKS / 任务"}
-          </p>
-          <h1>
-            {page === "matrix"
-              ? "四象限"
-              : "任务清单"}
-          </h1>
+          <h1>{page === "matrix" ? "四象限" : "任务清单"}</h1>
         </div>
         <button className="button primary" onClick={() => addTask()}>
           <Plus size={16} />
@@ -93,7 +86,6 @@ export default function TasksPage({
                     {visible.filter((t) => t.quadrant === q.id).length}
                   </span>
                 </div>
-                <p>{q.subtitle}</p>
               </header>
               <div className="quadrant-tasks">
                 {visible.filter((t) => t.quadrant === q.id).map(card)}
@@ -134,11 +126,7 @@ export default function TasksPage({
             <Empty
               icon={Inbox}
               title={query ? "没有匹配的任务" : "这里暂时没有任务"}
-            >
-              {filter === "active"
-                ? "点击新建任务，开始整理你的计划。"
-                : "换一个筛选条件，或继续向前。"}
-            </Empty>
+            />
           )}
         </Panel>
       )}

@@ -62,7 +62,6 @@ export default function Briefing({ state, call }) {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">自动化快报</p>
           <h1>快报</h1>
         </div>
         <div className="heading-actions">
@@ -89,7 +88,7 @@ export default function Briefing({ state, call }) {
           {collectionError}
         </p>
       )}
-      <RecentNews news={state.news} call={call} />
+      <RecentNews news={state.news} call={call} defaultCollapsed />
       <details className="dispatch-details">
         <summary>同步状态</summary>
         <div className="dispatch-route">
@@ -138,10 +137,9 @@ export default function Briefing({ state, call }) {
       </details>
       <div className="briefing-layout">
         <div>
-          <Panel className="panel" title="快报预览">
+          <Panel className="panel briefing-preview" title="快报预览">
             <div className="panel-heading">
               <div>
-                <p className="eyebrow">快报预览</p>
                 <h2>快报内容预览</h2>
               </div>
               <input
@@ -151,10 +149,6 @@ export default function Briefing({ state, call }) {
                 onChange={(e) => e.target.value && setDate(e.target.value)}
               />
             </div>
-            <p className="hint">
-              按北京时间生成；08:00 晨报列计划，21:00
-              晚报安排复习与预习。截止提醒提前 3 天纳入。
-            </p>
             <h3 className="dispatch-section">
               <BookOpen size={16} />
               课程预习与复习
@@ -180,7 +174,7 @@ export default function Briefing({ state, call }) {
               </p>
             ))}
             {preview && !preview.study.length && !preview.warnings.length && (
-              <p className="hint">已核对的今日和明日课表没有课程。</p>
+              <p className="hint">今日与明日无课</p>
             )}
             <h3 className="dispatch-section">
               <Clock3 size={16} />
@@ -202,9 +196,7 @@ export default function Briefing({ state, call }) {
                 </div>
               </div>
             ))}
-            {!preview?.deadlines.length && (
-              <p className="hint">所选日期前后没有待提醒的截止事项。</p>
-            )}
+            {!preview?.deadlines.length && <p className="hint">暂无截止事项</p>}
             <h3 className="dispatch-section">
               <BellRing size={16} />
               重要任务
@@ -222,7 +214,7 @@ export default function Briefing({ state, call }) {
               </div>
             ))}
             {!preview?.priorities.length && (
-              <p className="hint">重要象限中的任务会自动出现在这里。</p>
+              <p className="hint">暂无重要任务</p>
             )}
           </Panel>
         </div>
@@ -292,7 +284,7 @@ export default function Briefing({ state, call }) {
               </div>
             ))}
             {!data?.registry.items.length && (
-              <p className="hint">选择共享助理目录，读取现有备忘台账。</p>
+              <p className="hint">未连接备忘台账</p>
             )}
             <p className="hint">
               完成任务会从下次快报数据中移除；已发出的微信消息不作撤回。文件更新不等于云端已收到。

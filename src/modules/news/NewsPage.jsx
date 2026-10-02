@@ -44,7 +44,6 @@ export default function NewsPage({ state, call }) {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">校园快讯</p>
           <h1>校园快讯</h1>
         </div>
         <button
@@ -57,7 +56,12 @@ export default function NewsPage({ state, call }) {
         </button>
       </div>
       <div className="tabs">
-        <button className={filter === "recent" ? "active" : ""} onClick={() => setFilter("recent")}>最近24小时</button>
+        <button
+          className={filter === "recent" ? "active" : ""}
+          onClick={() => setFilter("recent")}
+        >
+          最近24小时
+        </button>
         <button
           className={filter === "today" ? "active" : ""}
           onClick={() => setFilter("today")}
@@ -209,7 +213,7 @@ export default function NewsPage({ state, call }) {
           {error}
         </p>
       )}
-      {filter === "recent" && <RecentNews news={data} call={call}/>}
+      {filter === "recent" && <RecentNews news={data} call={call} />}
       <div className="news-list" hidden={filter === "recent"}>
         {items.map((x) => (
           <article className="panel" key={x.id}>

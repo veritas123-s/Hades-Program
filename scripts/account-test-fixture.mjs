@@ -33,6 +33,8 @@ export async function installSyntheticAccountNetwork(app) {
     const original = net.fetch.bind(net);
     net.fetch = async (url, options) => {
       const route = new URL(url).pathname;
+      if (route === "/api/releases/preferences")
+        return Response.json({ emailUpdates: false });
       if (!route.startsWith("/api/auth/")) return original(url, options);
       const user = {
         id: "synthetic-ui-account",

@@ -9,6 +9,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { QUADRANTS, dayKey } from "./domain.mjs";
+import ActionMenu from "./shared/ActionMenu.jsx";
 export const minutes = (ms) => `${Math.round(ms / 60000)} 分钟`;
 export const duration = (ms) => {
   const m = Math.floor(ms / 60000);
@@ -339,30 +340,35 @@ export function TaskCard({ task, call, onEdit, onFocus, compact = false }) {
         </div>
       </div>
       <div className="task-actions">
-        {!task.completedAt && (
+        <ActionMenu label={`任务操作 ${task.title}`}>
+          {!task.completedAt && (
+            <button
+              className="icon-button"
+              title="开始专注"
+              aria-label={`专注 ${task.title}`}
+              onClick={() => onFocus(task)}
+            >
+              <Play size={15} />
+              专注
+            </button>
+          )}
           <button
             className="icon-button"
-            title="开始专注"
-            aria-label={`专注 ${task.title}`}
-            onClick={() => onFocus(task)}
+            aria-label={`编辑 ${task.title}`}
+            onClick={() => onEdit(task)}
           >
-            <Play size={15} />
+            <Pencil size={14} />
+            编辑
           </button>
-        )}
-        <button
-          className="icon-button"
-          aria-label={`编辑 ${task.title}`}
-          onClick={() => onEdit(task)}
-        >
-          <Pencil size={14} />
-        </button>
-        <button
-          className="icon-button"
-          aria-label={`删除 ${task.title}`}
-          onClick={() => call("task.delete", { id: task.id })}
-        >
-          <Trash2 size={14} />
-        </button>
+          <button
+            className="icon-button"
+            aria-label={`删除 ${task.title}`}
+            onClick={() => call("task.delete", { id: task.id })}
+          >
+            <Trash2 size={14} />
+            删除
+          </button>
+        </ActionMenu>
       </div>
     </article>
   );

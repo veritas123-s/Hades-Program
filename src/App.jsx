@@ -501,7 +501,7 @@ export default function App() {
           </button>
         </header>
         <PanelProvider page={page} key={state.account?.user?.id || "personal"}>
-          <main>
+          <main className={`page-viewport page-${page}`}>
             <UpdateBanner updates={state.updates} call={call} />
             {state.lastNotice && (
               <div className="notice">
@@ -551,12 +551,6 @@ export default function App() {
                 },
               }}
             />
-            <footer className="page-footer">
-              <span>{APP_LABEL}</span>
-              <span>
-                {state.account?.sync?.enabled ? "账号空间与云同步" : "账号空间"}
-              </span>
-            </footer>
           </main>
         </PanelProvider>
         {state.timer.status !== "idle" && page !== "focus" && (
