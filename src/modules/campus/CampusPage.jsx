@@ -144,7 +144,6 @@ export default function Campus({ state, call, setPage, widgetActions }) {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">校园</p>
           <h1>校园与课表</h1>
         </div>
         <button className="button primary" onClick={() => call("school.open")}>
@@ -152,29 +151,34 @@ export default function Campus({ state, call, setPage, widgetActions }) {
           打开学校登录
         </button>
       </div>
-      <div className="academic-connectors">
-        <Panel className="academic-connector">
-          <h3>超星学习通</h3>
-          <p>
-            {state.learning?.connected
-              ? "已连接 · 作业与通知"
-              : "扫码连接课程、作业与通知"}
-          </p>
-          <button
-            className="button primary"
-            onClick={() => setPage("notifications")}
-          >
-            打开学习通连接与通知
-          </button>
-        </Panel>
-        <Panel className="academic-connector">
-          <h3>交大 Canvas</h3>
-          <p>官方平台入口</p>
-          <button className="button" onClick={() => call("school.canvas.open")}>
-            打开 Canvas
-          </button>
-        </Panel>
+      <div className="campus-connections">
+        <span className="campus-status" title={state.campusAuth?.message || ""}>
+          学校 ·{" "}
+          {state.campusAuth?.phase === "connected"
+            ? "已连接"
+            : state.campusAuth?.hasSession
+              ? "已记住会话"
+              : "未连接"}
+        </span>
+        <button className="button" onClick={() => setLoginSettings(true)}>
+          <KeyRound size={15} />
+          登录设置
+        </button>
+        <button
+          className="button primary"
+          onClick={() => setPage("notifications")}
+        >
+          学习通{state.learning?.connected ? " · 已连接" : " · 连接"}
+        </button>
+        <button className="button" onClick={() => call("school.canvas.open")}>
+          Canvas
+        </button>
       </div>
+      {state.campusAuth?.phase === "error" && state.campusAuth?.message && (
+        <p className="campus-message" role="status">
+          {state.campusAuth.message}
+        </p>
+      )}
       <div className="tabs">
         {[
           ["courses", "我的课表", CalendarDays],
@@ -190,29 +194,6 @@ export default function Campus({ state, call, setPage, widgetActions }) {
             {label}
           </button>
         ))}
-      </div>
-      <div className="auth-card">
-        <ShieldCheck size={25} />
-        <div>
-          <strong>
-            校园通行证 ·{" "}
-            {state.campusAuth?.phase === "connected"
-              ? "已连接"
-              : state.campusAuth?.hasSession
-                ? "已记住会话"
-                : "等待认证"}
-          </strong>
-          <p>{state.campusAuth?.message || "首次登录后，加密记住学校会话。"}</p>
-          <small>
-            {state.campusAuth?.hasCredentials
-              ? "已启用加密自动登录"
-              : "账号可选保存，会话失效时将引导认证"}
-          </small>
-        </div>
-        <button className="button" onClick={() => setLoginSettings(true)}>
-          <KeyRound size={15} />
-          登录设置
-        </button>
       </div>
       {loginSettings && (
         <LoginSettings

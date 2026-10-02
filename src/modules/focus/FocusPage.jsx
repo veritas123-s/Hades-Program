@@ -28,12 +28,7 @@ export default function Focus({ state, call, selected, setSelected, todayMs }) {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">专注空间</p>
           <h1>专注空间</h1>
-        </div>
-        <div className="pill neutral">
-          <Leaf size={14} />
-          给注意力一点空间
         </div>
       </div>
       <div className="focus-layout">
@@ -88,18 +83,26 @@ export default function Focus({ state, call, selected, setSelected, todayMs }) {
                   onChange={(e) => setCustomMinutes(e.target.value)}
                 />
               </label>
-              <div>
+              <select
+                aria-label="常用专注时长"
+                disabled={t.status !== "idle"}
+                value={
+                  [15, 25, 45, 60, 90].includes(Number(customMinutes))
+                    ? customMinutes
+                    : "custom"
+                }
+                onChange={(event) =>
+                  event.target.value !== "custom" &&
+                  setCustomMinutes(Number(event.target.value))
+                }
+              >
+                <option value="custom">自定义</option>
                 {[15, 25, 45, 60, 90].map((n) => (
-                  <button
-                    key={n}
-                    className={Number(customMinutes) === n ? "active" : ""}
-                    disabled={t.status !== "idle"}
-                    onClick={() => setCustomMinutes(n)}
-                  >
-                    {n}
-                  </button>
+                  <option key={n} value={n}>
+                    {n} 分钟
+                  </option>
                 ))}
-              </div>
+              </select>
             </div>
           )}
           <div className="timer-dial">
@@ -119,19 +122,12 @@ export default function Focus({ state, call, selected, setSelected, todayMs }) {
                 {t.status === "paused"
                   ? "已暂停"
                   : mode === "focus"
-                    ? "保持专注"
+                    ? "番茄专注"
                     : mode === "stopwatch"
-                      ? "记录每一份投入"
-                      : "让思绪休息一下"}
+                      ? "正计时"
+                      : "休息"}
               </span>
               <strong data-testid="timer-display">{timeText(display)}</strong>
-              <p>
-                {t.status === "running"
-                  ? "正在记录这段时间"
-                  : t.status === "paused"
-                    ? "准备好后，继续就好"
-                    : "准备好了，就开始吧"}
-              </p>
             </div>
           </div>
           <div className="timer-actions">
@@ -180,18 +176,15 @@ export default function Focus({ state, call, selected, setSelected, todayMs }) {
             {Array.from({ length: 4 }, (_, i) => (
               <i key={i} className={i < state.cycles % 4 ? "filled" : ""} />
             ))}
-            <span>每 4 个番茄，休息久一点</span>
+            <span>{state.cycles % 4} / 4</span>
           </div>
-          <p className="hint">
-            到时自动记账；下一段由你点击开始。关闭窗口后可在托盘继续计时。
-          </p>
         </Panel>
         <aside className="focus-side">
           <QuickLog call={call} />
           <div className="panel">
             <p className="eyebrow">今日专注</p>
             <h2>{duration(todayMs)}</h2>
-            <p className="hint">今天已经投入的时间</p>
+
             <div className="progress">
               <i
                 style={{
@@ -200,21 +193,6 @@ export default function Focus({ state, call, selected, setSelected, todayMs }) {
               />
             </div>
             <p className="hint">目标 {state.settings.dailyGoal} 分钟</p>
-          </div>
-          <div className="panel focus-note">
-            <Leaf size={24} />
-            <h3>选择适合的计时方式</h3>
-            <p>
-              不必等到万事俱备。
-              <br />
-              先开始，再把一小段时间做好。
-            </p>
-            <hr />
-            <p>
-              正计时适合开放式工作；
-              <br />
-              番茄钟适合边界清晰的任务。
-            </p>
           </div>
           <div className="panel">
             <h3>最近的专注</h3>
@@ -229,7 +207,7 @@ export default function Focus({ state, call, selected, setSelected, todayMs }) {
                 </div>
               ))}
             {!state.logs.some((l) => !l.deletedAt) && (
-              <p className="hint">第一段专注，会从这里开始。</p>
+              <p className="hint">暂无记录</p>
             )}
           </div>
         </aside>

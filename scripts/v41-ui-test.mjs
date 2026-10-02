@@ -64,8 +64,8 @@ try {
     title: getComputedStyle(document.querySelector("h1")).fontFamily,
   }));
   assert.match(fonts.body, /YaHei|PingFang/);
-  assert.match(fonts.title, /STZhongsong/);
-  checks.push("标题与界面字体分离");
+  assert.match(fonts.title, /YaHei|PingFang/);
+  checks.push("统一清晰界面字体");
   await page.getByRole("button", { name: "收起侧栏", exact: true }).click();
   assert.equal(await page.locator(".sidebar nav > button").count(), 3);
   await page.getByRole("button", { name: "效率工具板块", exact: true }).click();
@@ -123,6 +123,7 @@ try {
     }),
   );
   await page.getByRole("button", { name: "今日概览", exact: true }).click();
+  await page.locator(".home-extras > summary").click();
   await page.getByRole("heading", { name: "期末考试", exact: true }).waitFor();
   await page.getByRole("button", { name: "删除期末考试", exact: true }).click();
   assert.equal(
@@ -130,15 +131,15 @@ try {
     0,
   );
   await page.getByRole("button", { name: "主题与小组件", exact: true }).click();
+  await page.getByRole("button", { name: "小组件", exact: true }).click();
   await page.getByRole("button", { name: "添加期末考试", exact: true }).click();
   await page.getByRole("button", { name: "今日概览", exact: true }).click();
+  await page.locator(".home-extras > summary").click();
   await page.getByRole("heading", { name: "期末考试", exact: true }).waitFor();
   checks.push("单句新增自定义组件、删除与恢复");
   await page.getByRole("button", { name: "校园与课表", exact: true }).click();
-  await page.getByRole("button", { name: "打开学习通连接与通知" }).waitFor();
-  await page
-    .getByRole("button", { name: "打开 Canvas", exact: true })
-    .waitFor();
+  await page.getByRole("button", { name: /学习通 · / }).waitFor();
+  await page.getByRole("button", { name: "Canvas", exact: true }).waitFor();
   checks.push("醒目的学术平台入口");
   await page.screenshot({
     path: path.join(root, "test-results/v41-academic.png"),
@@ -214,6 +215,9 @@ try {
   });
   await page.getByRole("button", { name: "快报与提醒", exact: true }).click();
   await page.getByRole("button", { name: "采集最新信息", exact: true }).click();
+  await page
+    .getByRole("button", { name: "展开最近24小时消息", exact: true })
+    .click();
   await page
     .getByRole("heading", { name: "校园医学科研交流讲座合成通知", exact: true })
     .waitFor();

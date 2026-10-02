@@ -44,7 +44,6 @@ export default function Stats({ state, call }) {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow">时间复盘</p>
           <h1>时间记录</h1>
         </div>
         <div className="inline">
@@ -78,7 +77,6 @@ export default function Stats({ state, call }) {
         <Panel className="panel">
           <p className="eyebrow">累计专注</p>
           <h2 className="large-value">{duration(filteredMs)}</h2>
-          <p className="hint">所选日期内的实际工作时长 · 跨日按天分配</p>
           <WeekChart totals={totals} />
         </Panel>
         <Panel className="panel">
@@ -105,87 +103,86 @@ export default function Stats({ state, call }) {
               </div>
             ))}
           {!Object.keys(groups).length && (
-            <Empty icon={BarChart3} title="你的投入，即将在这里留下轨迹">
-              完成专注，或手动补记一段时间。
-            </Empty>
+            <Empty icon={BarChart3} title="暂无记录" />
           )}
         </Panel>
       </div>
-      <Panel className="panel">
+      <Panel className="panel records-panel">
         <div className="panel-heading">
           <div>
             <h3>
               工作记录 <span className="count">{logs.length}</span>
             </h3>
-            <p className="hint">列表按结束日期筛选；每条展示完整时长。</p>
           </div>
           <button className="text-button" onClick={() => setTrash(!trash)}>
             {trash ? "返回工作记录" : "记录回收站"}
           </button>
         </div>
         {logs.length ? (
-          <table>
-            <thead>
-              <tr>
-                <th>任务 / 工作内容</th>
-                <th>清单</th>
-                <th>时间</th>
-                <th>时长</th>
-                <th>方式</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((l) => (
-                <tr key={l.id}>
-                  <td>
-                    <b>{l.title}</b>
-                  </td>
-                  <td>{l.project}</td>
-                  <td>
-                    {new Date(l.startedAt).toLocaleString("zh-CN", {
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}{" "}
-                    —{" "}
-                    {new Date(l.endedAt).toLocaleTimeString("zh-CN", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </td>
-                  <td>{duration(l.durationMs)}</td>
-                  <td>
-                    <span className="tag">
-                      {l.mode === "manual"
-                        ? "手动补记"
-                        : l.mode === "stopwatch"
-                          ? "正计时"
-                          : l.completed
-                            ? "完整番茄"
-                            : "部分专注"}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="icon-button"
-                      aria-label={trash ? "恢复记录" : "删除记录"}
-                      onClick={() =>
-                        call(trash ? "log.restore" : "log.delete", { id: l.id })
-                      }
-                    >
-                      {trash ? <RotateCcw size={15} /> : <Trash2 size={15} />}
-                    </button>
-                  </td>
+          <div className="records-list">
+            <table>
+              <thead>
+                <tr>
+                  <th>任务 / 工作内容</th>
+                  <th>清单</th>
+                  <th>时间</th>
+                  <th>时长</th>
+                  <th>方式</th>
+                  <th />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {logs.map((l) => (
+                  <tr key={l.id}>
+                    <td>
+                      <b>{l.title}</b>
+                    </td>
+                    <td>{l.project}</td>
+                    <td>
+                      {new Date(l.startedAt).toLocaleString("zh-CN", {
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}{" "}
+                      —{" "}
+                      {new Date(l.endedAt).toLocaleTimeString("zh-CN", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </td>
+                    <td>{duration(l.durationMs)}</td>
+                    <td>
+                      <span className="tag">
+                        {l.mode === "manual"
+                          ? "手动补记"
+                          : l.mode === "stopwatch"
+                            ? "正计时"
+                            : l.completed
+                              ? "完整番茄"
+                              : "部分专注"}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        className="icon-button"
+                        aria-label={trash ? "恢复记录" : "删除记录"}
+                        onClick={() =>
+                          call(trash ? "log.restore" : "log.delete", {
+                            id: l.id,
+                          })
+                        }
+                      >
+                        {trash ? <RotateCcw size={15} /> : <Trash2 size={15} />}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : (
-          <Empty icon={Clock3} title="这里还没有工作记录">
-            完成第一段专注，再回来看看。
-          </Empty>
+          <Empty icon={Clock3} title="暂无记录" />
         )}
       </Panel>
       {manual && <ManualLog call={call} onClose={() => setManual(false)} />}

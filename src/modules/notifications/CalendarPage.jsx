@@ -1,4 +1,5 @@
 import Panel from "../../shared/Panel.jsx";
+import ActionMenu from "../../shared/ActionMenu.jsx";
 import React, { useMemo, useState } from "react";
 import {
   CalendarDays,
@@ -29,7 +30,7 @@ import { Modal } from "../../components.jsx";
 import { courseKey } from "../../domain/content.mjs";
 import { agenda } from "../../agenda.mjs";
 import EventEditor from "./EventEditor.jsx";
-import CalendarExchange from './CalendarExchange.jsx';
+import CalendarExchange from "./CalendarExchange.jsx";
 const weekdays = ["一", "二", "三", "四", "五", "六", "日"];
 export default function CalendarPage({
   state,
@@ -39,7 +40,7 @@ export default function CalendarPage({
   embedded = false,
 }) {
   const today = beijingDay();
-  const [exchangeOpen,setExchangeOpen]=useState(false);
+  const [exchangeOpen, setExchangeOpen] = useState(false);
   const [detail, setDetail] = useState(null),
     [eventEditor, setEventEditor] = useState(null),
     [trashOpen, setTrashOpen] = useState(false),
@@ -119,7 +120,7 @@ export default function CalendarPage({
           </span>
         ) : (
           <span className="calendar-chips">
-            {dayEvents.slice(0, 3).map((e) => (
+            {dayEvents.slice(0, 1).map((e) => (
               <span
                 key={e.id}
                 className={`calendar-chip is-${e.kind} ${e.completed ? "complete" : ""}`}
@@ -135,8 +136,8 @@ export default function CalendarPage({
                 {e.title}
               </span>
             ))}
-            {dayEvents.length > 3 && (
-              <small>还有 {dayEvents.length - 3} 项</small>
+            {dayEvents.length > 1 && (
+              <small className="calendar-more">+{dayEvents.length - 1}</small>
             )}
           </span>
         )}
@@ -180,9 +181,7 @@ export default function CalendarPage({
           <span> · 部分课程在回收站</span>
         )}
       </p>
-      {!showTasks || !showCourses || !showCompleted ? (
-        <p className="hint">当前已筛选部分事项；勾选上方选项可查看全部。</p>
-      ) : null}
+
       <div className="calendar-day-events" key={date}>
         {selected.map((event) => (
           <article
@@ -278,20 +277,22 @@ export default function CalendarPage({
           </article>
         ))}
       </div>
-      {!selected.length && (
-        <p className="empty-inbox">这一天暂无符合筛选的已保存安排。</p>
-      )}
+      {!selected.length && <p className="empty-inbox">暂无安排</p>}
     </Panel>
   );
   return (
     <>
-      {exchangeOpen&&<CalendarExchange call={call} onClose={()=>setExchangeOpen(false)}/>}
+      {exchangeOpen && (
+        <CalendarExchange call={call} onClose={() => setExchangeOpen(false)} />
+      )}
       {!embedded && (
         <div className="page-heading">
           <div>
             <h1>日程日历</h1>
           </div>
-          <button className="button" onClick={()=>setExchangeOpen(true)}>导入 / 导出日历</button>
+          <button className="button" onClick={() => setExchangeOpen(true)}>
+            导入 / 导出日历
+          </button>
           <button className="button" onClick={() => setPage("notifications")}>
             <Bell size={16} />
             通知中心
@@ -360,30 +361,32 @@ export default function CalendarPage({
           </div>
         </header>
         <div className="calendar-tools">
-          <button
-            className="button small"
-            disabled={busy}
-            onClick={() =>
-              run("school.courses", {
-                start: date.slice(0, 7) + "-01",
-                end: shiftDate(date.slice(0, 7) + "-01", 1, "month"),
-              })
-            }
-          >
-            <RefreshCw size={14} />
-            {busy ? "处理中…" : "同步本月课表"}
-          </button>
           <button className="button small" onClick={() => setEventEditor({})}>
             <Plus size={14} />
             新建日程
           </button>
-          <button className="text-button" onClick={() => setTrashOpen(true)}>
-            <Trash2 size={14} />
-            日程回收站
-          </button>
-          <button className="text-button" onClick={() => setPage("campus")}>
-            校园连接
-          </button>
+          <ActionMenu label="日历更多操作">
+            <button
+              className="button small"
+              disabled={busy}
+              onClick={() =>
+                run("school.courses", {
+                  start: date.slice(0, 7) + "-01",
+                  end: shiftDate(date.slice(0, 7) + "-01", 1, "month"),
+                })
+              }
+            >
+              <RefreshCw size={14} />
+              {busy ? "处理中…" : "同步本月课表"}
+            </button>
+            <button className="text-button" onClick={() => setTrashOpen(true)}>
+              <Trash2 size={14} />
+              日程回收站
+            </button>
+            <button className="text-button" onClick={() => setPage("campus")}>
+              校园连接
+            </button>
+          </ActionMenu>
         </div>
         {error && (
           <p role="alert" className="error">
@@ -419,9 +422,7 @@ export default function CalendarPage({
           </label>
           <small>任务按截止日期显示 · 北京时间</small>
         </div>
-        <div
-          className={embedded && view === "month" ? "home-calendar-layout" : ""}
-        >
+        <div className={`calendar-content-layout calendar-view-${view}`}>
           <div className="calendar-canvas">
             {view === "year" && (
               <div className="calendar-year" key={year}>
@@ -459,11 +460,8 @@ export default function CalendarPage({
                   ))}
                 </div>
                 <div className="calendar-month-grid" key={month}>
-                  {monthDays(date).map((d) => renderDay(d))}
+                  {monthDays(date).map((d) => renderDay(d, embedded))}
                 </div>
-                <p className="calendar-footnote">
-                  点击日期查看明细，双击进入单日。圆点和色条代表已有课程与任务，空白处可能尚未同步。
-                </p>
               </>
             )}
             {view === "day" && (
@@ -491,7 +489,7 @@ export default function CalendarPage({
               </div>
             )}
           </div>
-          {embedded && dayList}
+          {dayList}
         </div>
         {embedded && (
           <div className="home-next-action">
@@ -519,9 +517,13 @@ export default function CalendarPage({
           </div>
         )}
       </Panel>
-      {!embedded && dayList}
+
       {!embedded && showTasks && unscheduled.length > 0 && (
-        <Panel className="panel calendar-unscheduled">
+        <Panel
+          className="panel calendar-unscheduled"
+          title="待安排"
+          defaultCollapsed
+        >
           <header>
             <h2>
               待安排 <small>{unscheduled.length} 项</small>

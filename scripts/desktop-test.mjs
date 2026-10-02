@@ -41,7 +41,10 @@ try {
   );
   await page.getByRole("button", { name: "关闭", exact: true }).click();
   await page.getByRole("button", { name: "整理侧栏" }).click();
-  await page.getByRole("dialog",{name:"整理侧栏"}).getByRole("button", { name: "展开侧栏" }).click();
+  await page
+    .getByRole("dialog", { name: "整理侧栏" })
+    .getByRole("button", { name: "展开侧栏" })
+    .click();
   await page.getByRole("button", { name: "关闭", exact: true }).click();
   ok("侧栏收起、展开与偏好保存");
   await page.locator(".new-task").click();
@@ -65,6 +68,9 @@ try {
   state = await page.evaluate(() => window.veritas.call("state"));
   assert.equal(state.tasks[0].quadrant, "do");
   ok("四象限拖动修改优先级");
+  await page
+    .locator('summary[aria-label="任务操作 测试：阅读一篇文献"]')
+    .click();
   await page.getByRole("button", { name: "编辑 测试：阅读一篇文献" }).click();
   await page.getByLabel("完成后重复").selectOption("daily");
   await page.getByLabel("阅读方法部分", { exact: true }).check();
@@ -78,12 +84,18 @@ try {
   assert.equal(state.tasks[1].subtasks[0].done, false);
   ok("完成任务、生成重复任务并重置子任务");
   await page
+    .locator('summary[aria-label="任务操作 测试：阅读一篇文献"]')
+    .click();
+  await page
     .getByRole("button", { name: "删除 测试：阅读一篇文献", exact: true })
     .click();
   await page.getByRole("button", { name: "回收站", exact: true }).click();
   await page.getByRole("button", { name: "恢复任务" }).click();
   await page.getByRole("button", { name: "待办", exact: true }).click();
   ok("任务删除与回收站恢复");
+  await page
+    .locator('summary[aria-label="任务操作 测试：阅读一篇文献"]')
+    .click();
   await page.getByRole("button", { name: "专注 测试：阅读一篇文献" }).click();
   await page.getByRole("button", { name: "正计时", exact: true }).click();
   await page.getByRole("button", { name: "开始专注", exact: true }).click();
@@ -180,6 +192,7 @@ try {
   });
   await page.getByRole("button", { name: "校园与课表", exact: true }).click();
   await page.getByLabel("跳转日期").fill("2026-09-24");
+  await page.locator('summary[aria-label="日历更多操作"]').click();
   await page.getByRole("button", { name: "同步本月课表", exact: true }).click();
   await page
     .getByText("测试课程（合成数据）", { exact: true })
@@ -207,6 +220,7 @@ try {
     session.fromPartition("veritas-school").fetch = async () =>
       new Response("unavailable", { status: 500 });
   });
+  await page.locator('summary[aria-label="日历更多操作"]').click();
   await page.getByRole("button", { name: "同步本月课表", exact: true }).click();
   await page.getByRole("status").filter({ hasText: "HTTP 500" }).waitFor();
   state = await page.evaluate(() => window.veritas.call("state"));
@@ -273,8 +287,8 @@ try {
     fs.readdirSync(fixtureProfile(dataDir)).some((f) => /^backup-/.test(f)),
   );
   ok("完整备份导出与恢复，恢复前自动备份");
-   await page.getByRole("button", { name: "设置与数据" }).click();
-   await page.getByRole("tab", { name: "帮助", exact: true }).click();
+  await page.getByRole("button", { name: "设置与数据" }).click();
+  await page.getByRole("tab", { name: "帮助", exact: true }).click();
   await page.getByRole("button", { name: "使用说明", exact: true }).click();
   await page
     .getByRole("dialog", { name: "医栈通 手册" })
@@ -290,8 +304,8 @@ try {
     .waitFor();
   await page.getByRole("button", { name: "关闭手册" }).click();
   ok("使用说明与开发者手册内嵌显示");
-    await page.getByRole("tab", { name: "专注与提醒", exact: true }).click();
-    await page.getByLabel("每日专注目标（分钟）").fill("180");
+  await page.getByRole("tab", { name: "专注与提醒", exact: true }).click();
+  await page.getByLabel("每日专注目标（分钟）").fill("180");
   await page.getByRole("button", { name: "保存设置", exact: true }).click();
   state = await page.evaluate(() => window.veritas.call("state"));
   assert.equal(state.settings.dailyGoal, 180);
