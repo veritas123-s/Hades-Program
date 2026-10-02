@@ -3,8 +3,8 @@ const directory=fs.mkdtempSync(path.join(os.tmpdir(),'medstack-package-pi-'));
 const env={...process.env,VERITAS_TEST:'1',VERITAS_TEST_DATA:directory};delete env.ELECTRON_RUN_AS_NODE;
 let app;
 try {
- app=await launchAuthenticated({executablePath:path.resolve(process.argv[2] || 'release-medstack-5.0/win-unpacked/Medstack.exe'),args:[],env});
- const page=await app.firstWindow();assert.equal(await app.evaluate(({app})=>app.getVersion()),'5.0.0');
+ app=await launchAuthenticated({executablePath:path.resolve(process.argv[2] || 'release-medstack-5.1/win-unpacked/Medstack.exe'),args:[],env});
+ const page=await app.firstWindow();assert.equal(await app.evaluate(({app})=>app.getVersion()),'5.1.0');
  await app.evaluate(({net})=>{
   const previous=net.fetch.bind(net);let step=0;
   net.fetch=async(url,options)=>{
@@ -22,6 +22,6 @@ try {
  assert.equal(result.architecture,'Pi Agent Core 1.0.0');assert.equal(result.history.at(-1).steps[0].name,'read_workspace');assert.equal(result.history.at(-1).tasks[0].title,'合成任务');assert.equal((await call('state')).tasks.length,0);
  assert.ok(!JSON.stringify(result).includes('synthetic-package-private-key'));
  await call('assistant.commit',{id:result.history.at(-1).id,tasks:result.history.at(-1).tasks});assert.equal((await call('state')).tasks.length,1);
- fs.writeFileSync('test-results/medstack-package-pi.json',JSON.stringify({passed:true,version:'5.0.0',steps:2,tools:['read_workspace'],draftBeforeCommit:true,keyRedacted:true}));
+ fs.writeFileSync('test-results/medstack-package-pi.json',JSON.stringify({passed:true,version:'5.1.0',steps:2,tools:['read_workspace'],draftBeforeCommit:true,keyRedacted:true}));
  console.log('PASS 实际发行程序：Pi 两步工具调用、核对后入库、密钥不进上下文或历史');
 }finally{if(app)await app.close();fs.rmSync(directory,{recursive:true,force:true});}

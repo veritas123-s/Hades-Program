@@ -43,6 +43,12 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import com.medstack.app.data.MobileUpdates
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +71,12 @@ private enum class MobilePage(val title: String, val mark: String) {
 
 @Composable
 fun MedstackApp(ui: MedstackUiState, repository: MedstackRepository) {
+    val context=LocalContext.current
+    val updates=remember {MobileUpdates(context)}
+    var updateStatus by remember {mutableStateOf(updates.cached())}
+    val updateScope=rememberCoroutineScope()
+    val checkUpdates:()->Unit={updateScope.launch{updateStatus=withContext(Dispatchers.IO){updates.check()}};Unit}
+    LaunchedEffect(Unit){updateStatus=withContext(Dispatchers.IO){updates.check()}}
     if (!ui.authenticated) {
         AuthScreen(ui, repository)
         return
@@ -86,6 +98,7 @@ fun MedstackApp(ui: MedstackUiState, repository: MedstackRepository) {
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             MobileHeader(ui, page, repository)
+            UpdateBanner(updateStatus){updateStatus.release?.let{updateStatus=updates.dismiss(it)}}
             if (ui.message.isNotBlank()) {
                 Surface(
                     color = MaterialTheme.colorScheme.primaryContainer,
@@ -100,7 +113,7 @@ fun MedstackApp(ui: MedstackUiState, repository: MedstackRepository) {
                 MobilePage.Schedule -> ScheduleScreen(ui)
                 MobilePage.Focus -> FocusScreen(ui, repository)
                 MobilePage.Assistant -> AssistantScreen(repository)
-                MobilePage.Connection -> ConnectionScreen(ui, repository)
+                MobilePage.Connection -> ConnectionScreen(ui, repository, updateStatus, checkUpdates, updates)
             }
         }
     }
@@ -291,7 +304,7 @@ private fun FocusScreen(ui: MedstackUiState, repository: MedstackRepository) {
 }
 
 @Composable
-private fun ConnectionScreen(ui: MedstackUiState, repository: MedstackRepository) {
+private fun ConnectionScreen(ui: MedstackUiState, repository: MedstackRepository, updateStatus:com.medstack.app.data.UpdateStatus, checkUpdates:()->Unit, updates:MobileUpdates) {
     LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item {
             Card(shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
@@ -312,6 +325,7 @@ private fun ConnectionScreen(ui: MedstackUiState, repository: MedstackRepository
                 }
             }
         }
+        item {UpdatePanel(updateStatus,checkUpdates,updates,repository)}
         item { Button(repository::syncNow, modifier = Modifier.fillMaxWidth(), enabled = ui.syncPhase != "syncing") { Text("立即同步") } }
         item {
             Card(shape = RoundedCornerShape(18.dp)) {

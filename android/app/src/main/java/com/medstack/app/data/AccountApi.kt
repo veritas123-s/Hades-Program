@@ -33,7 +33,7 @@ class AccountApi(private val secureStore: SecureStore) {
             .url(origin + path)
             .header("Accept", "application/json")
             .header("Origin", origin)
-            .header("User-Agent", "医栈通Android/${BuildConfig.VERSION_NAME}")
+            .header("User-Agent", "MedstackAndroid/${BuildConfig.VERSION_NAME}")
         if (authenticated) {
             val token = secureStore.get("token") ?: throw ApiException("请先登录 医栈通", 401)
             builder.header("Authorization", "Bearer $token")
@@ -102,6 +102,8 @@ class AccountApi(private val secureStore: SecureStore) {
             secureStore.clearSession()
         }
     }
+
+    fun updatePreferences(enabled:Boolean?=null)=request("/api/releases/preferences",enabled?.let{JSONObject().put("emailUpdates",it)},authenticated=true).json
 
     fun pull() = request(
         "/api/sync",

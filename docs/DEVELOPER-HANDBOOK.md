@@ -234,3 +234,10 @@ npm run dist:installer:ia32
 ## V5.0 界面与消息窗口
 
 `src/news-window.mjs`提供毫秒窗口与保守合并，不修改原记录；`NewsService.collect`只新增窗口内或日期待核对消息，原历史与删除墓碑保留。日历/快报的活动日期语义不随采集窗口改变。新增主进程依赖必须加入发行文件列表。`Panel.jsx`通过当前账号生命周期的React上下文保存会话折叠状态，隐藏内容保持挂载，避免输入丢失；不得把用户面板标题保存到公共配置。
+
+
+## V5.1 版本公告发布
+
+版本统一来自package.json、src/version.mjs与Android配置。更新releases/notes-版本.json，构建并核验两端安装包后，执行 node scripts/publish-release.mjs releases/notes-版本.json 预览；加 --publish 创建GitHub草稿、上传并核验两端附件的GitHub SHA256 digest，随后发布。工具生成releases/stable.json，提交同步这份公开公告后，客户端与服务器读取同一份公告。禁止将安装包或签名私钥提交到源码Git；附件使用GitHub Release。GitHub REST字段依据 https://docs.github.com/en/rest/releases/assets 。
+
+服务器也支持data/releases/stable.json本地公告，公开源不可达时可使用本地公告，适合国内服务主动部署；每分钟检查并处理最多10封订阅邮件。发布新本地公告须原子替换。邮件默认无订阅，仅已验证并在公告发布前主动订阅的账号收到本次邮件。每用户每版本唯一发件记录，待发邮件退订会取消；SMTP失败或中断的sending状态不盲目重试，以免已经投递却重复发送，需运维核对后处理。公开GET仅返回公告，偏好接口必须登录且验证邮箱，退订令牌只允许取消版本邮件，不能登录或访问个人数据。

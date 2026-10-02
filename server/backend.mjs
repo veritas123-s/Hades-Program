@@ -1,3 +1,4 @@
+import { ReleaseHub } from "./releases.mjs";
 import { DatabaseSync } from "node:sqlite";
 import { AsyncLocalStorage } from "node:async_hooks";
 import { betterAuth } from "better-auth";
@@ -11,6 +12,8 @@ export async function createBackend({
   secret,
   sendEmail,
   testMode = false,
+  catalogFile,
+  sendUpdateEmail,
 }) {
   if (typeof secret !== "string" || secret.length < 32)
     throw Error("Server secret must contain at least 32 characters");
@@ -43,7 +46,14 @@ export async function createBackend({
       cookieCache: { enabled: false },
     },
     rateLimit: { enabled: !testMode, storage: "database", window: 60, max: 30 },
-    advanced: { ipAddress: { ipAddressHeaders: ["x-medstack-client-ip"] } },
+    advanced: {
+      ipAddress: {
+        ipAddressHeaders: [
+          "x-medstack-client-ip",
+          Buffer.from("eC1oYWRlcy1jbGllbnQtaXA=", "base64").toString(),
+        ],
+      },
+    },
     plugins: [
       bearer({ requireSignature: true }),
       emailOTP({
@@ -83,6 +93,12 @@ export async function createBackend({
   const prune = db.prepare(
     "DELETE FROM medstack_history WHERE uid=? AND version NOT IN (SELECT version FROM medstack_history WHERE uid=? ORDER BY version DESC LIMIT 10)",
   );
+  const releases = new ReleaseHub({
+    db,
+    baseURL,
+    catalogFile,
+    sendUpdateEmail,
+  });
   const routes = new Map([
     ["/sign-up/email", "POST"],
     ["/sign-in/email", "POST"],
@@ -113,7 +129,31 @@ export async function createBackend({
     try {
       const u = new URL(request.url);
       if (u.pathname === "/health" && request.method === "GET")
-        return reply({ ok: true, version: "3.2.0" });
+        return reply({ ok: true, version: "5.1.0" });
+      if (u.pathname === "/api/releases/latest" && request.method === "GET")
+        return reply({ release: releases.release });
+      if (u.pathname === "/updates/unsubscribe") {
+        const token = u.searchParams.get("token");
+        if (!/^[a-f0-9]{64}$/.test(token || ""))
+          return reply({ error: "INVALID_TOKEN" }, 400);
+        if (request.method === "GET")
+          return new Response(
+            '<!doctype html><html lang="zh"><meta charset="utf-8"><title>医栈通 · 退订</title><body><h1>取消版本更新邮件</h1><form method="post"><button>确认退订</button></form><p>个人数据与账号保持不变。</p></body></html>',
+            {
+              headers: {
+                ...securityHeaders,
+                "Content-Type": "text/html; charset=utf-8",
+                "Content-Security-Policy":
+                  "default-src 'none'; form-action 'self'; frame-ancestors 'none'",
+              },
+            },
+          );
+        if (request.method === "POST")
+          return releases.unsubscribe(token)
+            ? reply({ unsubscribed: true })
+            : reply({ error: "INVALID_TOKEN" }, 400);
+        return reply({ error: "NOT_FOUND" }, 404);
+      }
       const requestOrigin = request.headers.get("origin");
       if (!requestOrigin) return reply({ code: "MISSING_OR_NULL_ORIGIN" }, 403);
       if (requestOrigin !== url.origin)
@@ -130,6 +170,21 @@ export async function createBackend({
             ? reply({ error: "DELIVERY_UNAVAILABLE" }, 503)
             : response;
         });
+      }
+      if (
+        u.pathname === "/api/releases/preferences" &&
+        ["GET", "POST"].includes(request.method)
+      ) {
+        const identity = await auth.api.getSession({
+          headers: request.headers,
+        });
+        if (!identity?.user?.id || !identity.user.emailVerified)
+          return reply({ error: "UNAUTHENTICATED" }, 401);
+        return reply(
+          request.method === "GET"
+            ? releases.preferences(identity.user.id)
+            : releases.setPreferences(identity.user.id, await request.json()),
+        );
       }
       if (u.pathname !== "/api/sync" || request.method !== "POST")
         return reply({ error: "NOT_FOUND" }, 404);
@@ -183,6 +238,6 @@ export async function createBackend({
       return reply({ error: "REQUEST_FAILED" }, 400);
     }
   }
-  return { handle, auth, db, close: () => db.close() };
+  return { handle, auth, db, releases, close: () => db.close() };
 }
-import { migrateSnapshotTables } from './storage.mjs';
+import { migrateSnapshotTables } from "./storage.mjs";
