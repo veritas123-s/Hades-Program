@@ -1,0 +1,294 @@
+/* Measure the working area, including sidebar and display scaling changes. */
+.app-shell {
+  height: 100dvh;
+  min-height: 0;
+}
+:root[data-theme] .workspace {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+:root[data-theme] .workspace > main.page-viewport {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: auto;
+  container: workspace / inline-size;
+  padding: clamp(8px, 1.2vw, 16px);
+}
+.page-viewport > *,
+.page-viewport :is(.panel, .quadrant, .calendar-content-layout > *) {
+  min-width: 0;
+}
+.page-viewport .home-primary {
+  grid-template-columns: minmax(210px, 0.75fr) minmax(0, 1.8fr);
+  gap: clamp(8px, 1vw, 16px);
+}
+.page-viewport .calendar-content-layout {
+  grid-template-columns: minmax(0, 1.8fr) minmax(190px, 1fr);
+}
+.page-viewport .home-calendar .calendar-content-layout {
+  grid-template-columns: minmax(0, 1.4fr) minmax(170px, 1fr);
+}
+.page-viewport .theme-gallery {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+.page-viewport .calendar-year {
+  grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
+}
+.page-viewport .home-calendar .calendar-year {
+  grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+}
+.page-viewport .calendar-month-grid:not(.mini) .calendar-day {
+  min-height: clamp(
+    32px,
+    calc((var(--workspace-height, 680px) - 340px) / 6),
+    80px
+  );
+}
+.page-viewport .home-calendar .calendar-month-grid:not(.mini) .calendar-day {
+  min-height: clamp(
+    28px,
+    calc((var(--workspace-height, 680px) - 440px) / 6),
+    58px
+  );
+  height: auto;
+}
+.page-viewport .focus-stage .timer-dial {
+  width: clamp(150px, calc(var(--workspace-height, 680px) * 0.3), 280px);
+  height: auto;
+  aspect-ratio: 1;
+}
+.page-viewport .timer-display {
+  font-size: clamp(42px, calc(var(--workspace-height, 680px) * 0.085), 72px);
+}
+.page-viewport .task-list {
+  max-height: max(140px, calc(var(--workspace-height, 680px) - 135px));
+  overflow: auto;
+}
+.page-viewport .quadrant {
+  max-height: max(130px, calc((var(--workspace-height, 680px) - 165px) / 2));
+  overflow: auto;
+}
+.page-viewport .calendar-day-events {
+  max-height: max(130px, calc(var(--workspace-height, 680px) - 440px));
+  overflow: auto;
+}
+.page-viewport .home-calendar .calendar-day-events {
+  max-height: max(100px, calc(var(--workspace-height, 680px) - 540px));
+}
+.page-viewport .calendar-view-year .calendar-day-events {
+  max-height: max(120px, calc(var(--workspace-height, 680px) - 450px));
+}
+.page-viewport .records-list {
+  max-height: max(110px, calc(var(--workspace-height, 680px) - 355px));
+  overflow: auto;
+}
+.page-viewport .settings-content {
+  max-height: max(160px, calc(var(--workspace-height, 680px) - 125px));
+  overflow: auto;
+}
+.page-viewport .focus-side {
+  max-height: max(200px, calc(var(--workspace-height, 680px) - 70px));
+  overflow: auto;
+}
+.page-viewport .notification-list {
+  max-height: max(120px, calc(var(--workspace-height, 680px) - 295px));
+  overflow: auto;
+}
+.page-viewport
+  :is(
+    .heading-actions,
+    .calendar-actions,
+    .notification-actions,
+    .settings-actions
+  ) {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.page-viewport .heading-actions {
+  margin-left: auto;
+  justify-content: flex-end;
+}
+.page-viewport :is(input, select, textarea) {
+  max-width: 100%;
+  min-width: 0;
+}
+@container workspace (max-width: 1060px) {
+  .home-primary {
+    grid-template-columns: minmax(205px, 0.65fr) minmax(0, 1.7fr);
+  }
+  .home-calendar .calendar-content-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-calendar .calendar-day-events {
+    max-height: 100px;
+  }
+  .home-calendar .calendar-month-grid:not(.mini) .calendar-day {
+    min-height: 30px;
+  }
+  .calendar-view-year {
+    grid-template-columns: minmax(0, 1fr) 200px;
+  }
+}
+@container workspace (max-width: 780px) {
+  .home-primary,
+  .focus-layout,
+  .account-grid,
+  .briefing-grid,
+  .stats-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-primary .home-task-focus .task-list {
+    max-height: 150px;
+  }
+  .calendar-content-layout,
+  .calendar-view-year {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .calendar-day-events {
+    max-height: 150px;
+  }
+  .page-heading {
+    flex-wrap: wrap;
+  }
+  .heading-actions {
+    justify-content: flex-start;
+    margin-left: 0;
+  }
+  .form-grid,
+  .workspace-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .quadrants {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@container workspace (max-width: 520px) {
+  .calendar-toolbar,
+  .calendar-toolbar-main {
+    flex-wrap: wrap;
+  }
+  .theme-gallery {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+  .calendar-year {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mode-tabs {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 900px) {
+  :root[data-theme] .sidebar {
+    width: 148px;
+  }
+  :root[data-theme] .workspace {
+    margin-left: 148px;
+    width: calc(100% - 148px);
+  }
+  .topbar .breadcrumb,
+  .topbar .theme-shortcut {
+    display: none;
+  }
+  .topbar .search {
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+:root[data-theme="medical"] {
+  --text: #173b4a;
+  --muted: #58707d;
+  --bg: #f3f8fb;
+  --surface: #ffffff;
+  --surface-soft: #e5f1f5;
+  --border: #c8dce5;
+  --accent: #086b91;
+  --green: #16877a;
+  --on-accent: #ffffff;
+  --danger: #b73848;
+  --shadow: #173b4a12;
+  color-scheme: light;
+}
+:root[data-theme] .brand .medstack-mark,
+:root[data-theme] .medstack-mark {
+  background: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  color: var(--accent);
+}
+:root[data-theme="midnight"] .sidebar .medstack-mark {
+  color: var(--accent);
+}
+:root[data-theme="medical"] .sidebar {
+  background: #e5f1f5;
+  color: #173b4a;
+  border-right: 1px solid #c8dce5;
+}
+:root[data-theme="medical"] .sidebar .brand,
+:root[data-theme="medical"] .sidebar button {
+  color: #173b4a;
+}
+:root[data-theme="medical"] .sidebar button.active,
+:root[data-theme="medical"] .sidebar .new-task {
+  background: #086b91;
+  color: #fff;
+}
+:root[data-theme="medical"] .sidebar .nav-group-button {
+  color: #58707d;
+}
+.page-viewport .calendar-view-year {
+  grid-template-columns: minmax(0, 1fr) 210px;
+}
+@container workspace (max-width: 780px) {
+  .calendar-view-year {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@container workspace (max-width: 1060px) {
+  .page-viewport .home-calendar .calendar-content-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .page-viewport .home-calendar .calendar-day-events {
+    max-height: 100px;
+  }
+  .page-viewport .home-calendar .calendar-month-grid:not(.mini) .calendar-day {
+    min-height: 30px;
+  }
+}
+@container workspace (max-width: 780px) {
+  .page-viewport .home-primary,
+  .page-viewport .focus-layout,
+  .page-viewport .account-grid,
+  .page-viewport .briefing-grid,
+  .page-viewport .stats-grid,
+  .page-viewport .calendar-content-layout,
+  .page-viewport .calendar-view-year {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .page-viewport .calendar-day-events {
+    max-height: 150px;
+  }
+  .page-viewport .form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .page-viewport .quadrants {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@container workspace (max-width: 520px) {
+  .page-viewport .theme-gallery {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+  .page-viewport .calendar-year {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+:root[data-theme] .sidebar .medstack-mark { color: color-mix(in srgb, var(--accent) 35%, #ffffff 65%); }
+:root[data-theme=medical] .sidebar .medstack-mark { color: var(--accent); }

@@ -63,5 +63,14 @@ export const THEMES = [
     background: "#edf3ee",
     architecture: false,
   },
+  {
+    id: "medical",
+    name: "经典医疗",
+    subtitle: "白、医用蓝与青绿",
+    description: "清晰、明亮的临床工作空间。",
+    colors: ["#f3f8fb", "#086b91", "#16877a"],
+    background: "#f3f8fb",
+    architecture: false,
+  },
 ];
 export const themeById = (id) => THEMES.find((t) => t.id === id) || THEMES[0];
