@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "version": "5.1.0",
+  "publishedAt": "2026-10-02T09:50:37.853Z",
+  "title": "医栈通 V5.1 已发布",
+  "notes": [
+    "新增更新通知中心：启动检查新版，首页轻量提醒，按版本去重。",
+    "设置内可手动检查、查看更新内容并获取 Windows 或安卓安装包。",
+    "支持自愿订阅版本更新邮件，随时取消订阅。",
+    "下载公告校验版本、官方仓库地址与 SHA256；离线保留上次公告。",
+    "修正安卓账号请求的标识编码，保留同账号同步与 Pi 助手。"
+  ],
+  "urgent": false,
+  "downloads": {
+    "windows": {
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.1.0/Medstack-Setup-5.1.0-x64.exe",
+      "sha256": "55aad9801b8246449d01af6ac1bd4c277abad48deb2e188036acd77417ae3ebe"
+    },
+    "android": {
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.1.0/Medstack-5.1.0-Android.apk",
+      "sha256": "4df6a2fc0296fdb7a0db2e0cad94c4e13aeb76131fd5c77bbdce5ab67ff02974"
+    }
+  }
+}
