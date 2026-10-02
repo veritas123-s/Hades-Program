@@ -29,6 +29,7 @@ class MobilePiEngine(context: Context, private val userId: String, private val a
     private var closed = false
     private var running = false
     private var calls = 0
+    private var runId = 0
     private var activeCall: Call? = null
     private val ledger = ArrayDeque<Long>()
     private val client = OkHttpClient.Builder().connectTimeout(12,TimeUnit.SECONDS).readTimeout(90,TimeUnit.SECONDS).callTimeout(90,TimeUnit.SECONDS).followRedirects(false).followSslRedirects(false).retryOnConnectionFailure(false).build()
@@ -83,16 +84,16 @@ class MobilePiEngine(context: Context, private val userId: String, private val a
         require(!running) { "助手正在处理上一条请求" }
         require(text.isNotBlank() && text.length <= 4000) { "请输入1至4000字" }
         val config=configuration(); check(config.optString("key").isNotBlank()) { "请先保存自己的 API 连接" }
-        running=true; calls=0
-        val input=JSONObject().put("text",text.replace(config.optString("key"),"[密钥已隐藏]")).put("model",config.getString("model")).put("includeContext",includeContext).put("workspace",workspace)
+        running=true; calls=0; runId++
+        val input=JSONObject().put("runId",runId).put("text",text.replace(config.optString("key"),"[密钥已隐藏]")).put("model",config.getString("model")).put("includeContext",includeContext).put("workspace",workspace)
         if(ready) launch(input) else queued=input
     }
     private fun launch(input: JSONObject) { web.evaluateJavascript("MedstackPi.run($input)",null) }
     inner class Bridge {
-        @JavascriptInterface fun request(id: String, payload: String) {
+        @JavascriptInterface fun request(id: String, payload: String, operation: Int) {
             scope.launch {
                 val result=try {
-                    check(running && authorized() && !closed) { "登录状态已失效" }
+                    check(running && operation==runId && authorized() && !closed) { "登录状态已失效" }
                     require(payload.length <= 200000 && ++calls <= 6) { "已达到步骤或内容上限" }
                     val now=System.currentTimeMillis()
                     synchronized(ledger) { while(ledger.isNotEmpty() && now-ledger.first()>60000) ledger.removeFirst(); check(ledger.size<8) { "已接近每分钟调用额度" }; ledger.addLast(now) }
@@ -107,7 +108,7 @@ class MobilePiEngine(context: Context, private val userId: String, private val a
                         val output=ByteArrayOutputStream(); val buffer=ByteArray(8192)
                         while(true) { val size=stream.read(buffer); if(size<0) break; require(output.size()+size<=1_000_000) { "模型回复过大" }; output.write(buffer,0,size) }
                         val bytes=output.toByteArray()
-                        check(authorized() && !closed && running) { "生成已停止" }
+                        check(authorized() && !closed && running && operation==runId) { "生成已停止" }
                         JSONObject(String(bytes,Charsets.UTF_8))
                     }
                 } catch(e:Exception) { JSONObject().put("error",e.message ?: "请求未完成") }
@@ -117,7 +118,7 @@ class MobilePiEngine(context: Context, private val userId: String, private val a
         }
         @JavascriptInterface fun completed(payload: String) {
             main.post {
-                if(closed || !running) return@post
+                if(closed || !running || JSONObject(payload).optInt("runId",-1)!=runId) return@post
                 running=false
                 if(authorized()) {
                     val key=configuration().optString("key")
