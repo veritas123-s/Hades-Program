@@ -1,6 +1,6 @@
 # Medstack development
 
-Windows Electron + React。主进程在 electron/，中文界面与领域模型在 src/。原 Android 工程不属于此仓库。
+Windows Electron + React。主进程在 electron/，中文界面与领域模型在 src/。原生 Android 伴侣端在 android/，桌面与移动端共享 src/agent/ 中的 Pi 工具循环。
 
 - 用户明确授权：每次完成版本迭代，自动提交并推送经过验证的源码和版本说明至 https://github.com/veritas123-s/Medstack-Program 。无需重复申请推送许可。先拉取核对远端变更，不强制推送，不覆盖他人提交。
 - 禁止提交 API 密钥、密码、Cookie、云凭据、真实课表/通知/任务/专注数据、账号诊断、备份、用户配置或构建缓存。使用合成数据测试，发布前检查待提交文件与内容。
