@@ -1,6 +1,8 @@
 package com.medstack.app.ui
 
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -47,6 +50,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.painterResource
+import com.medstack.app.R
 import com.medstack.app.BuildConfig
 import com.medstack.app.data.MedstackRepository
 import com.medstack.app.data.MedstackUiState
@@ -107,14 +112,14 @@ private fun AuthScreen(ui: MedstackUiState, repository: MedstackRepository) {
     var email by remember { mutableStateOf(ui.pendingEmail) }
     var password by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }
-    Box(Modifier.fillMaxSize().padding(24.dp), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize().imePadding().padding(24.dp), contentAlignment = Alignment.Center) {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
             shape = RoundedCornerShape(28.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         ) {
             Column(Modifier.padding(28.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("M", style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary)
+                Image(painterResource(R.drawable.medstack_icon),contentDescription="Medstack",modifier=Modifier.size(64.dp))
                 Text("医栈通 Medstack", style = MaterialTheme.typography.headlineLarge)
                 Text("医栈事，一站通", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (ui.needsVerification) {

@@ -34,6 +34,7 @@ class MobilePiEngine(context: Context, private val userId: String, private val a
     private val client = OkHttpClient.Builder().connectTimeout(12,TimeUnit.SECONDS).readTimeout(90,TimeUnit.SECONDS).callTimeout(90,TimeUnit.SECONDS).followRedirects(false).followSslRedirects(false).retryOnConnectionFailure(false).build()
     private val web = WebView(context)
     private var ready = false
+    private var startupError = ""
     private var queued: JSONObject? = null
     private val asset = context.assets.open("pi/agent.js").bufferedReader().use { it.readText() }
     init {
@@ -48,7 +49,18 @@ class MobilePiEngine(context: Context, private val userId: String, private val a
             override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse = WebResourceResponse("text/plain","UTF-8",ByteArrayInputStream(ByteArray(0)))
             override fun onPageFinished(view: WebView?, url: String?) {
                 if (closed) return
-                web.evaluateJavascript(asset) { ready = true; queued?.let { queued=null; launch(it) } }
+                web.evaluateJavascript(asset) {
+                    web.evaluateJavascript("typeof globalThis.MedstackPi === 'object'") { supported ->
+                        if(closed) return@evaluateJavascript
+                        ready=supported=="true"
+                        if(ready) queued?.let { queued=null; launch(it) }
+                        else {
+                            startupError="助手运行库未能启动，请更新 Android System WebView 后重试"
+                            queued=null
+                            if(running) { running=false; completed(JSONObject().put("error",startupError)) }
+                        }
+                    }
+                }
             }
         }
         web.loadDataWithBaseURL("https://medstack.local/", "<html><head><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'unsafe-eval'; connect-src 'none'\"></head><body></body></html>", "text/html", "UTF-8", null)
@@ -67,6 +79,7 @@ class MobilePiEngine(context: Context, private val userId: String, private val a
     }
     fun run(text: String, workspace: JSONObject?, includeContext: Boolean) {
         check(authorized() && !closed) { "请先登录" }
+        check(startupError.isBlank()) { startupError }
         require(!running) { "助手正在处理上一条请求" }
         require(text.isNotBlank() && text.length <= 4000) { "请输入1至4000字" }
         val config=configuration(); check(config.optString("key").isNotBlank()) { "请先保存自己的 API 连接" }

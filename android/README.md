@@ -11,7 +11,7 @@ cd android
 .\gradlew.bat :app:assembleDebug :app:lintDebug
 ```
 
-仓库的 Android 工作流在 GitHub 托管环境中执行同样的编译和 Lint，并输出可安装的调试 APK。正式分发包需要长期保管的独立签名密钥：在 `android/keystore.properties` 中提供 `storeFile`、`storePassword`、`keyAlias`、`keyPassword` 后执行 `:app:assembleRelease`。该文件和密钥文件均被 Git 忽略。
+仓库 Android 工作流先构建共享 Pi 运行库，再编译并执行 Release Lint，输出未签名的发行 APK。下载后在本机签名，私钥不上传 GitHub。正式分发包需要长期保管独立签名密钥；以后更新须沿用同一证书。私钥和 `keystore.properties` 均被 Git 忽略。
 
 ## 数据与安全
 

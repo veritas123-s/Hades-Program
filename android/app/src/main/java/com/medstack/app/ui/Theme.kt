@@ -27,19 +27,19 @@ private val MedstackColors = lightColorScheme(
     error = Color(0xFFB3261E),
 )
 
-private val SongTypography = Typography(
+private val MedstackTypography = Typography(
     displaySmall = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 36.sp),
     headlineLarge = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.Bold, fontSize = 30.sp),
     headlineMedium = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 25.sp),
     titleLarge = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 21.sp),
     titleMedium = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 18.sp),
-    bodyLarge = TextStyle(fontFamily = FontFamily.Serif, fontSize = 17.sp, lineHeight = 26.sp),
-    bodyMedium = TextStyle(fontFamily = FontFamily.Serif, fontSize = 15.sp, lineHeight = 23.sp),
-    labelLarge = TextStyle(fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold, fontSize = 15.sp),
-    labelMedium = TextStyle(fontFamily = FontFamily.Serif, fontSize = 13.sp),
+    bodyLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 17.sp, lineHeight = 26.sp),
+    bodyMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 15.sp, lineHeight = 23.sp),
+    labelLarge = TextStyle(fontFamily = FontFamily.SansSerif, fontWeight = FontWeight.SemiBold, fontSize = 15.sp),
+    labelMedium = TextStyle(fontFamily = FontFamily.SansSerif, fontSize = 13.sp),
 )
 
 @Composable
 fun MedstackTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = MedstackColors, typography = SongTypography, content = content)
+    MaterialTheme(colorScheme = MedstackColors, typography = MedstackTypography, content = content)
 }
