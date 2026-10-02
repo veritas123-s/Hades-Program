@@ -1,6 +1,8 @@
 # Medstack-Program
 
-## 医栈通 Medstack V5.3.0
+## 医栈通 Medstack V5.3.1
+
+登录页与设置的「关于」加入 Medtrix 团队原始品牌标识，Android 登录页同步展示。应用名称、图标及个人数据目录保持兼容。
 
 **医栈事，一站通。** 桌面和安卓共用官方 Pi Agent Core，Poseidon 的模型和密钥可由每位用户独立配置。新版采用统一的医疗栈图标，安卓包名为 `com.medstack.app`，通过同一账号同步任务、日程与专注记录。安装与架构说明见 [新版说明](docs/MEDSTACK-RELEASE.md)。
 

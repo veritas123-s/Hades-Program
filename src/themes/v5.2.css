@@ -644,3 +644,24 @@
   height: auto;
   min-height: 32px;
 }
+
+.team-brand {
+  display: block;
+  width: clamp(160px, 20vw, 220px);
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1100 / 295;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+.team-brand-compact {
+  width: 116px;
+  margin: 0;
+}
+.auth-team-brand {
+  display: flex;
+  justify-content: center;
+  padding-top: 16px;
+}

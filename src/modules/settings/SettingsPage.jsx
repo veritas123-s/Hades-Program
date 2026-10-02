@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Download, Upload, FolderOpen } from "lucide-react";
 import { APP_LABEL } from "../../version.mjs";
 import Panel from "../../shared/Panel.jsx";
+import TeamBrand from "../../shared/TeamBrand.jsx";
 import LinkedText from "../../shared/LinkedText.jsx";
 export default function SettingsPage({
   state,
@@ -219,6 +220,7 @@ export default function SettingsPage({
           </div>
           <div hidden={tab !== "about"}>
             <Panel className="panel">
+              <TeamBrand />
               <h2>医栈通</h2>
               <p>{APP_LABEL}</p>
               <p>由 Medtrix 团队制作</p>
