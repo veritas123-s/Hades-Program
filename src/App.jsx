@@ -1,8 +1,9 @@
 import { UpdateBanner } from "./modules/settings/UpdateCenter.jsx";
-import brandIcon from "../assets/medstack.svg";
+import BrandMark from "./shared/BrandMark.jsx";
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { PanelProvider } from "./shared/Panel.jsx";
+import ResponsiveViewport from "./shared/ResponsiveViewport.jsx";
 import {
   Bell,
   Timer,
@@ -150,7 +151,7 @@ export default function App() {
   if (!state)
     return (
       <div className="loading">
-        <img className="brand-symbol" src={brandIcon} alt="Medstack" />
+        <BrandMark />
         <h1>{APP_LABEL}</h1>
         <p>
           {window.veritas ? "医栈事，一站通" : "请通过桌面程序打开此应用。"}
@@ -162,7 +163,7 @@ export default function App() {
     return (
       <main className="auth-shell">
         <div className="auth-brand">
-          <img className="brand-symbol" src={brandIcon} alt="Medstack" />
+          <BrandMark />
           <div>
             <h1>
               医栈通 <small>Medstack</small>
@@ -269,7 +270,7 @@ export default function App() {
           )}
         </button>
         <div className="brand">
-          <img className="brand-symbol" src={brandIcon} alt="Medstack" />
+          <BrandMark />
           <div>
             <b>
               医栈通<span>{APP_VERSION}</span>
@@ -501,7 +502,7 @@ export default function App() {
           </button>
         </header>
         <PanelProvider page={page} key={state.account?.user?.id || "personal"}>
-          <main className={`page-viewport page-${page}`}>
+          <ResponsiveViewport className={`page-viewport page-${page}`}>
             <UpdateBanner updates={state.updates} call={call} />
             {state.lastNotice && (
               <div className="notice">
@@ -551,7 +552,7 @@ export default function App() {
                 },
               }}
             />
-          </main>
+          </ResponsiveViewport>
         </PanelProvider>
         {state.timer.status !== "idle" && page !== "focus" && (
           <button className="floating-timer" onClick={() => setPage("focus")}>

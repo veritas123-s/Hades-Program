@@ -178,7 +178,7 @@ test("跨日日程覆盖结束前一天，软删除恢复，非法日期事务�
   assert.throws(() => eventInput({ ...p, end: p.start }));
 });
 test("七种主题、受限背景字段、自定义主题与完整状态往返", () => {
-  assert.equal(THEMES.length, 7);
+  assert.equal(THEMES.length, 8);
   assert.ok(
     ["violet", "orbital", "millennium"].every((id) =>
       THEMES.some((t) => t.id === id),

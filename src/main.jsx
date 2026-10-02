@@ -15,4 +15,5 @@ import "./themes/v3.2.css";
 import "./themes/v4.css";
 import "./themes/v4.1.css";
 import "./themes/compact.css";
+import "./themes/responsive.css";
 createRoot(document.getElementById("root")).render(<App />);

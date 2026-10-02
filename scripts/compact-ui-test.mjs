@@ -185,7 +185,7 @@ try {
     JSON.stringify({ passed: true, syntheticTasks: 62, results }, null, 2),
   );
   console.log(
-    `PASS: ${results.length} layout checks, seven themes, 62 tasks, manual log, collapsed navigation.`,
+    `PASS: ${results.length} layout checks, eight themes, 62 tasks, manual log, collapsed navigation.`,
   );
 } catch (error) {
   const page = await app.firstWindow();
