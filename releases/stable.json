@@ -1,24 +1,26 @@
 {
   "schema": 1,
-  "version": "5.2.0",
-  "publishedAt": "2026-10-02T14:56:02.655Z",
-  "title": "医栈通 V5.2 · 信息卡片工作台",
+  "version": "5.2.1",
+  "publishedAt": "2026-10-02T15:50:40.487Z",
+  "title": "医栈通 V5.2 · 图文快讯与精简布局",
   "notes": [
-    "今日概览独立于三个分类，采用简洁信息卡片展示任务、日程、专注和通知。",
-    "Poseidon 改为全局按钮，可在任意功能页面打开助手。",
-    "超星学习通独立标签，保留课程筛选、同步和通知删除恢复。",
-    "标题、正文、按钮与卡片数字随可用空间动态缩放，保留可读下限。",
-    "八款主题与自定义背景继续可用；安卓伴侣端同步版本标识。"
+    "校园信息仅保留校园快讯和超星学习通两个入口，撤下重复通知页面。",
+    "首页合并超星通知与公开快讯为校园快讯卡片，公开同类消息合并展示。",
+    "校园快讯加入原文封面、标题、摘要、来源和日期，支持搜索；图片不可用时保留文字。",
+    "按成熟效率应用收紧字体、侧栏、按钮和卡片层级，正文采用约13—15像素并限制自动放大。",
+    "早晚报推送和自动工作流进入设置，通知删除与恢复继续可用。",
+    "今日概览独立于分类，Poseidon 全局按钮、响应式字号和八款主题保留。",
+    "安卓伴侣端更新版本标识，原生功能保留。"
   ],
   "urgent": false,
   "downloads": {
     "windows": {
-      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.2.0/Medstack-Setup-5.2.0-x64.exe",
-      "sha256": "1d8a8ec4594560f2f7f1952506eeec773f80b4ecb5ac575f8216f8a734b84655"
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.2.1/Medstack-Setup-5.2.1-x64.exe",
+      "sha256": "9f17342baf371fc7d287ee6638b8c29bcd88f8b36f533c2bc98812e63310161a"
     },
     "android": {
-      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.2.0/Medstack-5.2.0-Android.apk",
-      "sha256": "9949197e378dd47872199956fc1fc36e2874048c25a6002dfe32c7a6685d5560"
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.2.1/Medstack-5.2.1-Android.apk",
+      "sha256": "8ae28d041d4cc31fe94bc34ffc73e8eba7cae8544ce50da5d7b4c4a3eeb749be"
     }
   }
 }
