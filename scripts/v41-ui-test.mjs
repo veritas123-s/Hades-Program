@@ -6,6 +6,7 @@ import {
   launchAuthenticated,
   fixtureProfile,
 } from "./account-test-fixture.mjs";
+import { THEMES } from "../src/themes/catalog.mjs";
 import { beijingDay } from "../src/briefing.mjs";
 const root = path.resolve(import.meta.dirname, "..");
 const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-v41-ui-"));
@@ -182,8 +183,8 @@ try {
   );
   checks.push("面板收起状态在当前登录会话内跨页面保留");
   await page.getByRole("button", { name: "主题与小组件", exact: true }).click();
-  assert.equal(await page.locator(".theme-choice").count(), 7);
-  checks.push("精简文案后七主题与自定义功能入口保留");
+  assert.equal(await page.locator(".theme-choice").count(), THEMES.length);
+  checks.push("精简文案后全部主题与自定义功能入口保留");
   await app.evaluate(({ net }) => {
     const original = net.fetch.bind(net);
     net.fetch = async (url, options) => {

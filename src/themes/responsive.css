@@ -292,3 +292,6 @@
 
 :root[data-theme] .sidebar .medstack-mark { color: color-mix(in srgb, var(--accent) 35%, #ffffff 65%); }
 :root[data-theme=medical] .sidebar .medstack-mark { color: var(--accent); }
+
+.sidebar .brand > div { display: none; }
+:root[data-theme] .sidebar .brand .medstack-mark { width: 34px; height: 34px; }
