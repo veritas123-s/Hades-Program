@@ -1,4 +1,45 @@
 import React, { useEffect, useState } from "react";
+function InstallUpdate({ updates, call }) {
+  const [error, setError] = useState(""),
+    [starting, setStarting] = useState(false);
+  const install = updates?.installation;
+  if (!updates?.available || !install?.supported) return null;
+  const busy =
+    starting ||
+    ["downloading", "verifying", "installing"].includes(install.phase);
+  const label =
+    install.phase === "downloading"
+      ? `下载中 ${install.total ? Math.floor((install.received / install.total) * 100) + "%" : "…"}`
+      : install.phase === "verifying"
+        ? "校验中…"
+        : install.phase === "installing"
+          ? "安装中…"
+          : starting
+            ? "准备中…"
+            : "一键更新";
+  return (
+    <div>
+      <button
+        className="button primary"
+        disabled={busy}
+        onClick={async () => {
+          setStarting(true);
+          setError("");
+          try {
+            await call("updates.install");
+          } catch (e) {
+            setError(e.message);
+          } finally {
+            setStarting(false);
+          }
+        }}
+      >
+        {label}
+      </button>
+      {(error || install.error) && <p role="alert">{error || install.error}</p>}
+    </div>
+  );
+}
 export function UpdateBanner({ updates, call }) {
   if (!updates?.available || updates.dismissed) return null;
   return (
@@ -22,8 +63,9 @@ export function UpdateBanner({ updates, call }) {
         </ul>
       </details>
       <div className="settings-actions">
+        <InstallUpdate updates={updates} call={call} />
         <button
-          className="button primary"
+          className="button"
           onClick={() => call("updates.download", { platform: "windows" })}
         >
           下载新版
@@ -78,6 +120,7 @@ export default function UpdateCenter({ updates, call, toast, userId }) {
             ))}
           </ul>
           <div className="settings-actions">
+            <InstallUpdate updates={updates} call={call} />
             {Object.keys(updates.release.downloads).map((platform) => (
               <button
                 key={platform}

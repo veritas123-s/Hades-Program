@@ -14,8 +14,17 @@ export class Updates {
     changed = () => {},
     open = () => {},
     clock = () => Date.now(),
+    installer,
   }) {
-    Object.assign(this, { version, provider, fetcher, changed, open, clock });
+    Object.assign(this, {
+      version,
+      provider,
+      fetcher,
+      changed,
+      open,
+      clock,
+      installer,
+    });
     this.file = path.join(directory, "medstack-updates.json");
     this.data = { dismissed: [], release: null, checkedAt: null };
     this.busy = false;
@@ -41,6 +50,7 @@ export class Updates {
       checkedAt: this.data.checkedAt,
       busy: this.busy,
       error: this.error,
+      installation: this.installer?.status(),
     };
   }
   save(data) {
@@ -149,6 +159,11 @@ export class Updates {
     const item = validateRelease(release).downloads[platform];
     if (!item) throw Error("此平台的安装包尚未发布");
     return this.open(item.url);
+  }
+  async install() {
+    if (!this.installer) throw Error("当前版本不支持一键更新");
+    if (!this.status().available) throw Error("当前已是最新版本");
+    return this.installer.install(this.data.release);
   }
   async email(body) {
     try {

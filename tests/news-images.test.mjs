@@ -14,6 +14,14 @@ import {
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+const fixtureImage = () => {
+  const b = Buffer.alloc(24);
+  Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(b);
+  b.write("IHDR", 12);
+  b.writeUInt32BE(800, 16);
+  b.writeUInt32BE(600, 20);
+  return b;
+};
 
 test("封面解析支持学校相对链接、微信懒加载与倒序 meta 属性，拒绝外站和本机地址", () => {
   assert.equal(
@@ -74,13 +82,13 @@ test("封面请求无凭据、拒绝重定向及非图片，缩略图有体积�
     native,
     async (_url, o) => {
       options = o;
-      return new Response(Buffer.from("synthetic"), {
+      return new Response(fixtureImage(), {
         headers: { "content-type": "image/jpeg" },
       });
     },
   );
   assert.equal(options.credentials, "omit");
-  assert.equal(options.redirect, "error");
+  assert.equal(options.redirect, "manual");
   assert.equal(
     Buffer.from(image.split(",")[1], "base64").toString(),
     "thumbnail-480",

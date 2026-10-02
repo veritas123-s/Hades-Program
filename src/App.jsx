@@ -302,37 +302,55 @@ export default function App() {
               ))}
             {NAV_GROUPS.map((group) => (
               <React.Fragment key={group.id}>
-                {visibleNav.some(([id]) => routeGroup(id) === group.id) && (
-                  <button
-                    className={`nav-group-button ${navigation.collapsed && routeGroup(page) === group.id ? "active" : ""}`}
-                    aria-label={`${group.title}板块`}
-                    aria-expanded={
-                      navigation.collapsed
-                        ? groupMenu === group.id
-                        : !foldedGroups.includes(group.id)
-                    }
-                    onClick={() =>
-                      navigation.collapsed
-                        ? setGroupMenu(groupMenu === group.id ? null : group.id)
-                        : setFoldedGroups((old) =>
-                            old.includes(group.id)
-                              ? old.filter((x) => x !== group.id)
-                              : [...old, group.id],
-                          )
-                    }
-                  >
-                    {group.id === "efficiency" ? (
-                      <Timer size={18} />
-                    ) : group.id === "academic" ? (
-                      <GraduationCap size={18} />
-                    ) : (
+                {group.id === "news" &&
+                  visibleNav.some(([id]) => id === "campus-news") && (
+                    <button
+                      className={`overview-nav news-direct-nav ${page === "campus-news" ? "active" : ""}`}
+                      aria-label="校园快讯"
+                      onClick={() => {
+                        setPage("campus-news");
+                        setGroupMenu(null);
+                      }}
+                    >
                       <Newspaper size={18} />
-                    )}
-                    <span>{group.title}</span>
-                    <ChevronDown size={14} />
-                  </button>
-                )}
-                {!navigation.collapsed &&
+                      <span>校园快讯</span>
+                    </button>
+                  )}
+                {group.id !== "news" &&
+                  visibleNav.some(([id]) => routeGroup(id) === group.id) && (
+                    <button
+                      className={`nav-group-button ${navigation.collapsed && routeGroup(page) === group.id ? "active" : ""}`}
+                      aria-label={`${group.title}板块`}
+                      aria-expanded={
+                        navigation.collapsed
+                          ? groupMenu === group.id
+                          : !foldedGroups.includes(group.id)
+                      }
+                      onClick={() =>
+                        navigation.collapsed
+                          ? setGroupMenu(
+                              groupMenu === group.id ? null : group.id,
+                            )
+                          : setFoldedGroups((old) =>
+                              old.includes(group.id)
+                                ? old.filter((x) => x !== group.id)
+                                : [...old, group.id],
+                            )
+                      }
+                    >
+                      {group.id === "efficiency" ? (
+                        <Timer size={18} />
+                      ) : group.id === "academic" ? (
+                        <GraduationCap size={18} />
+                      ) : (
+                        <Newspaper size={18} />
+                      )}
+                      <span>{group.title}</span>
+                      <ChevronDown size={14} />
+                    </button>
+                  )}
+                {group.id !== "news" &&
+                  !navigation.collapsed &&
                   !foldedGroups.includes(group.id) &&
                   visibleNav
                     .filter(([id]) => routeGroup(id) === group.id)

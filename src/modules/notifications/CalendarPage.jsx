@@ -98,6 +98,7 @@ export default function CalendarPage({
     const dayEvents = eventsOnDay(events, day),
       tasks = dayEvents.filter((e) => e.kind === "task"),
       courses = dayEvents.filter((e) => e.kind === "course");
+    const previewLimit = embedded ? 1 : 2;
     return (
       <button
         type="button"
@@ -112,7 +113,9 @@ export default function CalendarPage({
         <span className="calendar-day-number">{Number(day.slice(8))}</span>
         {small ? (
           <span className="calendar-dots">
-            {courses.length > 0 && <i className="course-dot" />}
+            {courses.length > 0 && (
+              <span className="calendar-mini-count">{courses.length}课</span>
+            )}
             {tasks.length > 0 && <i className="task-dot" />}
             {dayEvents.some((e) => e.kind === "event") && (
               <i className="event-dot" />
@@ -120,24 +123,26 @@ export default function CalendarPage({
           </span>
         ) : (
           <span className="calendar-chips">
-            {dayEvents.slice(0, 1).map((e) => (
+            {dayEvents.slice(0, previewLimit).map((e) => (
               <span
                 key={e.id}
                 className={`calendar-chip is-${e.kind} ${e.completed ? "complete" : ""}`}
                 title={`${e.title} · ${e.clock}`}
               >
-                <span>
-                  {e.kind === "task"
-                    ? "任务"
-                    : e.kind === "event"
-                      ? "日程"
-                      : "课程"}
+                <span className="calendar-chip-title">{e.title}</span>
+                <span className="calendar-chip-time">
+                  {e.kind === "course"
+                    ? e.clock
+                    : e.kind === "task"
+                      ? "任务"
+                      : "日程"}
                 </span>
-                {e.title}
               </span>
             ))}
-            {dayEvents.length > 1 && (
-              <small className="calendar-more">+{dayEvents.length - 1}</small>
+            {dayEvents.length > previewLimit && (
+              <small className="calendar-more">
+                +{dayEvents.length - previewLimit}
+              </small>
             )}
           </span>
         )}
@@ -456,7 +461,7 @@ export default function CalendarPage({
                   ))}
                 </div>
                 <div className="calendar-month-grid" key={month}>
-                  {monthDays(date).map((d) => renderDay(d, embedded))}
+                  {monthDays(date).map((d) => renderDay(d))}
                 </div>
               </>
             )}
