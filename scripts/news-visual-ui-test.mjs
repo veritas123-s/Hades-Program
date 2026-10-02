@@ -84,7 +84,7 @@ try {
   assert.ok(
     (await cover.getAttribute("src")).startsWith("data:image/jpeg;base64,"),
   );
-  assert.equal(await page.locator(".news-cover:not(.has-cover)").count(), 1);
+  assert.equal(await page.locator(".news-cover:not(.has-cover):visible").count(), 1);
   const widths = [];
   for (const [width, height] of [
     [1600, 900],
@@ -146,10 +146,11 @@ try {
     path: path.join(root, "test-results/news-visual.png"),
   });
   await page.getByRole("button", { name: "设置与数据", exact: true }).click();
-  await page.getByRole("button", { name: "关于", exact: true }).click();
+  await page.getByRole("tab", { name: "关于", exact: true }).click();
   await page.getByText("由 Medtrix 团队制作", { exact: true }).waitFor();
   await page.getByText("鸣谢 MySHSMU", { exact: true }).waitFor();
   await page.getByRole("button", { name: "复制微信号", exact: true }).click();
+  await page.getByText("微信号已复制", { exact: true }).waitFor();
   assert.equal(
     await app.evaluate(({ clipboard }) => clipboard.readText()),
     "Veritas_Enterprise",
