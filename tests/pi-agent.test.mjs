@@ -30,7 +30,7 @@ test('旧工作流迁移保留删除归档与原文件，重启不覆盖新版�
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'medstack-migration-'));
  try {
   const legacy=path.join(dir,Buffer.from('aGFkZXMtd29ya2Zsb3dzLmpzb24=','base64').toString());
-  const prior={version:1,read:['abc'],audit:[],noticeArchive:[{id:'deleted',aliases:['abc'],deletedAt:123}],assignmentArchive:[],links:{}};
+  const prior={version:1,read:['abc'],audit:[],noticeArchive:[{item:{kind:'notice',id:'deleted'},deletedAt:123}],assignmentArchive:[],links:{}};
   fs.writeFileSync(legacy,JSON.stringify(prior));const a=new Workflows(dir);
   assert.equal(a.data.noticeArchive[0].deletedAt,123);assert.equal(fs.readFileSync(legacy,'utf8'),JSON.stringify(prior));
   a.data.autoCommit=true;a.save();assert.equal(new Workflows(dir).data.autoCommit,true);
