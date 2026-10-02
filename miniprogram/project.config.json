@@ -1,0 +1,17 @@
+{
+  "description": "医栈通 · 医栈事，一站通",
+  "projectname": "Medstack",
+  "appid": "touristappid",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "setting": { "es6": true, "minified": true, "urlCheck": true },
+  "packOptions": {
+    "ignore": [
+      { "type": "folder", "value": "scripts" },
+      { "type": "folder", "value": "tests" },
+      { "type": "folder", "value": "artifacts" },
+      { "type": "file", "value": "package.json" },
+      { "type": "file", "value": "README.md" }
+    ]
+  }
+}

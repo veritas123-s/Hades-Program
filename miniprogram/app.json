@@ -1,0 +1,34 @@
+{
+  "pages": [
+    "pages/login/index",
+    "pages/home/index",
+    "pages/tasks/index",
+    "pages/schedule/index",
+    "pages/focus/index",
+    "pages/profile/index",
+    "pages/settings/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "医栈通",
+    "navigationBarBackgroundColor": "#f5f8f7",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f5f8f7"
+  },
+  "tabBar": {
+    "color": "#758681",
+    "selectedColor": "#167568",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "list": [
+      { "pagePath": "pages/home/index", "text": "今日" },
+      { "pagePath": "pages/tasks/index", "text": "任务" },
+      { "pagePath": "pages/schedule/index", "text": "日程" },
+      { "pagePath": "pages/focus/index", "text": "专注" },
+      { "pagePath": "pages/profile/index", "text": "我的" }
+    ]
+  },
+  "networkTimeout": { "request": 20000 },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

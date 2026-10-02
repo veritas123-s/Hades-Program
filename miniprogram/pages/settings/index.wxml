@@ -1,0 +1,6 @@
+<view class="page" style="{{themeStyle}}"><view class="eyebrow">PREFERENCES</view><view class="title">设置</view><view wx:if="{{demo}}" class="demo">演示工作区</view>
+  <view class="section-title section">主题</view><view wx:if="{{customTheme}}" class="notice">当前为桌面自定义主题，小程序暂用经典医疗配色；原设置已保留。</view>
+  <view class="theme-grid"><view wx:for="{{themes}}" wx:key="id" class="theme-choice {{theme === item.id ? 'selected' : ''}}" data-id="{{item.id}}" bindtap="theme"><view class="swatches"><view wx:for="{{item.colors}}" wx:for-item="color" wx:key="*this" class="swatch" style="background:{{color}}"/></view><view class="row"><text>{{item.name}}</text><text wx:if="{{theme === item.id}}">✓</text></view></view></view>
+  <view class="section-title section">首页小组件</view><view class="card"><view wx:for="{{widgets}}" wx:key="id" class="record-row"><view class="grow"><view class="item-title">{{item.name}}</view><view class="caption">{{item.description}}</view></view><switch checked="{{item.visible}}" data-id="{{item.id}}" bindchange="widget" color="#167568"/></view></view>
+  <view class="caption paragraph">设置保存在当前账号，云同步后与桌面端共享主题及对应组件显隐。</view>
+</view>

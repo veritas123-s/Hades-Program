@@ -1,0 +1,10 @@
+{
+  "name": "medstack-miniprogram",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.cjs tests/*.test.mjs",
+    "check": "node scripts/check.mjs"
+  }
+}

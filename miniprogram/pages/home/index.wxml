@@ -1,0 +1,14 @@
+<view class="page" style="{{themeStyle}}">
+  <view class="row"><view><view class="eyebrow">MEDSTACK · {{today}}</view><view class="title">把今天安排好</view></view><image class="small-logo" src="/assets/icon.png"/></view>
+  <view wx:if="{{demo}}" class="demo">演示工作区</view>
+  <view wx:if="{{showFocus}}" class="hero"><view class="hero-title">医栈事，一站通</view><view class="hero-sub">从一件重要的小事开始。</view><button class="hero-button" data-page="focus" bindtap="navigate">开始专注 →</button></view>
+  <view class="stats"><view class="stat"><text class="number">{{pending}}</text><text class="muted">待办任务</text></view><view wx:if="{{showFocus}}" class="stat"><text class="number">{{minutes}}<text class="unit"> 分钟</text></text><text class="muted">今日专注</text></view></view>
+  <block wx:if="{{showPriority}}">
+  <view class="row section"><text class="section-title">接下来要做</text><text class="link" data-page="tasks" bindtap="navigate">全部任务 →</text></view>
+  <view class="card"><view wx:for="{{tasks}}" wx:key="id" class="task-row"><button class="check" data-id="{{item.id}}" bindtap="toggle" aria-label="完成任务">○</button><view class="grow"><view class="item-title">{{item.title}}</view><view class="caption">{{item.project}} {{item.due}}</view></view></view><view wx:if="{{!tasks.length}}" class="empty">今天从容一点，添加你的第一件事。</view></view>
+  </block><block wx:if="{{showWeek}}">
+  <view class="row section"><text class="section-title">今日日程</text><text class="link" data-page="schedule" bindtap="navigate">查看日历 →</text></view>
+  <view class="card"><view wx:for="{{items}}" wx:key="id" class="event-row"><view class="time">{{item.clock}}</view><view class="item-title">{{item.title}}</view><view class="caption">{{item.detail}}</view></view><view wx:if="{{!items.length}}" class="empty">当前没有已保存的今日日程。</view></view>
+  </block><block wx:if="{{showCourses}}"><view class="row section"><text class="section-title">今日课程</text><text class="link" data-page="schedule" bindtap="navigate">课表 →</text></view><view class="card"><view wx:for="{{courses}}" wx:key="id" class="event-row"><view class="time">{{item.clock}}</view><view class="item-title">{{item.title}}</view><view class="caption">{{item.detail}}</view></view><view class="caption">{{courseCoverage}}</view></view></block>
+  <view class="row sync-line"><text class="caption">{{status}}</text><button class="text-button" loading="{{busy}}" bindtap="sync">同步</button></view>
+</view>

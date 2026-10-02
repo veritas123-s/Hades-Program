@@ -1,0 +1,8 @@
+<view class="page" style="{{themeStyle}}"><view class="eyebrow">ONE THING AT A TIME</view><view class="title">留一段时间给自己</view><view wx:if="{{demo}}" class="demo">演示工作区</view>
+  <view class="focus-card"><view class="focus-label">{{timerStatus === 'idle' ? '准备专注' : timerStatus === 'paused' ? '已暂停' : '专注中'}}</view><view class="timer">{{display}}</view><view class="muted">{{timerStatus === 'idle' ? choices[selected].title : taskTitle}}</view>
+    <view wx:if="{{timerStatus === 'idle'}}" class="focus-controls"><picker range="{{choices}}" range-key="title" value="{{selected}}" bindchange="select"><view class="input">{{choices[selected].title}}　⌄</view></picker><view class="row"><text>专注时长（分钟）</text><input class="duration-input" type="number" value="{{duration}}" bindinput="duration" maxlength="3"/></view></view>
+    <button wx:if="{{timerStatus !== 'running'}}" class="primary" bindtap="start">{{timerStatus === 'paused' ? '继续专注' : '开始专注'}}</button><button wx:else class="secondary" bindtap="pause">暂停</button><button wx:if="{{timerStatus !== 'idle'}}" class="text-button" bindtap="finish">结束并保存</button>
+  </view>
+  <view class="caption center">返回小程序后自动校准时间；后台不保证响铃。</view>
+  <view class="row section"><text class="section-title">最近记录</text><text class="caption">今日 {{minutes}} 分钟</text></view><view class="card"><view wx:for="{{logs}}" wx:key="id" class="record-row"><view><view class="item-title">{{item.title}}</view><view class="caption">{{item.date}}</view></view><text class="time">{{item.minutes}} 分钟</text></view><view wx:if="{{!logs.length}}" class="empty">完成一段专注，记录就会出现在这里。</view></view>
+</view>

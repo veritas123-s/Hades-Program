@@ -1,0 +1,18 @@
+<view class="page login">
+  <image class="brand-icon" src="/assets/icon.png" mode="aspectFit"/>
+  <view class="eyebrow">MEDSTACK</view>
+  <view class="brand-title">医栈通</view>
+  <view class="tagline">医栈事，一站通</view>
+  <view class="card login-card">
+    <view class="section-title">{{mode === 'login' ? '欢迎回来' : mode === 'register' ? '创建账号' : '找回密码'}}</view>
+    <view wx:if="{{!ready}}" class="notice">开发预览版，账号服务待接入。可先体验下方演示工作区。</view>
+    <input class="input" placeholder="邮箱" value="{{email}}" disabled="{{busy || sent}}" data-field="email" bindinput="field" maxlength="254"/>
+    <input class="input" password placeholder="{{mode === 'reset' ? '设置新密码（至少 8 位）' : '密码（至少 8 位）'}}" value="{{password}}" disabled="{{busy}}" data-field="password" bindinput="field" maxlength="128"/>
+    <input wx:if="{{sent}}" class="input" type="number" placeholder="邮箱验证码" value="{{otp}}" data-field="otp" bindinput="field" maxlength="6"/>
+    <button class="primary" bindtap="submit" loading="{{busy}}" disabled="{{busy || !ready}}">{{mode === 'login' ? '登录' : sent ? '验证并登录' : '发送验证码'}}</button>
+    <view class="row links"><text data-mode="login" bindtap="mode">账号登录</text><text data-mode="register" bindtap="mode">注册</text><text data-mode="reset" bindtap="mode">找回密码</text></view>
+    <button wx:if="{{mode !== 'login'}}" class="text-button" bindtap="resend" disabled="{{busy || !ready}}">重新发送验证码</button>
+  </view>
+  <button wx:if="{{demoEnabled}}" class="secondary" bindtap="demo" disabled="{{busy}}">体验演示工作区</button>
+  <view class="caption center">演示数据与个人账号隔离 · 会话仅保留在内存</view>
+</view>
