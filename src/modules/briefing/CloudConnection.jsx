@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useState } from "react";
 import { Cloud, RefreshCw, Settings2 } from "lucide-react";
 import CloudSetup from "./CloudSetup.jsx";
@@ -22,7 +23,7 @@ export default function CloudConnection({ data, call, onUpdate }) {
     }
   }
   return (
-    <section
+    <Panel
       className={`panel cloud-sync-card sync-${sync?.phase || "not_configured"}`}
     >
       <div className="panel-heading">
@@ -121,6 +122,6 @@ export default function CloudConnection({ data, call, onUpdate }) {
           {error || sync.warning}
         </p>
       )}
-    </section>
+    </Panel>
   );
 }

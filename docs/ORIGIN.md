@@ -14,5 +14,5 @@ V1.3.1 的腾讯云浏览器授权流程参考 TencentCloud/tencentcloud-cli 的
 
 独立云端提醒仅携带本项目通用 Python 程序，不携带原作者邮件统计、个人备忘、阅读计划、账号、接收 Token 或历史快照。
 
-Hades V2.0 保留 AI·VERITAS 的应用 ID、数据目录与加密上下文。学习通连接器独立编写；协议字段参考超星官方登录页面、Zhanghuaimin-233/chaoxing-homework-checker 的 API.md 与 DanMo661/Xuexitong-mcp 的接口说明（2026-09-27查阅）。未复制上述项目程序代码。页面变化可能导致连接失效，真实账号需本人扫码验证；不包含自动答题或提交。
+Medstack V2.0 保留 AI·VERITAS 的应用 ID、数据目录与加密上下文。学习通连接器独立编写；协议字段参考超星官方登录页面、Zhanghuaimin-233/chaoxing-homework-checker 的 API.md 与 DanMo661/Xuexitong-mcp 的接口说明（2026-09-27查阅）。未复制上述项目程序代码。页面变化可能导致连接失效，真实账号需本人扫码验证；不包含自动答题或提交。
 参考： https://i.chaoxing.com/ 、https://github.com/Zhanghuaimin-233/chaoxing-homework-checker/blob/main/API.md 、https://github.com/DanMo661/Xuexitong-mcp

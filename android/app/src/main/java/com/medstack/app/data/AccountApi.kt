@@ -1,7 +1,7 @@
-package com.shsmuveritas.hades.data
+package com.medstack.app.data
 
-import com.shsmuveritas.hades.BuildConfig
-import com.shsmuveritas.hades.security.SecureStore
+import com.medstack.app.BuildConfig
+import com.medstack.app.security.SecureStore
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.TimeUnit
 import okhttp3.MediaType.Companion.toMediaType
@@ -33,9 +33,9 @@ class AccountApi(private val secureStore: SecureStore) {
             .url(origin + path)
             .header("Accept", "application/json")
             .header("Origin", origin)
-            .header("User-Agent", "HadesAndroid/${BuildConfig.VERSION_NAME}")
+            .header("User-Agent", "医栈通Android/${BuildConfig.VERSION_NAME}")
         if (authenticated) {
-            val token = secureStore.get("token") ?: throw ApiException("请先登录 Hades", 401)
+            val token = secureStore.get("token") ?: throw ApiException("请先登录 医栈通", 401)
             builder.header("Authorization", "Bearer $token")
         }
         if (body == null) builder.get()
@@ -85,7 +85,7 @@ class AccountApi(private val secureStore: SecureStore) {
 
     fun signUp(email: String, password: String) = request(
         "/api/auth/sign-up/email",
-        JSONObject().put("email", email).put("password", password).put("name", "Hades 用户"),
+        JSONObject().put("email", email).put("password", password).put("name", "医栈通 用户"),
     ).json
 
     fun verify(email: String, code: String) = request(

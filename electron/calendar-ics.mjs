@@ -10,13 +10,13 @@ export function dateRange(p){
  const from=Date.parse(p.start+'T00:00:00+08:00'),to=Date.parse(p.end+'T00:00:00+08:00')+DAY;
  if(to-from>2*366*DAY)throw Error('一次最多处理两年日程');return {from,to};
 }
-export const calendarUid=e=>e.kind==='course'?`course-${hash(courseKey(e.course))}@hades.local`:e.kind==='event'?(e.event.calendarUid||`event-${e.event.id}@hades.local`):`task-${e.task.id}@hades.local`;
+export const calendarUid=e=>e.kind==='course'?`course-${hash(courseKey(e.course))}@medstack.local`:e.kind==='event'?(e.event.calendarUid||`event-${e.event.id}@medstack.local`):`task-${e.task.id}@medstack.local`;
 const escape=x=>String(x||'').replace(/\\/g,'\\\\').replace(/\r?\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'');
 function fold(line){let result='',part='';for(const c of line){if(Buffer.byteLength(part+c)>75){result+=part+'\r\n';part=' ';}part+=c;}return result+part;}
 export function exportCalendar(state,p,now=Date.now()){
  const {from,to}=dateRange(p), kinds=new Set(p.kinds||['task','course','event']);
  const events=calendarEvents(state,{showCompleted:!!p.completed}).filter(e=>kinds.has(e.kind)&&e.start<to&&(e.end>from||e.start>=from));
- const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Hades//Calendar 3.0//ZH','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:Hades 日程'];
+ const lines=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//医栈通//Calendar 3.0//ZH','CALSCALE:GREGORIAN','METHOD:PUBLISH','X-WR-CALNAME:医栈通 日程'];
  for(const e of events){
   lines.push('BEGIN:VEVENT','UID:'+escape(calendarUid(e)),'DTSTAMP:'+utc(now),'SUMMARY:'+escape(e.title));
   if(e.allDay)lines.push('DTSTART;VALUE=DATE:'+e.day.replaceAll('-',''),'DTEND;VALUE=DATE:'+shiftDate(e.lastDay,1).replaceAll('-',''));

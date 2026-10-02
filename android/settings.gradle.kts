@@ -18,5 +18,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "HadesAndroid"
+rootProject.name = "MedstackAndroid"
 include(":app")

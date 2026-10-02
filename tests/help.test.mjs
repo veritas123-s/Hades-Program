@@ -14,7 +14,7 @@ import { requireAccount } from "../electron/accounts/access.mjs";
 test("公开帮助仅能打开随包固定文档，不能访问个人目录或任意网址", async () => {
   const app = {
     isPackaged: true,
-    getPath: () => path.resolve("synthetic/Hades.exe"),
+    getPath: () => path.resolve("synthetic/Medstack.exe"),
   };
   requireAccount(null, "help.open");
   requireAccount(null, "help.read");
@@ -48,7 +48,7 @@ test("公开帮助仅能打开随包固定文档，不能访问个人目录或�
 });
 
 test("应用内手册只读取固定 Markdown 文件并限制大小", async () => {
-  const root = await fs.mkdtemp(path.join(os.tmpdir(), "hades-help-"));
+  const root = await fs.mkdtemp(path.join(os.tmpdir(), "medstack-help-"));
   const docs = path.join(root, "docs");
   await fs.mkdir(docs);
   await fs.writeFile(

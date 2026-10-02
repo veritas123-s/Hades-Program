@@ -161,12 +161,12 @@ export default function ManualModal({ kind, call, onClose }) {
       className="modal-backdrop manual-backdrop"
       role="dialog"
       aria-modal="true"
-      aria-label="Hades 手册"
+      aria-label="医栈通 手册"
     >
       <section className="manual-modal">
         <header>
           <div>
-            <span className="eyebrow">Hades 帮助中心</span>
+            <span className="eyebrow">医栈通 帮助中心</span>
             <h2>{selected === "user" ? "使用说明" : "开发者手册"}</h2>
           </div>
           <button

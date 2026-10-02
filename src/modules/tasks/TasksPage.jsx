@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React from "react";
 import { Plus, Inbox } from "lucide-react";
 import { QUADRANTS } from "../../domain.mjs";
@@ -27,14 +28,9 @@ export default function TasksPage({
           </p>
           <h1>
             {page === "matrix"
-              ? "重要的事，放在对的位置"
-              : "让每件事，都有着落"}
+              ? "四象限"
+              : "任务清单"}
           </h1>
-          <p>
-            {page === "matrix"
-              ? "拖动任务调整象限，也可以在编辑中修改优先级。"
-              : "收集想法，拆解步骤，在自己的节奏里完成。"}
-          </p>
         </div>
         <button className="button primary" onClick={() => addTask()}>
           <Plus size={16} />
@@ -74,7 +70,7 @@ export default function TasksPage({
       {page === "matrix" && filter !== "trash" ? (
         <div className="quadrant-grid">
           {QUADRANTS.map((q) => (
-            <section
+            <Panel
               className={`quadrant q-${q.id}`}
               key={q.id}
               onDragOver={(e) => e.preventDefault()}
@@ -113,11 +109,11 @@ export default function TasksPage({
                 <Plus size={16} />
                 添加任务
               </button>
-            </section>
+            </Panel>
           ))}
         </div>
       ) : (
-        <section className="panel task-list">
+        <Panel className="panel task-list">
           {visible.length ? (
             visible.map((t) =>
               filter === "trash" ? (
@@ -144,7 +140,7 @@ export default function TasksPage({
                 : "换一个筛选条件，或继续向前。"}
             </Empty>
           )}
-        </section>
+        </Panel>
       )}
     </>
   );

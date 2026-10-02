@@ -8,7 +8,7 @@ import {
 } from "./account-test-fixture.mjs";
 import { beijingDay } from "../src/briefing.mjs";
 const root = path.resolve(import.meta.dirname, "..");
-const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades-v4-ui-"));
+const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-v4-ui-"));
 const profile = fixtureProfile(directory);
 fs.mkdirSync(profile, { recursive: true });
 const item = {
@@ -48,7 +48,7 @@ try {
     env,
   });
   const page = await app.firstWindow();
-  const tour = page.getByRole("dialog", { name: "Hades 新手教程" });
+  const tour = page.getByRole("dialog", { name: "Medstack 新手教程" });
   if (await tour.isVisible())
     await tour.getByRole("button", { name: "跳过", exact: true }).click();
   for (const title of ["效率工具", "教务信息", "校园快讯"])

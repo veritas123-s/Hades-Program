@@ -201,7 +201,7 @@ export class SelfHostedProvider {
         {
           email,
           password,
-          name: "Hades 用户",
+          name: "医栈通 用户",
         },
         { mail: true },
       );

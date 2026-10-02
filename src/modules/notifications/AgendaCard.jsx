@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React from "react";
 import { ArrowRight, Bell, Play, CalendarDays } from "lucide-react";
 import { agenda } from "../../agenda.mjs";
@@ -5,7 +6,7 @@ export default function AgendaCard({ state, call, setPage, openAssistant }) {
   const a = agenda(state, state.learning),
     r = a.recommendation;
   return (
-    <section className="agenda-hero">
+    <Panel className="agenda-hero">
       <div className="next-action">
         <div className="orbit-art" aria-hidden="true">
           <span />
@@ -89,6 +90,6 @@ export default function AgendaCard({ state, call, setPage, openAssistant }) {
           <small className="hint">今日课表未验证，请到校园模块同步。</small>
         )}
       </div>
-    </section>
+    </Panel>
   );
 }

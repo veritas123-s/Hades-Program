@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useEffect, useState } from "react";
 import {
   BellRing,
@@ -15,11 +16,25 @@ import {
 import { beijingDay } from "../../briefing.mjs";
 import CloudConnection from "./CloudConnection.jsx";
 import LinkedText from "../../shared/LinkedText.jsx";
+import RecentNews from "../news/RecentNews.jsx";
 
 export default function Briefing({ state, call }) {
   const [data, setData] = useState(null),
     [date, setDate] = useState(beijingDay()),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [collectionError, setCollectionError] = useState("");
+  const collectLatest = async () => {
+    setBusy(true);
+    setCollectionError("");
+    try {
+      await call("news.collect", { windowHours: 24 });
+      setData(await call("briefing.export", { date }));
+    } catch (error) {
+      setCollectionError(error.message);
+    } finally {
+      setBusy(false);
+    }
+  };
   const refresh = async (force = false) => {
     setBusy(true);
     try {
@@ -48,64 +63,82 @@ export default function Briefing({ state, call }) {
       <div className="page-heading">
         <div>
           <p className="eyebrow">自动化快报</p>
-          <h1>让计划，在恰当时刻抵达</h1>
-          <p>课表、四象限与截止日期，共同生成预习、复习和任务提醒。</p>
+          <h1>快报</h1>
         </div>
-        <button
-          className="button primary"
-          disabled={busy}
-          onClick={() => refresh(true)}
-        >
-          <RefreshCw size={16} className={busy ? "spin" : ""} />
-          更新快报数据
-        </button>
-      </div>
-      <div className="dispatch-route">
-        <div>
-          <CalendarCheck />
-          <strong>校园与任务</strong>
-          <small>
-            {data?.counts.verifiedDates || 0} 天有效课表 ·{" "}
-            {data?.counts.tasks || 0} 项待办
-          </small>
-        </div>
-        <ArrowRight />
-        <div>
-          <FileJson />
-          <strong>共享数据接口</strong>
-          <small>{data?.local === "ready" ? "本机已连接" : "正在准备"}</small>
-        </div>
-        <ArrowRight />
-        <div className="cloud-pending">
-          <Cloud />
-          <strong>早晚报自动提醒</strong>
-          <small>
-            {data?.sync?.configured
-              ? data.sync.phase === "synced"
-                ? "已连接 · 自动同步"
-                : data.sync.phase === "error"
-                  ? "同步遇到问题 · 将重试"
-                  : "等待云端确认"
-              : data?.cloud === "snapshot_deployed"
-                ? "云端已有快照 · 持续同步待连接"
-                : "云端连接待部署核验"}
-          </small>
+        <div className="heading-actions">
+          <button
+            className="button primary"
+            disabled={busy || state.news?.busy}
+            onClick={collectLatest}
+          >
+            <RefreshCw size={16} />
+            {state.news?.busy ? "采集中…" : "采集最新信息"}
+          </button>
+          <button
+            className="button primary"
+            disabled={busy}
+            onClick={() => refresh(true)}
+          >
+            <RefreshCw size={16} className={busy ? "spin" : ""} />
+            更新快报数据
+          </button>
         </div>
       </div>
-      <div className="dispatch-status">
-        <span className="status-orb" />
-        {data?.sync?.configured
-          ? data.sync.message
-          : data?.message || "正在读取快报状态…"}
-        {data?.updatedAt && (
-          <small>
-            更新于 {new Date(data.updatedAt).toLocaleString("zh-CN")}
-          </small>
-        )}
-      </div>
+      {collectionError && (
+        <p className="error" role="alert">
+          {collectionError}
+        </p>
+      )}
+      <RecentNews news={state.news} call={call} />
+      <details className="dispatch-details">
+        <summary>同步状态</summary>
+        <div className="dispatch-route">
+          <div>
+            <CalendarCheck />
+            <strong>校园与任务</strong>
+            <small>
+              {data?.counts.verifiedDates || 0} 天有效课表 ·{" "}
+              {data?.counts.tasks || 0} 项待办
+            </small>
+          </div>
+          <ArrowRight />
+          <div>
+            <FileJson />
+            <strong>共享数据接口</strong>
+            <small>{data?.local === "ready" ? "本机已连接" : "正在准备"}</small>
+          </div>
+          <ArrowRight />
+          <div className="cloud-pending">
+            <Cloud />
+            <strong>早晚报自动提醒</strong>
+            <small>
+              {data?.sync?.configured
+                ? data.sync.phase === "synced"
+                  ? "已连接 · 自动同步"
+                  : data.sync.phase === "error"
+                    ? "同步遇到问题 · 将重试"
+                    : "等待云端确认"
+                : data?.cloud === "snapshot_deployed"
+                  ? "云端已有快照 · 持续同步待连接"
+                  : "云端连接待部署核验"}
+            </small>
+          </div>
+        </div>
+        <div className="dispatch-status">
+          <span className="status-orb" />
+          {data?.sync?.configured
+            ? data.sync.message
+            : data?.message || "正在读取快报状态…"}
+          {data?.updatedAt && (
+            <small>
+              更新于 {new Date(data.updatedAt).toLocaleString("zh-CN")}
+            </small>
+          )}
+        </div>
+      </details>
       <div className="briefing-layout">
         <div>
-          <section className="panel">
+          <Panel className="panel" title="快报预览">
             <div className="panel-heading">
               <div>
                 <p className="eyebrow">快报预览</p>
@@ -191,11 +224,11 @@ export default function Briefing({ state, call }) {
             {!preview?.priorities.length && (
               <p className="hint">重要象限中的任务会自动出现在这里。</p>
             )}
-          </section>
+          </Panel>
         </div>
         <aside>
           <CloudConnection data={data} call={call} onUpdate={setData} />
-          <section className="panel">
+          <Panel className="panel" title="数据连接" defaultCollapsed>
             <p className="eyebrow">连接管理</p>
             <h3>快报数据桥接</h3>
             <p className="hint">
@@ -235,8 +268,12 @@ export default function Briefing({ state, call }) {
             <p className="hint">
               导出仅含课程与待办字段，不包含账号、密码、会话、任务长笔记。
             </p>
-          </section>
-          <section className="panel dispatch-registry">
+          </Panel>
+          <Panel
+            className="panel dispatch-registry"
+            title="固定备忘"
+            defaultCollapsed
+          >
             <p className="eyebrow">备忘录</p>
             <h3>已连接的固定备忘</h3>
             {data?.registry.error && (
@@ -260,7 +297,7 @@ export default function Briefing({ state, call }) {
             <p className="hint">
               完成任务会从下次快报数据中移除；已发出的微信消息不作撤回。文件更新不等于云端已收到。
             </p>
-          </section>
+          </Panel>
         </aside>
       </div>
     </>

@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useState } from "react";
 import {
   ChevronLeft,
@@ -48,7 +49,7 @@ function LoginSettings({ state, call, onClose }) {
         }}
       >
         <p className="hint">
-          先在学校窗口登录一次，Hades
+          先在学校窗口登录一次，医栈通
           会加密记住会话。填写以下可选账号后，会话失效时还会尝试自动认证；学校要求验证码时由你完成验证。
         </p>
         <label>
@@ -145,7 +146,6 @@ export default function Campus({ state, call, setPage, widgetActions }) {
         <div>
           <p className="eyebrow">校园</p>
           <h1>校园与课表</h1>
-          <p>把课程安排，接入你的每一天。</p>
         </div>
         <button className="button primary" onClick={() => call("school.open")}>
           <LogIn size={16} />
@@ -153,7 +153,7 @@ export default function Campus({ state, call, setPage, widgetActions }) {
         </button>
       </div>
       <div className="academic-connectors">
-        <section className="academic-connector">
+        <Panel className="academic-connector">
           <h3>超星学习通</h3>
           <p>
             {state.learning?.connected
@@ -166,14 +166,14 @@ export default function Campus({ state, call, setPage, widgetActions }) {
           >
             打开学习通连接与通知
           </button>
-        </section>
-        <section className="academic-connector">
+        </Panel>
+        <Panel className="academic-connector">
           <h3>交大 Canvas</h3>
           <p>官方平台入口</p>
           <button className="button" onClick={() => call("school.canvas.open")}>
             打开 Canvas
           </button>
-        </section>
+        </Panel>
       </div>
       <div className="tabs">
         {[
@@ -225,7 +225,7 @@ export default function Campus({ state, call, setPage, widgetActions }) {
         <CalendarPage {...{ state, call, setPage, widgetActions }} embedded />
       )}
       {tab === "scores" && (
-        <section className="panel">
+        <Panel className="panel">
           <div className="panel-heading">
             <h3>学年成绩</h3>
             <div className="inline">
@@ -306,7 +306,7 @@ export default function Campus({ state, call, setPage, widgetActions }) {
               这里会保留最近一次成功查询的结果。
             </Empty>
           )}
-        </section>
+        </Panel>
       )}
       {tab === "rooms" && <Rooms call={call} />}
       {detail && (
@@ -346,7 +346,7 @@ function Rooms({ call }) {
     }
   };
   return (
-    <section className="panel">
+    <Panel className="panel">
       <div className="panel-heading">
         <h3>寻找一间教室</h3>
         <button
@@ -454,6 +454,6 @@ function Rooms({ call }) {
       ) : (
         <Empty title="该日期没有返回占用记录">仍以学校现场安排为准。</Empty>
       )}
-    </section>
+    </Panel>
   );
 }

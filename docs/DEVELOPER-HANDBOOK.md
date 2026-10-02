@@ -1,4 +1,4 @@
-# Hades V4.0 开发者手册
+# 医栈通 V5.0 开发者手册
 
 本轮实测及接入约束见[致远一号编程实测](MODEL-CODING-EVALUATION.md)。Poseidon 的组件命令使用 `widget-recipes.mjs` 的受限类型和参数，由主进程保存；目前不会把模型返回的 JavaScript 当作插件执行。新增功能仍走源码、测试、发行流程。
 
@@ -6,7 +6,7 @@
 
 ## 1. 我怎样理解这个项目
 
-Hades 是 Windows 上的个人工作台，Poseidon 是其中的模型助手。任务、日历、专注记录和校园信息应共享业务数据；界面可以分模块，数据语义不能各自为政。比如删除一个学习通作业，通知列表、自动任务和助手摘要必须遵守一致的删除规则。
+医栈通 是 Windows 上的个人工作台，Poseidon 是其中的模型助手。任务、日历、专注记录和校园信息应共享业务数据；界面可以分模块，数据语义不能各自为政。比如删除一个学习通作业，通知列表、自动任务和助手摘要必须遵守一致的删除规则。
 
 项目借鉴 MySHSMU 校园能力，但桌面应用以 Electron 主进程、React 界面和独立账号服务实现。来源与许可说明见 [ORIGIN](ORIGIN.md)。不能因为旧版能运行，就把账号密钥、私有会话或旧安装路径复制到新版。
 
@@ -153,7 +153,7 @@ npm run scaffold:widget -- --id reading-card --title "阅读卡片"
 
 1. 核对实例、端口、现有应用和备案条件，不覆盖其他服务。
 2. 安装锁文件指定依赖，将 `server/config.example.json` 复制到私有数据目录，以安全输入方式配置 SMTP；随机生成并妥善保留服务 secret。
-3. 设置 `HADES_SERVER_DATA`，启动 `node server/index.mjs`，先检查本机 `/health`。
+3. 设置 `MEDSTACK_SERVER_DATA`，启动 `node server/index.mjs`，先检查本机 `/health`。
 4. 配置低权限身份、目录 ACL、HTTPS、开机启动和异常重启。数据库、内部 HTTP 和代理管理口不对公网开放。
 5. 验证真实客户端 HTTPS、注册及收信、账号隔离、密码找回、重启和备份恢复，再把公开根地址写入桌面配置。
 
@@ -172,7 +172,7 @@ V3.1 准备使用 `shsmuveritas.com`，当前仅实名认证通过，正式切�
 ### 备份和回滚
 
 ```powershell
-# 在已配置 HADES_SERVER_DATA 的维护环境中运行
+# 在已配置 MEDSTACK_SERVER_DATA 的维护环境中运行
 node server/backup.mjs
 ```
 
@@ -226,6 +226,11 @@ npm run dist:installer:ia32
 
 `electron/cloud/delivery.mjs` 隔离邮箱与 PushPlus 配置。新用户默认邮件；旧 Token 用户保留 PushPlus，切换需保存配置并重新部署。TLS 邮件 UTF-8，失败不自动重发，避免未知投递结果产生重复。部署前 PublishVersion 保留旧函数，再 UpdateFunctionCode；接收端授权码保存在个人加密库并仅配置到其独立云函数，不提交仓库或安装包。
 
-公开检索仅部分覆盖，桌面关闭则停止采集。本人现有每日助手尚未实测本轮新版运行代码部署和自然邮件；合成云提供者测试不可替代实云验收。Canvas 多用户集成需官方 OAuth 客户端，微信账号登录需开放平台应用，不能使用作者个人令牌或腾讯云扫码会话代替。安卓 V3.2 调试包保留，实机验证延后。
+公开检索仅部分覆盖，桌面关闭则停止采集。本人现有每日助手尚未实测本轮新版运行代码部署和自然邮件；合成云提供者测试不可替代实云验收。Canvas 多用户集成需官方 OAuth 客户端，微信账号登录需开放平台应用，不能使用作者个人令牌或腾讯云扫码会话代替。安卓 V5.0 调试包保留，实机验证延后。
 
 本轮检查：npm test、npm run test:security、npm --prefix server test、python -m unittest discover -s tests -p test_*.py、npm run build、node scripts/v4-ui-test.mjs、npm run test:desktop、npm run dist:installer，以及发行包内程序启动与隐私扫描。执行结果见 V4 验证记录。
+
+
+## V5.0 界面与消息窗口
+
+`src/news-window.mjs`提供毫秒窗口与保守合并，不修改原记录；`NewsService.collect`只新增窗口内或日期待核对消息，原历史与删除墓碑保留。日历/快报的活动日期语义不随采集窗口改变。新增主进程依赖必须加入发行文件列表。`Panel.jsx`通过当前账号生命周期的React上下文保存会话折叠状态，隐藏内容保持挂载，避免输入丢失；不得把用户面板标题保存到公共配置。

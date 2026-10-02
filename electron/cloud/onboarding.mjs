@@ -399,7 +399,7 @@ export class CloudOnboarding {
         const backup = await api.call("scf", "PublishVersion", {
           FunctionName: p.functionName,
           Namespace: "default",
-          Description: "Hades runtime upgrade backup",
+          Description: "医栈通 runtime upgrade backup",
         });
         if (!backup.FunctionVersion)
           throw new CloudError("旧提醒程序备份未确认，未替换代码");

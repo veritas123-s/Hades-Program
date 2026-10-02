@@ -21,7 +21,7 @@ const STEPS = [
   {
     Icon: Cloud,
     title: "连接手机与电脑",
-    text: "登录同一个 Hades 账号并开启同步，安卓端和电脑端即可共享任务、日程与专注记录。",
+    text: "登录同一个 医栈通 账号并开启同步，安卓端和电脑端即可共享任务、日程与专注记录。",
   },
   {
     Icon: ShieldCheck,
@@ -43,7 +43,7 @@ export default function OnboardingTour({ onFinish }) {
       className="modal-backdrop onboarding-backdrop"
       role="dialog"
       aria-modal="true"
-      aria-label="Hades 新手教程"
+      aria-label="医栈通 新手教程"
     >
       <section className="onboarding-card">
         <button

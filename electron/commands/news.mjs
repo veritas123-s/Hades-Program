@@ -1,6 +1,6 @@
 import { newsURL } from "../news-service.mjs";
 export default async function execute(action, p, { news, shell }) {
-  if (action === "news.collect") return news.collect();
+  if (action === "news.collect") return news.collect(p);
   if (action === "news.configure") return news.configure(p);
   if (action === "news.import") return news.import(p);
   if (action === "news.follow") return news.follow(p);

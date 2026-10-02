@@ -20,7 +20,7 @@ import { appearanceInput, defaultAppearance } from "../src/themes/custom.mjs";
 import { updateWorkspace } from "../src/platform/model.mjs";
 import { ThemeAssets } from "../electron/theme-assets.mjs";
 const make = () =>
-  new Store(fs.mkdtempSync(path.join(os.tmpdir(), "hades22-unit-")));
+  new Store(fs.mkdtempSync(path.join(os.tmpdir(), "medstack22-unit-")));
 test("V2.1 原始数据升级不丢失任务和专注记录，迁移保存原文件", () => {
   const s = initialState();
   s.schemaVersion = 3;
@@ -38,7 +38,7 @@ test("V2.1 原始数据升级不丢失任务和专注记录，迁移保存原文
       durationMs: 1500000,
     },
   ];
-  const d = fs.mkdtempSync(path.join(os.tmpdir(), "hades22-migrate-")),
+  const d = fs.mkdtempSync(path.join(os.tmpdir(), "medstack22-migrate-")),
     raw = JSON.stringify(s);
   fs.writeFileSync(path.join(d, "veritas-data.json"), raw);
   const store = new Store(d);
@@ -63,7 +63,7 @@ test("V2.1 原始数据升级不丢失任务和专注记录，迁移保存原文
 });
 
 test("背景资产拒绝越界、伪装文件与篡改备份，缺图时不执行恢复", () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades22-assets-"));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack22-assets-"));
   const assets = new ThemeAssets(directory, {
     createFromBuffer: () => ({
       isEmpty: () => false,
@@ -87,7 +87,7 @@ test("背景资产拒绝越界、伪装文件与篡改备份，缺图时不执�
     ),
   );
   const fresh = new ThemeAssets(
-    fs.mkdtempSync(path.join(os.tmpdir(), "hades22-assets-fresh-")),
+    fs.mkdtempSync(path.join(os.tmpdir(), "medstack22-assets-fresh-")),
     assets.nativeImage,
   );
   assert.throws(() => fresh.prepareRestore({}, s));

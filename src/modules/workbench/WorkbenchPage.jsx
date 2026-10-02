@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React, { useState } from "react";
 import {
   Check,
@@ -93,17 +94,16 @@ export default function WorkbenchPage({ state, call }) {
       <div className="page-heading">
         <div>
           <p className="eyebrow">主题与小组件</p>
-          <h1>一个工作台，多种可能</h1>
-          <p>随时换一种氛围，把需要的功能放在眼前。</p>
+          <h1>主题与小组件</h1>
         </div>
-        <span className="version">V4.0</span>
+        <span className="version">V4.1</span>
       </div>
       {error && (
         <p className="error" role="alert">
           {error}
         </p>
       )}
-      <section className="panel theme-section">
+      <Panel className="panel theme-section">
         <div className="panel-heading">
           <div className="inline">
             <Palette size={19} />
@@ -148,14 +148,13 @@ export default function WorkbenchPage({ state, call }) {
                 <h3>{theme.name}</h3>
                 {workspace.theme === theme.id && <Check size={17} />}
               </div>
-              <p>{theme.subtitle}</p>
               <small>{theme.description}</small>
             </button>
           ))}
         </div>
-      </section>
+      </Panel>
       <ThemeEditor {...{ workspace, call, update, busy }} />
-      <section className="panel widget-library">
+      <Panel className="panel widget-library">
         <div className="panel-heading">
           <div className="inline">
             <Blocks size={19} />
@@ -272,8 +271,8 @@ export default function WorkbenchPage({ state, call }) {
             );
           })}
         </div>
-      </section>
-      <section className="panel module-library">
+      </Panel>
+      <Panel className="panel module-library">
         <p className="eyebrow">扩展工作台</p>
         <h2>已装入的功能</h2>
         <div className="module-chips">
@@ -292,7 +291,7 @@ export default function WorkbenchPage({ state, call }) {
             有 {registry.issues.length} 个扩展暂不兼容，其他功能可继续使用。
           </p>
         )}
-      </section>
+      </Panel>
     </>
   );
 }

@@ -114,7 +114,7 @@ def main_handler(event, context):
         except Exception:
             return {'status': 'storage_unavailable'}
     if event.get('action') == 'test':
-        return send('Hades 云提醒连接测试。收到此消息后，请回到应用点击“已收到”。', 'Hades｜连接测试')
+        return send('Medstack 云提醒连接测试。收到此消息后，请回到应用点击“已收到”。', 'Medstack｜连接测试')
     if event.get('Type') != 'Timer':
         return {'status': 'ignored'}
     try:
@@ -126,6 +126,6 @@ def main_handler(event, context):
         return {'status': 'invalid_timer'}
     now = datetime.now(TZ)
     feed, warnings = load_feed(Path(__file__).parent)
-    title = 'Hades｜' + ('晨报' if mode == 'morning' else '晚报')
+    title = 'Medstack｜' + ('晨报' if mode == 'morning' else '晚报')
     lines = [f'{title} {now:%Y-%m-%d %H:%M}', '', *warnings, *course_lines(feed, now, mode), '', *task_lines(feed, now), *news_lines(feed, now)]
     return send('\n'.join(lines), title)

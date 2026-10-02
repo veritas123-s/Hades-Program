@@ -6,7 +6,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {initialState,taskInput} from '../src/domain.mjs';
 import {learningTaskId} from '../electron/workflows.mjs';
-const dir=fs.mkdtempSync(path.join(os.tmpdir(),'hades23-ui-'));
+const dir=fs.mkdtempSync(path.join(os.tmpdir(),'medstack23-ui-'));
 const env={...process.env,VERITAS_TEST:'1',VERITAS_TEST_DATA:dir};delete env.ELECTRON_RUN_AS_NODE;
 const now=Date.now(), day=86400000, seed=initialState();seed.workspace.theme='paper';
 const assignment=(id,title,patch={})=>({id:`work:1:2:${id}`,kind:'assignment',courseKey:'1:2',course:'合成当前课',title,done:false,...patch});
@@ -47,7 +47,7 @@ try{
  pass('课程手动关注与不关注立即生效，手动任务保留');
  await app.close();await launch();
  await app.evaluate(({session})=>{
-   session.fromPartition('hades-learning').fetch=async url=>{
+   session.fromPartition('medstack-learning').fetch=async url=>{
     if(url.includes('backclazzdata'))return new Response(JSON.stringify({result:1,channelList:[{content:{id:2,cpi:3,isretire:0,course:{data:[{id:1,name:'合成当前课'}]}}}]}));
     if(url.includes('stucoursemiddle'))return new Response('<input id="workEnc" value="0123456789abcdef0123456789abcdef"><input id="enc" value="stub"><input id="openc" value="stub">');
     if(url.includes('/work/list'))return new Response('<ul><li data="https://mooc1.chaoxing.com/mooc-ans/mooc2/work/task?workId=1"><p class="overHidden2">合成近期作业</p><p class="status">未交</p><div class="time">'+new Date(Date.now()+86400000+8*3600000).toISOString().slice(0,16).replace('T',' ')+'</div></li></ul>');

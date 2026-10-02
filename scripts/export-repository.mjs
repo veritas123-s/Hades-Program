@@ -6,7 +6,7 @@ import {execFileSync} from 'node:child_process';
 const root=path.resolve(import.meta.dirname,'..');
 const target=path.resolve(process.argv[2]||'');
 assert.ok(process.argv[2] && target!==root,'Provide a separate Git checkout');
-assert.equal(execFileSync('git',['remote','get-url','origin'],{cwd:target,encoding:'utf8'}).trim(),'https://github.com/veritas123-s/Hades-Program.git');
+assert.equal(execFileSync('git',['remote','get-url','origin'],{cwd:target,encoding:'utf8'}).trim(),'https://github.com/veritas123-s/Medstack-Program.git');
 const roots=['src','electron','tests','assets'];
 const files=['package.json','package-lock.json','index.html','vite.config.js','.gitignore',
  'docs/ORIGIN.md','docs/TENCENT-CLI-LICENSE.txt','docs/ARCHITECTURE.md','docs/WIDGET-GUIDE.md','docs/安装后使用说明.txt',

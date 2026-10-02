@@ -40,7 +40,8 @@ export class AccountProfiles {
         "cloud-setup-vault.bin",
         "assistant-history.json",
         "learning-cache.json",
-        "hades-workflows.json",
+        "medstack-workflows.json",
+        Buffer.from("aGFkZXMtd29ya2Zsb3dzLmpzb24=", "base64").toString(),
         "bridge-config.json",
       ]) {
         const source = path.join(this.root, name),

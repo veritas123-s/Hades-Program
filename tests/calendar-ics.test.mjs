@@ -43,7 +43,7 @@ test('全天与来源标识通过备份和第4版迁移保留，旧任务专注�
  const next=validateState(s);assert.equal(next.schemaVersion,5);assert.equal(next.events[0].calendarUid,'sample-uid');assert.equal(next.events[0].allDay,true);assert.deepEqual(next.logs,s.logs);assert.deepEqual(next.tasks,s.tasks);
 });
 test('预览不写入，确认去重，已删除与手工编辑不会被重复导入覆盖',async()=>{
- const dir=fs.mkdtempSync(path.join(os.tmpdir(),'hades-ics-')),store=new Store(dir),file=path.join(dir,'synthetic.ics');
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'medstack-ics-')),store=new Store(dir),file=path.join(dir,'synthetic.ics');
  fs.writeFileSync(file,ics(event('UID:synthetic','SUMMARY:导入事项','DTSTART:20260928T090000','DTEND:20260928T100000')));
  const ctx={store,fs,getWindow:()=>null,broadcast:()=>{},dialog:{showOpenDialog:async()=>({filePaths:[file],canceled:false})}};
  const p=await execute('calendar.import.preview',range,ctx);assert.equal(p.count,1);assert.equal(store.state.events.length,0);

@@ -1,7 +1,7 @@
-package com.shsmuveritas.hades.data
+package com.medstack.app.data
 
 import android.content.Context
-import com.shsmuveritas.hades.security.SecureStore
+import com.medstack.app.security.SecureStore
 import java.time.LocalDate
 import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
@@ -31,7 +31,7 @@ data class ScheduleItem(
     val kind: String,
 )
 
-data class HadesUiState(
+data class MedstackUiState(
     val loading: Boolean = true,
     val authenticated: Boolean = false,
     val email: String = "",
@@ -51,7 +51,7 @@ data class HadesUiState(
     val clock: Long = System.currentTimeMillis(),
 )
 
-class HadesRepository(context: Context) {
+class MedstackRepository(context: Context) {
     private val appContext = context.applicationContext
     private val secureStore = SecureStore(appContext)
     private val api = AccountApi(secureStore)
@@ -62,10 +62,10 @@ class HadesRepository(context: Context) {
         }
     }
 
-    var state: HadesUiState = HadesUiState()
+    var state: MedstackUiState = MedstackUiState()
         private set
 
-    var onStateChanged: ((HadesUiState) -> Unit)? = null
+    var onStateChanged: ((MedstackUiState) -> Unit)? = null
         set(value) {
             field = value
             value?.invoke(state)
@@ -75,14 +75,14 @@ class HadesRepository(context: Context) {
         restore()
     }
 
-    private fun emit(next: HadesUiState) {
+    private fun emit(next: MedstackUiState) {
         state = next
         onStateChanged?.invoke(next)
     }
 
     private fun restore() {
         if (!api.hasSession()) {
-            emit(HadesUiState(loading = false))
+            emit(MedstackUiState(loading = false))
             return
         }
         val storedUser = secureStore.get("user")?.let { runCatching { JSONObject(it) }.getOrNull() }
@@ -95,7 +95,7 @@ class HadesRepository(context: Context) {
                         loading = false,
                         authenticated = true,
                         email = storedUser.optString("email"),
-                        nickname = storedUser.optString("name", "Hades 用户"),
+                        nickname = storedUser.optString("name", "医栈通 用户"),
                         document = cached,
                         remoteVersion = secureStore.get("version:$uid")?.toIntOrNull() ?: 0,
                         dirty = secureStore.get("dirty:$uid") == "1",
@@ -133,7 +133,7 @@ class HadesRepository(context: Context) {
                 acceptUser(response)
                 pullFromCloud()
             } catch (error: Exception) {
-                emit(HadesUiState(loading = false, message = error.message ?: "登录失败"))
+                emit(MedstackUiState(loading = false, message = error.message ?: "登录失败"))
             }
         }
     }
@@ -148,7 +148,7 @@ class HadesRepository(context: Context) {
             try {
                 withContext(Dispatchers.IO) { api.signUp(email.trim(), password) }
                 emit(
-                    HadesUiState(
+                    MedstackUiState(
                         loading = false,
                         needsVerification = true,
                         pendingEmail = email.trim(),
@@ -156,7 +156,7 @@ class HadesRepository(context: Context) {
                     ),
                 )
             } catch (error: Exception) {
-                emit(HadesUiState(loading = false, message = error.message ?: "验证码发送失败"))
+                emit(MedstackUiState(loading = false, message = error.message ?: "验证码发送失败"))
             }
         }
     }
@@ -189,7 +189,7 @@ class HadesRepository(context: Context) {
         val publicUser = JSONObject()
             .put("id", user.optString("id"))
             .put("email", user.optString("email"))
-            .put("name", user.optString("name", "Hades 用户"))
+            .put("name", user.optString("name", "医栈通 用户"))
         secureStore.put("user", publicUser.toString())
         emit(
             state.copy(
@@ -281,6 +281,7 @@ class HadesRepository(context: Context) {
     }
 
     fun saveTask(title: String, due: String, quadrant: String) {
+        if (!state.authenticated) { emit(state.copy(message = "请先登录")); return }
         val cleanTitle = title.trim().take(240)
         val cleanDue = due.trim()
         if (cleanTitle.isBlank()) {
@@ -379,7 +380,7 @@ class HadesRepository(context: Context) {
         scope.launch { pushDocument(document) }
     }
 
-    private fun documentState(base: HadesUiState, document: JSONObject?): HadesUiState {
+    private fun documentState(base: MedstackUiState, document: JSONObject?): MedstackUiState {
         if (document == null) return base.copy(tasks = emptyList(), schedule = emptyList())
         val tasks = buildList {
             val array = document.optJSONArray("tasks") ?: JSONArray()
@@ -415,6 +416,33 @@ class HadesRepository(context: Context) {
         return base.copy(tasks = tasks, schedule = schedule)
     }
 
+    fun currentUserId(): String = if (state.authenticated) userId() else ""
+
+    fun assistantWorkspace(): JSONObject = JSONObject()
+        .put("tasks", JSONArray(state.tasks.filter { !it.completed }.take(40).map { JSONObject().put("title",it.title).put("due",it.due).put("quadrant",it.quadrant) }))
+        .put("schedule", JSONArray(state.schedule.filter { it.start.take(10)>=LocalDate.now().toString() }.take(40).map { JSONObject().put("title",it.title).put("start",it.start).put("end",it.end) }))
+
+    fun importAssistantDrafts(drafts: JSONArray) {
+        try {
+            check(state.authenticated) { "请先登录" }
+            require(drafts.length() in 1..12) { "任务草稿数量无效" }
+            val document=JSONObject((state.document ?: defaultDocument).toString())
+            for(index in 0 until drafts.length()) {
+                val item=drafts.getJSONObject(index)
+                val title=item.optString("title").trim(); val due=item.optString("due"); val time=item.optString("dueTime")
+                require(title.isNotBlank() && title.length<=300) { "任务名称无效" }
+                require(due.isBlank() || runCatching { LocalDate.parse(due) }.isSuccess) { "截止日期无效" }
+                require(time.isBlank() || time.matches(Regex("([01][0-9]|2[0-3]):[0-5][0-9]"))) { "截止时间无效" }
+                require(item.optString("quadrant") in setOf("do","plan","delegate","later")) { "四象限字段无效" }
+                document.getJSONArray("tasks").put(JSONObject(item.toString())
+                    .put("id","mobile-ai:${UUID.randomUUID()}").put("title",title).put("project","收集箱")
+                    .put("createdAt",System.currentTimeMillis()).put("completedAt",JSONObject.NULL).put("deletedAt",JSONObject.NULL)
+                    .put("reminder","").put("remindedFor",""))
+            }
+            updateAndPush(document)
+        } catch(e:Exception) { emit(state.copy(message=e.message ?: "草稿未添加")) }
+    }
+
     fun logout() {
         scope.launch {
             withContext(Dispatchers.IO) { runCatching { api.signOut() } }
@@ -424,7 +452,7 @@ class HadesRepository(context: Context) {
 
     private fun logoutLocal() {
         secureStore.clearSession()
-        emit(HadesUiState(loading = false))
+        emit(MedstackUiState(loading = false))
     }
 
     fun clearMessage() = emit(state.copy(message = ""))

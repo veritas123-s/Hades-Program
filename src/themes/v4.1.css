@@ -1,0 +1,217 @@
+.heading-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.foldable-panel {
+  position: relative;
+}
+.panel-body {
+  display: contents;
+}
+.panel-body[hidden],
+[hidden] {
+  display: none !important;
+}
+.panel-fold-bar {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.panel-fold-toggle {
+  width: 30px;
+  height: 30px;
+  opacity: 0.7;
+  background: var(--panel);
+}
+.panel-fold-toggle:hover {
+  opacity: 1;
+}
+.foldable-panel > .panel-body > h2,
+.foldable-panel > .panel-body > h3,
+.foldable-panel > .panel-body > .panel-heading {
+  padding-right: 28px;
+}
+.foldable-panel > .panel-body > .calendar-toolbar,
+.foldable-panel > .panel-body > header {
+  padding-right: 28px;
+}
+.panel-folded {
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 14px 20px !important;
+}
+.panel-folded > .panel-fold-bar {
+  position: relative;
+  inset: auto;
+  width: 100%;
+}
+.panel-fold-bar strong {
+  font-size: 16px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.settings-layout {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  max-width: 1080px;
+}
+.settings-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: sticky;
+  top: 20px;
+}
+.settings-tabs button {
+  text-align: left;
+  border: 0;
+  background: transparent;
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--muted);
+  font-size: 15px;
+  cursor: pointer;
+}
+.settings-tabs button[aria-selected="true"] {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: inset 3px 0 var(--accent);
+}
+.settings-content {
+  min-width: 0;
+}
+.settings-content .panel {
+  margin: 0;
+}
+.settings-content .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin: 24px 0;
+}
+.settings-content label {
+  font-size: 15px;
+}
+.settings-content .toggle-row b {
+  font-size: 15px;
+}
+.settings-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+.settings-actions .button {
+  justify-content: center;
+  min-height: 46px;
+  white-space: normal;
+}
+.settings-content details {
+  margin-top: 24px;
+  color: var(--muted);
+}
+.recent-news {
+  margin-bottom: 20px;
+}
+.recent-news > .panel-body > h2 {
+  margin-bottom: 10px;
+}
+.recent-news-card {
+  margin-top: 18px;
+  margin-bottom: 0 !important;
+  padding: 20px !important;
+  box-shadow: none !important;
+}
+.recent-news-card h3 {
+  font-size: 18px;
+  margin-bottom: 12px;
+  line-height: 1.6;
+}
+.recent-meta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.recent-source {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.recent-source span {
+  flex: 1;
+  min-width: 160px;
+  font-size: 13px;
+}
+.recent-news details {
+  margin-top: 14px;
+}
+.dispatch-details {
+  margin: 16px 0 24px;
+}
+.home-task-focus {
+  margin-bottom: 20px;
+}
+.home-task-focus .task-card {
+  margin-top: 10px;
+}
+@media (max-width: 850px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .settings-tabs {
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .settings-tabs button {
+    padding: 10px 12px;
+  }
+  .settings-actions {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 520px) {
+  .settings-content .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .heading-actions {
+    justify-content: flex-start;
+  }
+  .recent-news-card {
+    padding: 14px !important;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .panel-folded {
+    animation: panel-settle 0.15s ease-out;
+  }
+  @keyframes panel-settle {
+    from {
+      opacity: 0.75;
+      transform: translateY(3px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+img.brand-symbol { object-fit: contain; padding: 0; background: transparent; box-shadow: none; }
+.auth-brand h1 small { font-size: .55em; }

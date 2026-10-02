@@ -5,6 +5,7 @@ import { beijingDay } from "../src/briefing.mjs";
 import { decodeNews, decodeEntities } from "./news-text.mjs";
 import { organizationName, activityDetails } from "./news-organizations.mjs";
 import { validDay } from "../src/domain.mjs";
+import { recentNews } from "../src/news-window.mjs";
 
 export const WECHAT_SOURCES = [
   "上海交通大学",
@@ -139,7 +140,7 @@ export function parseUniversityIndex(html) {
       time,
       block.match(/class=["']des[^"']*["'][^>]*>([\s\S]*?)<\/div>/i)?.[1],
     );
-    if (row) rows.push(row);
+    if (row) rows.push({ ...row, publishedPrecision: "day" });
   }
   return rows;
 }
@@ -175,13 +176,14 @@ export function parseArticle(html, url) {
       /<div[^>]*id=["']vsb_content[^"']*["'][^>]*>([\s\S]*?)<\/div>/i,
     )?.[1] ||
     "";
-  return item(
+  const parsed = item(
     clean(nickname) || "医学院新闻网",
     clean(title),
     url,
     time,
     clean(body).slice(0, 1000),
   );
+  return parsed ? { ...parsed, publishedPrecision: unix ? "time" : "day" } : null;
 }
 
 export class NewsService {
@@ -237,7 +239,7 @@ export class NewsService {
     fs.renameSync(this.file + ".tmp", this.file);
   }
   status() {
-    return { ...this.data, busy: this.busy, sources: this.sources() };
+    return { ...this.data, busy: this.busy, sources: this.sources(), recent: recentNews(this.data.items) };
   }
   sources() {
     return this.data.followedSources || WECHAT_SOURCES;
@@ -371,7 +373,8 @@ export class NewsService {
       .sort((a, b) => b.publishedAt - a.publishedAt)
       .slice(0, 3000);
   }
-  async collect() {
+  async collect({ windowHours = 24 } = {}) {
+    if (windowHours !== 24) throw Error("只支持最近24小时采集");
     if (this.busy) throw Error("正在采集，请等待");
     if (!this.allowed()) throw Error("请先登录");
     this.busy = true;
@@ -460,7 +463,8 @@ export class NewsService {
       }
       if (generation !== this.generation || !this.allowed())
         return this.status();
-      this.merge(rows);
+      const window = recentNews(rows);
+      this.merge([...window.groups, ...window.uncertainGroups].flatMap((x) => x.items));
       this.data.coverage = coverage;
       this.data.lastAttempt = Date.now();
       this.save();

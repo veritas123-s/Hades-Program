@@ -1,4 +1,4 @@
-package com.shsmuveritas.hades
+package com.medstack.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -6,22 +6,22 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.shsmuveritas.hades.data.HadesRepository
-import com.shsmuveritas.hades.data.HadesUiState
-import com.shsmuveritas.hades.ui.HadesApp
-import com.shsmuveritas.hades.ui.HadesTheme
+import com.medstack.app.data.MedstackRepository
+import com.medstack.app.data.MedstackUiState
+import com.medstack.app.ui.MedstackApp
+import com.medstack.app.ui.MedstackTheme
 
 class MainActivity : ComponentActivity() {
-    private lateinit var repository: HadesRepository
-    private var uiState by mutableStateOf(HadesUiState())
+    private lateinit var repository: MedstackRepository
+    private var uiState by mutableStateOf(MedstackUiState())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        repository = HadesRepository(applicationContext)
+        repository = MedstackRepository(applicationContext)
         repository.onStateChanged = { uiState = it }
         setContent {
-            HadesTheme {
-                HadesApp(uiState, repository)
+            MedstackTheme {
+                MedstackApp(uiState, repository)
             }
         }
     }

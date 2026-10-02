@@ -54,7 +54,7 @@ export async function unlockSyntheticAccount(app) {
   await installSyntheticAccountNetwork(app);
   const page = await app.firstWindow();
   await page
-    .getByRole("heading", { name: "登录 Hades", exact: true })
+    .getByRole("heading", { name: "登录 医栈通", exact: true })
     .or(page.getByRole("heading", { name: "今天的安排", exact: true }))
     .waitFor();
   if (

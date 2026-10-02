@@ -7,8 +7,8 @@ import { createBackend } from "../server/backend.mjs";
 import { cloudDocument } from "../src/cloud-data.mjs";
 import { initialState, taskInput } from "../src/domain.mjs";
 
-const origin = "https://hades.redteam.invalid";
-const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades-redteam-"));
+const origin = "https://medstack.redteam.invalid";
+const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-redteam-"));
 const outbox = [];
 const results = [];
 const record = async (name, run) => {
@@ -144,7 +144,7 @@ try {
   const document = cloudDocument(initialState());
   document.tasks.push(
     taskInput({
-      title: "'); DROP TABLE hades_snapshots; --",
+      title: "'); DROP TABLE medstack_snapshots; --",
       quadrant: "plan",
       project: "收集箱",
     }),
@@ -163,7 +163,7 @@ try {
     const pulled = await request("/api/sync", { action: "pull" }, first);
     assert.equal(
       pulled.data.document.tasks[0].title,
-      "'); DROP TABLE hades_snapshots; --",
+      "'); DROP TABLE medstack_snapshots; --",
     );
   });
   await record("账号之间的数据严格隔离", async () => {
@@ -210,7 +210,7 @@ try {
   });
   await record("安卓会话与缓存通过 KeyStore 加密", async () => {
     const source = fs.readFileSync(
-      "android/app/src/main/java/com/shsmuveritas/hades/security/SecureStore.kt",
+      "android/app/src/main/java/com/shsmuveritas/medstack/security/SecureStore.kt",
       "utf8",
     );
     assert.match(source, /AndroidKeyStore/);
@@ -256,7 +256,7 @@ fs.writeFileSync(
   JSON.stringify(report, null, 2),
 );
 console.log(
-  `Hades V3.2 security exercise: ${report.passed}/${report.total} passed`,
+  `Medstack V3.2 security exercise: ${report.passed}/${report.total} passed`,
 );
 for (const item of results.filter((entry) => !entry.passed))
   console.error(`FAIL ${item.name}: ${item.error}`);

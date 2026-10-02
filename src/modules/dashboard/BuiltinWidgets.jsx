@@ -1,3 +1,4 @@
+import Panel from "../../shared/Panel.jsx";
 import React from "react";
 import {
   Timer,
@@ -35,11 +36,11 @@ export function PriorityWidget({ data, actions }) {
     actions,
   );
   return (
-    <section className="panel priority-panel">
+    <Panel className="panel priority-panel">
       <div className="panel-heading">
         <div>
           <p className="eyebrow">下一项</p>
-          <h2>接下来，做什么</h2>
+          <h2>待办任务</h2>
         </div>
         <button className="text-button" onClick={() => setPage("matrix")}>
           打开四象限 <ArrowUpRight size={15} />
@@ -64,7 +65,7 @@ export function PriorityWidget({ data, actions }) {
         <Plus size={16} />
         添加一个任务
       </button>
-    </section>
+    </Panel>
   );
 }
 
@@ -74,17 +75,12 @@ export function FocusWidget({ data, actions }) {
     actions,
   );
   return (
-    <section className="focus-invite">
+    <Panel className="focus-invite">
       <div className="inline">
         <span className="pill">FOCUS TIME</span>
         <Timer size={22} />
       </div>
-      <h2>此刻，只做一件事。</h2>
-      <p>
-        给自己一段不被打扰的时间，
-        <br />
-        让注意力回到真正重要的地方。
-      </p>
+      <h2>专注</h2>
       <div className="invite-clock">
         {state.timer.status === "idle"
           ? `${String(state.settings.focusMinutes).padStart(2, "0")}:00`
@@ -99,8 +95,8 @@ export function FocusWidget({ data, actions }) {
         {state.timer.status === "idle" ? "进入专注空间" : "回到当前专注"}
         <ArrowRight size={16} />
       </button>
-      <small>每一次专注，都有迹可循</small>
-    </section>
+
+    </Panel>
   );
 }
 
@@ -110,7 +106,7 @@ export function WeekWidget({ data, actions }) {
     actions,
   );
   return (
-    <section className="panel">
+    <Panel className="panel">
       <div className="panel-heading">
         <h3>本周的投入</h3>
         <button className="text-button" onClick={() => setPage("stats")}>
@@ -118,7 +114,7 @@ export function WeekWidget({ data, actions }) {
         </button>
       </div>
       <WeekChart totals={totals} />
-    </section>
+    </Panel>
   );
 }
 
@@ -128,7 +124,7 @@ export function CoursesWidget({ data, actions }) {
     actions,
   );
   return (
-    <section className="panel">
+    <Panel className="panel">
       <div className="panel-heading">
         <h3>今日课程</h3>
         <button className="text-button" onClick={() => setPage("campus")}>
@@ -160,6 +156,6 @@ export function CoursesWidget({ data, actions }) {
           同步学校课表后，在这里查看今日课程。
         </Empty>
       )}
-    </section>
+    </Panel>
   );
 }

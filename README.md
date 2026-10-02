@@ -1,8 +1,8 @@
-# Hades-Program
+# Medstack-Program
 
 A tool to bridge the gaps between those complicated apps of SHSMU
 
-## Hades V3.2 · Poseidon（测试版）
+## Medstack V3.2 · Poseidon（测试版）
 
 ### V3.2
 
@@ -62,7 +62,7 @@ npm start
 npm run dist:installer
 ```
 
-目标输出为 `release-v3.2/Hades-Setup-3.2.0-x64.exe`；32 位使用 `npm run dist:installer:ia32`，安卓端由 `android` 工程或仓库工作流生成 APK。同学只需对应平台的安装文件，不需要 Node.js 或开发环境。当前提供测试版；源码仓库不存放个人配置与安装包。
+目标输出为 `release-v3.2/Medstack-Setup-3.2.0-x64.exe`；32 位使用 `npm run dist:installer:ia32`，安卓端由 `android` 工程或仓库工作流生成 APK。同学只需对应平台的安装文件，不需要 Node.js 或开发环境。当前提供测试版；源码仓库不存放个人配置与安装包。
 
 ### 使用与数据
 

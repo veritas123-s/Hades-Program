@@ -28,7 +28,7 @@ function assertDesktopProfile(directory) {
   }
   if (isRedirectedProfile(directory, physical)) {
     const error = new Error(
-      "当前启动环境使用了隔离数据目录。为保护日常记录，已停止加载；请从桌面快捷方式启动 Hades。",
+      "当前启动环境使用了隔离数据目录。为保护日常记录，已停止加载；请从桌面快捷方式启动 医栈通。",
     );
     error.code = "APPDATA_REDIRECTED";
     throw error;

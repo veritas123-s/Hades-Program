@@ -2,14 +2,16 @@ import fs from "node:fs";
 import path from "node:path";
 const out = "docs/offline";
 fs.mkdirSync(out, { recursive: true });
+for (const filename of ['VALIDATION-V3.1.html', 'VALIDATION-V4.0.html', 'VALIDATION-V4.1.html', 'MODEL-CODING-EVALUATION.html']) {
+  const file=path.join(out, filename);
+  if(fs.existsSync(file)) fs.unlinkSync(file);
+}
 const documents = {
   "USER-GUIDE.md": "docs/USER-GUIDE.md",
   "DEVELOPER-HANDBOOK.md": "docs/DEVELOPER-HANDBOOK.md",
   "WIDGET-GUIDE.md": "docs/WIDGET-GUIDE.md",
+  "MEDSTACK-RELEASE.md": "docs/MEDSTACK-RELEASE.md",
   "ORIGIN.md": "docs/ORIGIN.md",
-  "VALIDATION-V3.1.md": "docs/VALIDATION-V3.1.md",
-  "VALIDATION-V4.0.md": "docs/VALIDATION-V4.0.md",
-  "MODEL-CODING-EVALUATION.md": "docs/MODEL-CODING-EVALUATION.md",
   "SERVER-README.md": "server/README.md",
 };
 const escape = (s) =>
@@ -107,7 +109,7 @@ function render(md) {
       para.push(lines[i++]);
     parts.push(`<p>${inline(para.join(" "))}</p>`);
   }
-  return { body: parts.join("\n"), toc, title: toc[0]?.title || "Hades 手册" };
+  return { body: parts.join("\n"), toc, title: toc[0]?.title || "医栈通 手册" };
 }
 for (const [name, file] of Object.entries(documents)) {
   const { body, toc, title } = render(fs.readFileSync(file, "utf8"));

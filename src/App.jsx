@@ -1,5 +1,7 @@
+import brandIcon from "../assets/medstack.svg";
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { PanelProvider } from "./shared/Panel.jsx";
 import {
   Bell,
   Timer,
@@ -147,11 +149,11 @@ export default function App() {
   if (!state)
     return (
       <div className="loading">
-        <div className="brand-symbol">H</div>
+        <img className="brand-symbol" src={brandIcon} alt="Medstack" />
         <h1>{APP_LABEL}</h1>
         <p>
           {window.veritas
-            ? "正在打开你的工作空间…"
+            ? "医栈事，一站通"
             : "请通过桌面程序打开此应用。"}
         </p>
         {toast && <p className="error">{toast}</p>}
@@ -161,10 +163,10 @@ export default function App() {
     return (
       <main className="auth-shell">
         <div className="auth-brand">
-          <div className="brand-symbol">H</div>
+          <img className="brand-symbol" src={brandIcon} alt="Medstack" />
           <div>
-            <h1>Hades</h1>
-            <p>登录，打开你的个人空间</p>
+            <h1>医栈通 <small>Medstack</small></h1>
+            <p>医栈事，一站通</p>
           </div>
         </div>
         <AccountPage state={state} call={call} toast={setToast} locked />
@@ -265,10 +267,10 @@ export default function App() {
           )}
         </button>
         <div className="brand">
-          <div className="brand-symbol">H</div>
+          <img className="brand-symbol" src={brandIcon} alt="Medstack" />
           <div>
             <b>
-              Hades<span>{APP_VERSION}</span>
+              医栈通<span>{APP_VERSION}</span>
             </b>
             <small>任务 · 课程 · 专注</small>
           </div>
@@ -331,36 +333,39 @@ export default function App() {
               </React.Fragment>
             ))}
           </nav>
-            {navigation.collapsed && groupMenu && createPortal(
-            <>
-              <button
-                className="sidebar-popup-backdrop"
-                aria-label="关闭板块菜单"
-                onClick={() => setGroupMenu(null)}
-              />
-              <section
-                className="sidebar-group-popup"
-                aria-label={`${NAV_GROUPS.find((x) => x.id === groupMenu)?.title}菜单`}
-              >
-                <h3>{NAV_GROUPS.find((x) => x.id === groupMenu)?.title}</h3>
-                {visibleNav
-                  .filter(([id]) => routeGroup(id) === groupMenu)
-                  .map(([id, label, Icon]) => (
-                    <button
-                      className={page === id ? "active" : ""}
-                      key={id}
-                      onClick={() => {
-                        setPage(id);
-                        setGroupMenu(null);
-                      }}
-                    >
-                      <Icon size={18} />
-                      {label}
-                    </button>
-                  ))}
-              </section>
-              </>, document.body
-          )}
+          {navigation.collapsed &&
+            groupMenu &&
+            createPortal(
+              <>
+                <button
+                  className="sidebar-popup-backdrop"
+                  aria-label="关闭板块菜单"
+                  onClick={() => setGroupMenu(null)}
+                />
+                <section
+                  className="sidebar-group-popup"
+                  aria-label={`${NAV_GROUPS.find((x) => x.id === groupMenu)?.title}菜单`}
+                >
+                  <h3>{NAV_GROUPS.find((x) => x.id === groupMenu)?.title}</h3>
+                  {visibleNav
+                    .filter(([id]) => routeGroup(id) === groupMenu)
+                    .map(([id, label, Icon]) => (
+                      <button
+                        className={page === id ? "active" : ""}
+                        key={id}
+                        onClick={() => {
+                          setPage(id);
+                          setGroupMenu(null);
+                        }}
+                      >
+                        <Icon size={18} />
+                        {label}
+                      </button>
+                    ))}
+                </section>
+              </>,
+              document.body,
+            )}
           <div className="sidebar-projects">
             <p className="nav-label">
               我的清单{" "}
@@ -407,7 +412,7 @@ export default function App() {
           >
             <Settings size={18} />
             <b>设置与数据</b>
-            <span>V4.0</span>
+            <span>V4.1</span>
           </button>
           <button
             className="sidebar-manage"
@@ -493,61 +498,64 @@ export default function App() {
             {state.account?.user?.nickname?.slice(0, 1) || "H"}
           </button>
         </header>
-        <main>
-          {state.lastNotice && (
-            <div className="notice">
-              <span>{state.lastNotice}</span>
-              <button
-                className="icon-button"
-                aria-label="关闭通知"
-                onClick={() => call("notice.dismiss")}
-              >
-                <X size={15} />
-              </button>
-            </div>
-          )}
-          <ModuleOutlet
-            page={page}
-            context={{
-              state,
-              call,
-              page,
-              setPage,
-              filter,
-              setFilter,
-              project,
-              setProject,
-              projects,
-              visible,
-              card,
-              addTask,
-              openAssistant: () => setAssistantOpen(true),
-              manageLists: () => setListsOpen(true),
-              openManual: (kind = "user") => setManualKind(kind),
-              startTour: () => setTourOpen(true),
-              query,
-              active,
-              today,
-              todayMs,
-              selected: focusTask,
-              setSelected: setFocusTask,
-              toast: setToast,
-              widgetActions: {
-                navigate: setPage,
-                addTask,
-                editTask: setEditor,
-                focusTask: focus,
+        <PanelProvider page={page} key={state.account?.user?.id || "personal"}>
+          <main>
+            {state.lastNotice && (
+              <div className="notice">
+                <span>{state.lastNotice}</span>
+                <button
+                  className="icon-button"
+                  aria-label="关闭通知"
+                  onClick={() => call("notice.dismiss")}
+                >
+                  <X size={15} />
+                </button>
+              </div>
+            )}
+            <ModuleOutlet
+              page={page}
+              context={{
+                state,
                 call,
-              },
-            }}
-          />
-          <footer className="page-footer">
-            <span>{APP_LABEL}</span>
-            <span>
-              {state.account?.sync?.enabled ? "账号空间与云同步" : "账号空间"}
-            </span>
-          </footer>
-        </main>
+                page,
+                setPage,
+                filter,
+                setFilter,
+                project,
+                setProject,
+                projects,
+                visible,
+                card,
+                addTask,
+                openAssistant: () => setAssistantOpen(true),
+                manageLists: () => setListsOpen(true),
+                openManual: (kind = "user") => setManualKind(kind),
+                startTour: () => setTourOpen(true),
+                openSidebarManager: () => setSidebarManagerOpen(true),
+                query,
+                active,
+                today,
+                todayMs,
+                selected: focusTask,
+                setSelected: setFocusTask,
+                toast: setToast,
+                widgetActions: {
+                  navigate: setPage,
+                  addTask,
+                  editTask: setEditor,
+                  focusTask: focus,
+                  call,
+                },
+              }}
+            />
+            <footer className="page-footer">
+              <span>{APP_LABEL}</span>
+              <span>
+                {state.account?.sync?.enabled ? "账号空间与云同步" : "账号空间"}
+              </span>
+            </footer>
+          </main>
+        </PanelProvider>
         {state.timer.status !== "idle" && page !== "focus" && (
           <button className="floating-timer" onClick={() => setPage("focus")}>
             <span className={state.timer.status === "running" ? "pulse" : ""} />

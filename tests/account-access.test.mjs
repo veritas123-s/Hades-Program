@@ -70,7 +70,7 @@ test("未登录的状态不包含旧账号身份和个人摘要，所有个人�
     requireAccount(a, action);
 });
 test("旧本机数据及加密配置只可归入一个账号，不覆盖、不删除，不复制账号令牌", () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hades-access-")),
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-access-")),
     vault = secrets(),
     p = new AccountProfiles(dir, vault);
   fs.writeFileSync(

@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory=$true)][string]$Email,
     [Parameter(Mandatory=$true)][string]$BaseURL,
-    [string]$DataDirectory='C:/ProgramData/HadesServer/data'
+    [string]$DataDirectory='C:/ProgramData/MedstackServer/data'
 )
 $ErrorActionPreference='Stop'
 $uri=[Uri]$BaseURL
@@ -13,7 +13,7 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 [Windows.Forms.Application]::EnableVisualStyles()
 $form=New-Object Windows.Forms.Form
-$form.Text='Hades - QQ Mail setup'
+$form.Text='Medstack - QQ Mail setup'
 $form.ClientSize=New-Object Drawing.Size(540,285)
 $form.StartPosition='CenterScreen'
 $form.FormBorderStyle='FixedDialog'
@@ -79,7 +79,7 @@ $save.Add_Click({
             $config=[pscustomobject]@{baseURL='';port=4318;secret=[Convert]::ToBase64String($bytes);smtp=$null}
         }
         $config.baseURL=$uri.GetLeftPart([UriPartial]::Authority)
-        $config.smtp=[pscustomobject]@{host='smtp.qq.com';port=465;user=$Email;password=$authorization;from="Hades <$Email>"}
+        $config.smtp=[pscustomobject]@{host='smtp.qq.com';port=465;user=$Email;password=$authorization;from="Medstack <$Email>"}
         $temporary=Join-Path $dataPath ('config-'+[Guid]::NewGuid().ToString('N')+'.tmp')
         [IO.File]::WriteAllText($temporary,($config | ConvertTo-Json -Depth 10),(New-Object Text.UTF8Encoding($false)))
         if(Test-Path -LiteralPath $configFile) {
@@ -88,10 +88,10 @@ $save.Add_Click({
         } else { [IO.File]::Move($temporary,$configFile) }
         $entry.Clear()
         $authorization=$null
-        [Windows.Forms.MessageBox]::Show('Saved. The server is not enabled until HTTPS and delivery checks pass.','Hades') | Out-Null
+        [Windows.Forms.MessageBox]::Show('Saved. The server is not enabled until HTTPS and delivery checks pass.','Medstack') | Out-Null
         $form.Close()
     } catch {
-        [Windows.Forms.MessageBox]::Show('Could not save. Check the authorization code and dedicated data directory. No secret values are logged.','Hades') | Out-Null
+        [Windows.Forms.MessageBox]::Show('Could not save. Check the authorization code and dedicated data directory. No secret values are logged.','Medstack') | Out-Null
     }
 })
 $form.Controls.AddRange(@($label,$entry,$note,$save,$cancel))

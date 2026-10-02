@@ -13,7 +13,7 @@ function parse(text,options){return new Promise((resolve,reject)=>{
 export default async function execute(action,p,{store,dialog,fs,broadcast,getWindow}){
  if(action==='calendar.export'){
   const result=exportCalendar(store.state,p);
-  const file=await dialog.showSaveDialog(getWindow(),{defaultPath:`Hades-${p.start}-${p.end}.ics`,filters:[{name:'通用日历',extensions:['ics']}]});
+  const file=await dialog.showSaveDialog(getWindow(),{defaultPath:`医栈通-${p.start}-${p.end}.ics`,filters:[{name:'通用日历',extensions:['ics']}]});
   if(file.canceled)return {canceled:true};
   fs.writeFileSync(file.filePath,result.text,'utf8');return {count:result.count};
  }

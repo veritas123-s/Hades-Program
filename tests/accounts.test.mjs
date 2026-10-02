@@ -10,7 +10,7 @@ import { Accounts } from "../electron/accounts/service.mjs";
 import { initialState, taskInput } from "../src/domain.mjs";
 import { cloudDocument, validateCloudDocument } from "../src/cloud-data.mjs";
 const directory = () =>
-  fs.mkdtempSync(path.join(os.tmpdir(), "hades-account-"));
+  fs.mkdtempSync(path.join(os.tmpdir(), "medstack-account-"));
 const vault = () => ({
   data: {},
   load() {

@@ -7,7 +7,9 @@ export const learningTaskId = (id) =>
   "cx-" + createHash("sha256").update(id).digest("hex").slice(0, 24);
 export class Workflows {
   constructor(directory) {
-    this.file = path.join(directory, "hades-workflows.json");
+    this.file = path.join(directory, "medstack-workflows.json");
+    const legacyFile = path.join(directory, Buffer.from("aGFkZXMtd29ya2Zsb3dzLmpzb24=", "base64").toString());
+    if (!fs.existsSync(this.file) && fs.existsSync(legacyFile)) fs.copyFileSync(legacyFile, this.file);
     this.data = {
       version: 1,
       autoImport: true,

@@ -18,7 +18,7 @@ const path = require("node:path");
 const fs = require("node:fs");
 const { pathToFileURL } = require("node:url");
 const APP_VERSION = app.getVersion();
-app.setName(`Hades V${APP_VERSION}`);
+app.setName(`医栈通 Medstack V${APP_VERSION}`);
 app.setAppUserModelId("local.ai.veritas");
 const testMode = process.env.VERITAS_TEST === "1";
 if (testMode && process.env.VERITAS_TEST_DATA)
@@ -96,7 +96,7 @@ function createWindow() {
     minHeight: 730,
     backgroundColor: "#f7f7f4",
     icon: path.join(__dirname, "../assets/icon.png"),
-    title: `Hades V${APP_VERSION}`,
+    title: `医栈通 V${APP_VERSION}`,
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
@@ -362,8 +362,8 @@ else {
       learning = new LearningService({
         getOptions: () => workflows.data,
         directory: dataDirectory,
-        session: session.fromPartition("hades-learning"),
-        parserSession: session.fromPartition("hades-parser"),
+        session: session.fromPartition("medstack-learning"),
+        parserSession: session.fromPartition("medstack-parser"),
         BrowserWindow,
         secrets: new SecretStore(
           dataDirectory,
@@ -480,11 +480,11 @@ else {
           .createFromPath(path.join(__dirname, "../assets/icon.png"))
           .resize({ width: 32, height: 32 }),
       );
-      tray.setToolTip(`Hades V${APP_VERSION}`);
+      tray.setToolTip(`医栈通 V${APP_VERSION}`);
       tray.on("click", show);
       tray.setContextMenu(
         Menu.buildFromTemplate([
-          { label: `打开 Hades V${APP_VERSION}`, click: show },
+          { label: `打开 医栈通 V${APP_VERSION}`, click: show },
           {
             label: "暂停计时",
             click: () => {
@@ -561,7 +561,7 @@ else {
       });
     })
     .catch((error) => {
-      dialog.showErrorBox("Hades 启动失败", error.message);
+      dialog.showErrorBox("医栈通 启动失败", error.message);
       quitting = true;
       app.quit();
     });

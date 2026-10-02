@@ -23,7 +23,7 @@ export async function createBackend({
     "PRAGMA journal_mode=WAL; PRAGMA busy_timeout=5000; PRAGMA foreign_keys=ON;",
   );
   const auth = betterAuth({
-    appName: "Hades",
+    appName: "Medstack",
     baseURL,
     secret,
     database: db,
@@ -43,7 +43,7 @@ export async function createBackend({
       cookieCache: { enabled: false },
     },
     rateLimit: { enabled: !testMode, storage: "database", window: 60, max: 30 },
-    advanced: { ipAddress: { ipAddressHeaders: ["x-hades-client-ip"] } },
+    advanced: { ipAddress: { ipAddressHeaders: ["x-medstack-client-ip"] } },
     plugins: [
       bearer({ requireSignature: true }),
       emailOTP({
@@ -68,19 +68,20 @@ export async function createBackend({
   const migrations = await getMigrations(auth.options);
   await migrations.runMigrations();
   db.exec(
-    "CREATE TABLE IF NOT EXISTS hades_snapshots (uid TEXT PRIMARY KEY, version INTEGER NOT NULL, document TEXT NOT NULL, updated_at INTEGER NOT NULL); CREATE TABLE IF NOT EXISTS hades_history (uid TEXT NOT NULL, version INTEGER NOT NULL, document TEXT NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY(uid,version));",
+    "CREATE TABLE IF NOT EXISTS medstack_snapshots (uid TEXT PRIMARY KEY, version INTEGER NOT NULL, document TEXT NOT NULL, updated_at INTEGER NOT NULL); CREATE TABLE IF NOT EXISTS medstack_history (uid TEXT NOT NULL, version INTEGER NOT NULL, document TEXT NOT NULL, created_at INTEGER NOT NULL, PRIMARY KEY(uid,version));",
   );
+  migrateSnapshotTables(db);
   const read = db.prepare(
-    "SELECT version, document, updated_at FROM hades_snapshots WHERE uid=?",
+    "SELECT version, document, updated_at FROM medstack_snapshots WHERE uid=?",
   );
   const write = db.prepare(
-    "INSERT INTO hades_snapshots(uid,version,document,updated_at) VALUES(?,?,?,?) ON CONFLICT(uid) DO UPDATE SET version=excluded.version,document=excluded.document,updated_at=excluded.updated_at",
+    "INSERT INTO medstack_snapshots(uid,version,document,updated_at) VALUES(?,?,?,?) ON CONFLICT(uid) DO UPDATE SET version=excluded.version,document=excluded.document,updated_at=excluded.updated_at",
   );
   const history = db.prepare(
-    "INSERT OR IGNORE INTO hades_history(uid,version,document,created_at) VALUES(?,?,?,?)",
+    "INSERT OR IGNORE INTO medstack_history(uid,version,document,created_at) VALUES(?,?,?,?)",
   );
   const prune = db.prepare(
-    "DELETE FROM hades_history WHERE uid=? AND version NOT IN (SELECT version FROM hades_history WHERE uid=? ORDER BY version DESC LIMIT 10)",
+    "DELETE FROM medstack_history WHERE uid=? AND version NOT IN (SELECT version FROM medstack_history WHERE uid=? ORDER BY version DESC LIMIT 10)",
   );
   const routes = new Map([
     ["/sign-up/email", "POST"],
@@ -184,3 +185,4 @@ export async function createBackend({
   }
   return { handle, auth, db, close: () => db.close() };
 }
+import { migrateSnapshotTables } from './storage.mjs';

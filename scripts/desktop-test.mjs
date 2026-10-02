@@ -24,7 +24,7 @@ try {
   app = await launchAuthenticated({ args: [root], env, timeout: 30000 });
   let page = await app.firstWindow();
   await page.getByRole("heading", { name: "今天的安排" }).waitFor();
-  const tour = page.getByRole("dialog", { name: "Hades 新手教程" });
+  const tour = page.getByRole("dialog", { name: "医栈通 新手教程" });
   await tour.getByRole("button", { name: "跳过", exact: true }).click();
   await tour.waitFor({ state: "hidden" });
   const errors = [];
@@ -273,23 +273,25 @@ try {
     fs.readdirSync(fixtureProfile(dataDir)).some((f) => /^backup-/.test(f)),
   );
   ok("完整备份导出与恢复，恢复前自动备份");
-  await page.getByRole("button", { name: "设置与数据" }).click();
+   await page.getByRole("button", { name: "设置与数据" }).click();
+   await page.getByRole("tab", { name: "帮助", exact: true }).click();
   await page.getByRole("button", { name: "使用说明", exact: true }).click();
   await page
-    .getByRole("dialog", { name: "Hades 手册" })
-    .getByRole("heading", { name: /Hades V\d/ })
+    .getByRole("dialog", { name: "医栈通 手册" })
+    .getByRole("heading", { name: /医栈通 V\d/ })
     .waitFor();
   await page
-    .getByRole("dialog", { name: "Hades 手册" })
+    .getByRole("dialog", { name: "医栈通 手册" })
     .getByRole("button", { name: "开发者手册" })
     .click();
   await page
-    .getByRole("dialog", { name: "Hades 手册" })
-    .getByRole("heading", { name: /Hades V\d/ })
+    .getByRole("dialog", { name: "医栈通 手册" })
+    .getByRole("heading", { name: /医栈通 V\d/ })
     .waitFor();
   await page.getByRole("button", { name: "关闭手册" }).click();
   ok("使用说明与开发者手册内嵌显示");
-  await page.getByLabel("每日专注目标（分钟）").fill("180");
+    await page.getByRole("tab", { name: "专注与提醒", exact: true }).click();
+    await page.getByLabel("每日专注目标（分钟）").fill("180");
   await page.getByRole("button", { name: "保存设置", exact: true }).click();
   state = await page.evaluate(() => window.veritas.call("state"));
   assert.equal(state.settings.dailyGoal, 180);

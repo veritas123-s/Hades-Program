@@ -1,4 +1,4 @@
-package com.shsmuveritas.hades.ui
+package com.medstack.app.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -47,19 +47,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.shsmuveritas.hades.BuildConfig
-import com.shsmuveritas.hades.data.HadesRepository
-import com.shsmuveritas.hades.data.HadesUiState
-import com.shsmuveritas.hades.data.MobileTask
+import com.medstack.app.BuildConfig
+import com.medstack.app.data.MedstackRepository
+import com.medstack.app.data.MedstackUiState
+import com.medstack.app.data.MobileTask
 import java.time.LocalDate
 import kotlinx.coroutines.delay
 
 private enum class MobilePage(val title: String, val mark: String) {
-    Today("今日", "今"), Tasks("任务", "清"), Schedule("日程", "历"), Focus("专注", "钟"), Connection("连接", "云")
+    Today("今日", "今"), Tasks("任务", "清"), Schedule("日程", "历"), Focus("专注", "钟"), Assistant("助手", "助"), Connection("连接", "云")
 }
 
 @Composable
-fun HadesApp(ui: HadesUiState, repository: HadesRepository) {
+fun MedstackApp(ui: MedstackUiState, repository: MedstackRepository) {
     if (!ui.authenticated) {
         AuthScreen(ui, repository)
         return
@@ -94,6 +94,7 @@ fun HadesApp(ui: HadesUiState, repository: HadesRepository) {
                 MobilePage.Tasks -> TasksScreen(ui, repository)
                 MobilePage.Schedule -> ScheduleScreen(ui)
                 MobilePage.Focus -> FocusScreen(ui, repository)
+                MobilePage.Assistant -> AssistantScreen(repository)
                 MobilePage.Connection -> ConnectionScreen(ui, repository)
             }
         }
@@ -101,7 +102,7 @@ fun HadesApp(ui: HadesUiState, repository: HadesRepository) {
 }
 
 @Composable
-private fun AuthScreen(ui: HadesUiState, repository: HadesRepository) {
+private fun AuthScreen(ui: MedstackUiState, repository: MedstackRepository) {
     var register by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf(ui.pendingEmail) }
     var password by remember { mutableStateOf("") }
@@ -113,9 +114,9 @@ private fun AuthScreen(ui: HadesUiState, repository: HadesRepository) {
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         ) {
             Column(Modifier.padding(28.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Text("H", style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary)
-                Text("Hades", style = MaterialTheme.typography.headlineLarge)
-                Text("登录后连接电脑端工作空间", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("M", style = MaterialTheme.typography.displaySmall, color = MaterialTheme.colorScheme.primary)
+                Text("医栈通 Medstack", style = MaterialTheme.typography.headlineLarge)
+                Text("医栈事，一站通", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (ui.needsVerification) {
                     Text(ui.pendingEmail, fontWeight = FontWeight.SemiBold)
                     OutlinedTextField(code, { code = it.take(10) }, label = { Text("邮箱验证码") }, modifier = Modifier.fillMaxWidth(), keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number))
@@ -141,19 +142,19 @@ private fun AuthScreen(ui: HadesUiState, repository: HadesRepository) {
 }
 
 @Composable
-private fun MobileHeader(ui: HadesUiState, page: MobilePage, repository: HadesRepository) {
+private fun MobileHeader(ui: MedstackUiState, page: MobilePage, repository: MedstackRepository) {
     Row(
         Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column { Text(page.title, style = MaterialTheme.typography.headlineMedium); Text("Hades V${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+        Column { Text(page.title, style = MaterialTheme.typography.headlineMedium); Text("医栈通 V${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         TextButton(repository::syncNow, enabled = ui.syncPhase != "syncing") { Text(when (ui.syncPhase) { "synced" -> "已同步"; "syncing" -> "同步中"; "conflict" -> "有冲突"; else -> "同步" }) }
     }
 }
 
 @Composable
-private fun TodayScreen(ui: HadesUiState, repository: HadesRepository) {
+private fun TodayScreen(ui: MedstackUiState, repository: MedstackRepository) {
     val today = LocalDate.now().toString()
     val due = ui.tasks.filter { !it.completed && it.due.isNotBlank() && it.due <= today }
     val courses = ui.schedule.filter { it.start.startsWith(today) }
@@ -177,7 +178,7 @@ private fun TodayScreen(ui: HadesUiState, repository: HadesRepository) {
 }
 
 @Composable
-private fun TasksScreen(ui: HadesUiState, repository: HadesRepository) {
+private fun TasksScreen(ui: MedstackUiState, repository: MedstackRepository) {
     var adding by remember { mutableStateOf(false) }
     LazyColumn(contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item { Button({ adding = true }, modifier = Modifier.fillMaxWidth()) { Text("添加任务") } }
@@ -191,7 +192,7 @@ private fun TasksScreen(ui: HadesUiState, repository: HadesRepository) {
 }
 
 @Composable
-private fun TaskRow(task: MobileTask, repository: HadesRepository) {
+private fun TaskRow(task: MobileTask, repository: MedstackRepository) {
     Card(shape = RoundedCornerShape(18.dp), modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
             Checkbox(task.completed, { repository.toggleTask(task.id) })
@@ -230,7 +231,7 @@ private fun AddTaskDialog(onDismiss: () -> Unit, onSave: (String, String, String
 }
 
 @Composable
-private fun ScheduleScreen(ui: HadesUiState) {
+private fun ScheduleScreen(ui: MedstackUiState) {
     val today = LocalDate.now().toString()
     val items = ui.schedule.filter { it.end >= today }.take(60)
     LazyColumn(contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -253,7 +254,7 @@ private fun ScheduleCard(title: String, start: String, end: String, location: St
 }
 
 @Composable
-private fun FocusScreen(ui: HadesUiState, repository: HadesRepository) {
+private fun FocusScreen(ui: MedstackUiState, repository: MedstackRepository) {
     var minutes by remember { mutableIntStateOf(25) }
     LaunchedEffect(ui.focusStartedAt) {
         while (ui.focusStartedAt != null) {
@@ -285,12 +286,12 @@ private fun FocusScreen(ui: HadesUiState, repository: HadesRepository) {
 }
 
 @Composable
-private fun ConnectionScreen(ui: HadesUiState, repository: HadesRepository) {
+private fun ConnectionScreen(ui: MedstackUiState, repository: MedstackRepository) {
     LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         item {
             Card(shape = RoundedCornerShape(22.dp), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
                 Column(Modifier.padding(20.dp)) {
-                    Text(ui.nickname.ifBlank { "Hades 用户" }, style = MaterialTheme.typography.titleLarge)
+                    Text(ui.nickname.ifBlank { "医栈通 用户" }, style = MaterialTheme.typography.titleLarge)
                     Text(ui.email)
                     Text("云端版本 ${ui.remoteVersion} · ${if (ui.dirty) "手机有待同步更改" else "本地已对齐"}", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }

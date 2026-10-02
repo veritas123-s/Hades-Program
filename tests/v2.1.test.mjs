@@ -14,7 +14,7 @@ import {
 } from "../src/calendar.mjs";
 import { Workflows } from "../electron/workflows.mjs";
 import { agenda, learningEntries } from "../src/agenda.mjs";
-const directory = () => fs.mkdtempSync(path.join(os.tmpdir(), "hades-v21-"));
+const directory = () => fs.mkdtempSync(path.join(os.tmpdir(), "medstack-v21-"));
 const notice = {
   id: "notice:synthetic",
   kind: "notice",
@@ -71,7 +71,7 @@ test("批量删除稳定去重，恢复其中一项，保存失败不会改变�
 });
 test("V2工作流数据向后兼容，损坏归档不被覆盖", () => {
   const dir = directory(),
-    file = path.join(dir, "hades-workflows.json");
+    file = path.join(dir, "medstack-workflows.json");
   fs.writeFileSync(
     file,
     JSON.stringify({ version: 1, read: [], audit: [], autoImport: false }),

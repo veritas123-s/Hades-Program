@@ -6,7 +6,7 @@ import path from "node:path";
 import assert from "node:assert/strict";
 import { initialState, taskInput } from "../src/domain.mjs";
 import { THEMES } from "../src/themes/catalog.mjs";
-const directory = fs.mkdtempSync(path.join(os.tmpdir(), "hades3-ui-"));
+const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack3-ui-"));
 const seed = initialState();
 seed.workspace.theme = "paper";
 seed.tasks = [
@@ -26,7 +26,7 @@ fs.writeFileSync(
 const calendar = path.join(directory, "synthetic.ics");
 fs.writeFileSync(
   calendar,
-  "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:hades-v3-synthetic\r\nSUMMARY:合成导入日程\r\nDTSTART:20260929T010000Z\r\nDTEND:20260929T020000Z\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
+  "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:medstack-v3-synthetic\r\nSUMMARY:合成导入日程\r\nDTSTART:20260929T010000Z\r\nDTEND:20260929T020000Z\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n",
 );
 const env = { ...process.env, VERITAS_TEST: "1", VERITAS_TEST_DATA: directory };
 delete env.ELECTRON_RUN_AS_NODE;
