@@ -197,7 +197,9 @@ export function parseArticle(html, url) {
   return parsed
     ? {
         ...parsed,
-        imageURL: articleCover(html, url),
+        imageURL:
+          articleCover(html.replace(/<img\b[^>]*>/gi, ""), url) ||
+          articleCover(body, url),
         publishedPrecision: unix ? "time" : "day",
       }
     : null;
