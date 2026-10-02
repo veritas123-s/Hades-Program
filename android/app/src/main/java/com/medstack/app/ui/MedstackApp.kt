@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.imePadding
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.layout.ContentScale
 import com.medstack.app.R
 import com.medstack.app.BuildConfig
 import com.medstack.app.data.MedstackRepository
@@ -153,6 +155,7 @@ private fun AuthScreen(ui: MedstackUiState, repository: MedstackRepository) {
                 if (ui.loading) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) { CircularProgressIndicator(Modifier.size(22.dp)); Text("正在连接…") }
                 if (ui.message.isNotBlank()) Text(ui.message, color = MaterialTheme.colorScheme.error)
                 HorizontalDivider()
+                Image(painterResource(R.drawable.medtrix_brand), contentDescription = "Medtrix 团队", modifier = Modifier.width(160.dp).height(42.dp), contentScale = ContentScale.Crop)
                 Text("账号令牌与离线缓存由 Android 系统密钥库加密。未登录时不显示个人任务、日程或专注记录。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }

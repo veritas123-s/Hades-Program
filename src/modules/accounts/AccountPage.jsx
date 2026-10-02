@@ -1,4 +1,5 @@
 import Panel from "../../shared/Panel.jsx";
+import TeamBrand from "../../shared/TeamBrand.jsx";
 import React, { useState } from "react";
 import { Cloud, RefreshCw, LogOut, UserRound, ShieldCheck } from "lucide-react";
 const summary = (s) =>
@@ -386,6 +387,11 @@ export default function AccountPage({ state, call, toast, locked = false }) {
           </Panel>
         )}
       </div>
+      {locked && (
+        <div className="auth-team-brand">
+          <TeamBrand compact />
+        </div>
+      )}
       {locked && (
         <p className="auth-privacy">
           <ShieldCheck size={17} /> 未登录时，任务、课表、专注记录、API
