@@ -99,7 +99,7 @@ try {
       ["时间记录", "时间记录"],
       ["设置与数据", "设置"],
       ["校园与课表", "校园与课表"],
-      ["Poseidon 助手", "Poseidon"],
+      ["超星学习通", "超星学习通"],
       ["校园快讯", "校园快讯"],
       ["日程与通知", "日程与通知"],
       ["快报与提醒", "快报"],
@@ -159,7 +159,7 @@ try {
   await open("四象限");
   await measure("长列表四象限");
   await page.getByRole("button", { name: "收起侧栏", exact: true }).click();
-  assert.equal(await page.locator(".sidebar nav > button").count(), 3);
+  assert.equal(await page.locator(".sidebar nav > button").count(), 4);
   await measure("收起侧栏");
   await page.getByRole("button", { name: "展开侧栏", exact: true }).click();
   await open("专注空间");

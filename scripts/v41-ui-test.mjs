@@ -68,14 +68,14 @@ try {
   assert.match(fonts.title, /YaHei|PingFang/);
   checks.push("统一清晰界面字体");
   await page.getByRole("button", { name: "收起侧栏", exact: true }).click();
-  assert.equal(await page.locator(".sidebar nav > button").count(), 3);
+  assert.equal(await page.locator(".sidebar nav > button").count(), 4);
   await page.getByRole("button", { name: "效率工具板块", exact: true }).click();
   await page
     .getByRole("region", { name: "效率工具菜单" })
     .getByRole("button", { name: "任务清单", exact: true })
     .click();
   await page.getByRole("button", { name: "展开侧栏", exact: true }).click();
-  checks.push("一键收起仅保留三大板块，弹出菜单可导航");
+  checks.push("一键收起保留今日概览和三大板块，弹出菜单可导航");
   await page.getByRole("button", { name: "今日概览", exact: true }).click();
   await page.screenshot({ path: path.join(root, "test-results/v41-home.png") });
   await page.getByRole("button", { name: "校园快讯", exact: true }).click();

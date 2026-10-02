@@ -20,6 +20,7 @@ export default function NotificationsPage({
   setPage,
   openAssistant,
   toast,
+  learningOnly = false,
 }) {
   const [filter, setFilter] = useState("all"),
     [section, setSection] = useState("inbox"),
@@ -66,7 +67,10 @@ export default function NotificationsPage({
               (filter === "unread" && !read.includes(e.id)) ||
               filter === e.kind,
           );
-  const notices = entries.filter((e) =>
+  const visibleEntries = learningOnly
+    ? entries.filter((e) => ["notice", "assignment"].includes(e.kind))
+    : entries;
+  const notices = visibleEntries.filter((e) =>
     ["notice", "assignment"].includes(e.kind),
   );
   const selectedIds = notices
@@ -79,7 +83,7 @@ export default function NotificationsPage({
     <>
       <div className="page-heading">
         <div>
-          <h1>日程与通知</h1>
+          <h1>{learningOnly ? "超星学习通" : "日程与通知"}</h1>
         </div>
         <button className="button" onClick={() => setPage("calendar")}>
           <CalendarDays size={17} />
@@ -87,15 +91,27 @@ export default function NotificationsPage({
         </button>
         <span className="pill neutral">
           <Bell size={16} />
-          {a.entries.filter((e) => !read.includes(e.id)).length} 条未读
+          {
+            a.entries.filter(
+              (e) =>
+                !read.includes(e.id) &&
+                (!learningOnly || ["notice", "assignment"].includes(e.kind)),
+            ).length
+          }{" "}
+          条未读
         </span>
       </div>
       <div className="tabs" aria-label="通知分类">
-        {[
-          ["inbox", "通知"],
-          ["learning", "学习通连接"],
-          ["workflow", "自动工作流"],
-        ].map(([id, title]) => (
+        {(learningOnly
+          ? [
+              ["inbox", "消息"],
+              ["learning", "连接与课程"],
+            ]
+          : [
+              ["inbox", "通知"],
+              ["workflow", "自动工作流"],
+            ]
+        ).map(([id, title]) => (
           <button
             key={id}
             className={section === id ? "active" : ""}
@@ -225,23 +241,29 @@ export default function NotificationsPage({
               ["notice", "超星通知"],
               ["history", `历史与待确认 ${history.length}`],
               ["deleted", `已删除 ${deleted.length}`],
-            ].map(([id, title]) => (
-              <button
-                className={"button small " + (filter === id ? "primary" : "")}
-                onClick={() => {
-                  setFilter(id);
-                  setSelected([]);
-                }}
-                key={id}
-              >
-                {title}
-              </button>
-            ))}
+            ]
+              .filter(
+                ([id]) => !learningOnly || !["course", "task"].includes(id),
+              )
+              .map(([id, title]) => (
+                <button
+                  className={"button small " + (filter === id ? "primary" : "")}
+                  onClick={() => {
+                    setFilter(id);
+                    setSelected([]);
+                  }}
+                  key={id}
+                >
+                  {title}
+                </button>
+              ))}
             <button
               className="text-button"
-              disabled={busy || filter === "deleted" || !entries.length}
+              disabled={busy || filter === "deleted" || !visibleEntries.length}
               onClick={() =>
-                run("notification.read", { ids: entries.map((e) => e.id) })
+                run("notification.read", {
+                  ids: visibleEntries.map((e) => e.id),
+                })
               }
             >
               本页标为已读
@@ -297,12 +319,10 @@ export default function NotificationsPage({
                 清理已读超星通知（{readNotices.length}）
               </button>
             )}
-            <small>
-              删除通知会同步隐藏全部列表、未读数和助手摘要；删除作业也会将对应本机任务移至回收站。均不修改学习通服务器，可恢复。
-            </small>
+            <small>删除仅影响本机，可恢复。</small>
           </div>
           <div className="notification-list">
-            {entries.map((e) => (
+            {visibleEntries.map((e) => (
               <article
                 className={
                   "notification-row " + (read.includes(e.id) ? "read" : "")
@@ -391,7 +411,7 @@ export default function NotificationsPage({
                 )}
               </article>
             ))}
-            {!entries.length && (
+            {!visibleEntries.length && (
               <p className="empty-inbox">
                 此筛选下暂无已同步事项。同步状态和课表覆盖情况见上方。
               </p>

@@ -4,7 +4,9 @@ export const NAV_GROUPS = [
   { id: "news", title: "校园快讯" },
 ];
 export function routeGroup(id) {
-  if (["campus", "notifications", "canvas"].includes(id)) return "academic";
+  if (["today", "assistant"].includes(id)) return null;
+  if (["campus", "notifications", "canvas", "learning"].includes(id))
+    return "academic";
   if (["campus-news", "briefing"].includes(id)) return "news";
   return "efficiency";
 }

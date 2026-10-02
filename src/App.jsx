@@ -38,7 +38,7 @@ import { APP_LABEL, APP_VERSION } from "./version.mjs";
 
 export default function App() {
   const [state, setState] = useState(null),
-    [page, setPage] = useState("today"),
+    [page, setPageState] = useState("today"),
     [editor, setEditor] = useState(null),
     [toast, setToast] = useState(""),
     [query, setQuery] = useState(""),
@@ -47,6 +47,8 @@ export default function App() {
     [focusTask, setFocusTask] = useState(""),
     [busy, setBusy] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const setPage = (next) =>
+    next === "assistant" ? setAssistantOpen(true) : setPageState(next);
   const [listsOpen, setListsOpen] = useState(false);
   const [sidebarManagerOpen, setSidebarManagerOpen] = useState(false);
   const [groupMenu, setGroupMenu] = useState(null);
@@ -285,6 +287,19 @@ export default function App() {
         </button>
         <div className="sidebar-scroll">
           <nav>
+            {visibleNav
+              .filter(([id]) => id === "today")
+              .map(([id, label, Icon]) => (
+                <button
+                  key={id}
+                  className={`overview-nav ${page === id ? "active" : ""}`}
+                  aria-label={label}
+                  onClick={() => setPage(id)}
+                >
+                  <Icon size={18} />
+                  <span>{label}</span>
+                </button>
+              ))}
             {NAV_GROUPS.map((group) => (
               <React.Fragment key={group.id}>
                 {visibleNav.some(([id]) => routeGroup(id) === group.id) && (

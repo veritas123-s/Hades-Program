@@ -9,6 +9,12 @@ export default {
   order: 1,
   routes: [
     {
+      id: "learning",
+      title: "超星学习通",
+      icon: Bell,
+      Component: lazy(() => import("./LearningPage.jsx")),
+    },
+    {
       id: "calendar",
       title: "日程日历",
       icon: CalendarDays,
