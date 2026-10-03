@@ -4,7 +4,7 @@
 
 统一桌面表单、按钮、对话框与键盘焦点，恢复 Android，加入 Intel 与 Apple 芯片的 macOS DMG。Mac 使用原生菜单、Command 快捷键、Dock 再打开和离线帮助；Android 调整底部导航、排版与系统深色显示。
 
-本分支正在进行跨平台验收，尚未发布 V6.1.0。范围与边界见 [跨平台计划](docs/CROSS-PLATFORM-PLAN.md)，安装方法见 [使用说明](docs/USER-GUIDE.md)。Mac 最低 macOS13，采用 ad-hoc 签名，尚无 Apple Developer ID 签名或公证。
+[V6.1.0 下载](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.1.0)包含 Windows x64、Android、macOS Intel 与 Apple 芯片四个安装包，远端附件大小与 SHA256 已核对。163 项规则、290 项桌面界面检查、安卓模拟器与两种原生 Mac 实际包验证通过；细节及限制见 [验证记录](docs/VALIDATION-V6.1.0.md)，安装方法见 [使用说明](docs/USER-GUIDE.md)。Mac 最低 macOS13，采用 ad-hoc 签名，尚无 Apple Developer ID 签名或公证。线上账号服务公告缓存尚未同步，本机真实安装未替换。
 
 ## V6.0.2
 
