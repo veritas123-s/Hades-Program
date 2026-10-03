@@ -2,6 +2,7 @@ package com.medstack.app
 
 import android.graphics.Bitmap
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -30,10 +31,9 @@ class MobileWorkspaceTest {
     private fun screenshot(name: String) {
         compose.waitForIdle()
         val folder = File(compose.activity.getExternalFilesDir(null), "ui-evidence").apply { mkdirs() }
-        InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot().let { bitmap ->
-            File(folder, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
-            bitmap.recycle()
-        }
+        val bitmap = checkNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+        File(folder, "$name.png").outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        bitmap.recycle()
     }
 
     @Test fun offlineWorkspaceActionsNavigationEncryptionAndLogout() {
@@ -62,7 +62,7 @@ class MobileWorkspaceTest {
         compose.waitUntil(6000) { repository.state.tasks.any { it.title == "合成离线任务" } }
         compose.onNodeWithText("合成离线任务").assertIsDisplayed()
         screenshot("tasks")
-        compose.onNode(hasRole(Role.Checkbox)).performClick()
+        compose.onNode(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Checkbox)).performClick()
         compose.runOnIdle { assertTrue(repository.state.tasks.single().completed) }
         compose.onNodeWithText("删除").performClick()
         compose.runOnIdle {
@@ -80,7 +80,7 @@ class MobileWorkspaceTest {
         screenshot("focus")
         navigate("更多")
         navigate("Poseidon")
-        compose.onNodeWithText("自己的 API 密钥").assertIsDisplayed()
+        compose.onNodeWithText("自己的 API 密钥").performScrollTo().assertIsDisplayed()
         screenshot("assistant")
         compose.onNodeWithText("返回更多").performClick()
         navigate("账号与设置")
@@ -93,7 +93,8 @@ class MobileWorkspaceTest {
             assertFalse(raw.contains("合成离线任务"))
             assertNull(secure.get("document:another-synthetic-account"))
         }
-        compose.onNodeWithText("退出账号").performScrollTo().performClick()
+        compose.onNode(hasScrollToIndexAction()).performScrollToNode(hasText("退出账号"))
+        compose.onNodeWithText("退出账号").performClick()
         compose.waitUntil(6000) { !repository.state.authenticated }
         compose.onNodeWithText("医栈通 Medstack").assertIsDisplayed()
         compose.onNodeWithText("合成离线任务").assertDoesNotExist()
