@@ -26,6 +26,7 @@ node scripts/update-package-audit.mjs
 node scripts/research-package-audit.mjs
 node ../../local-ops/source-privacy.mjs
 git diff --check
+node scripts/publish-release.mjs releases/notes-6.0.2.json --publish
 ```
 
 规则测试161项通过；独立 Windows 工作脚本成功与失败恢复通过。发行程序错误哈希拒绝测试、新闻订阅与屏蔽/重置/重启/删除保留/鸣谢、原图文回归及66项布局测试通过，新闻表单覆盖三种窗口尺寸；主题兼容沿用八主题检查。修复输入草稿被每秒状态广播覆盖的问题，测试包含延迟输入后保存。
@@ -39,3 +40,5 @@ git diff --check
 安装器：`Medstack-Setup-6.0.2-x64.exe`，120643765字节。SHA256：`24d5ff8be8bdef9c1122181277857437c3799991b394c5bcc6e4ab718e728ebb`。
 
 旧客户端带有原更新缺陷，需要手动安装本版；本轮不把公开发行称为本机已升级。云公告缓存另行核验，不把 GitHub 发布等同于服务器已同步。原主目录正在进行的二维码工作及独立小程序未修改。
+
+发布结果：[GitHub v6.0.2](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.0.2) 已公开，远端附件大小与 SHA256 digest 和本地一致，标题与说明一致；源码与发行目录已推送 main。2026-10-03 17:59（北京时间）核验公网 `/api/releases/latest` 为200、版本6.0.1，服务器缓存尚未同步6.0.2；本聊天未取得可用云控制台会话，未修改服务器。直接下载本版安装器可用。
