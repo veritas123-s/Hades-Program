@@ -76,6 +76,17 @@ try {
     .locator(".sidebar nav")
     .getByRole("button", { name: "校园快讯", exact: true })
     .click();
+  await page.getByRole("button", { name: "刷新", exact: true }).waitFor();
+  assert.equal(
+    await page
+      .getByText(/来源与收录|来源覆盖|自动采集|扫码|爬虫|补充公众号文章链接/)
+      .count(),
+    0,
+  );
+  assert.equal(
+    await page.getByRole("status").filter({ hasText: "等待更新" }).count(),
+    1,
+  );
   const cover = page.locator(".news-cover img");
   await cover.waitFor();
   assert.ok(
@@ -84,7 +95,10 @@ try {
   assert.ok(
     (await cover.getAttribute("src")).startsWith("data:image/jpeg;base64,"),
   );
-  assert.equal(await page.locator(".news-cover:not(.has-cover):visible").count(), 1);
+  assert.equal(
+    await page.locator(".news-cover:not(.has-cover):visible").count(),
+    1,
+  );
   const widths = [];
   for (const [width, height] of [
     [1600, 900],

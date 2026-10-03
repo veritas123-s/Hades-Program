@@ -9,6 +9,7 @@ import { publicResponse, boundedBytes } from "./public-fetch.mjs";
 import { organizationName, activityDetails } from "./news-organizations.mjs";
 import { validDay } from "../src/domain.mjs";
 import { recentNews } from "../src/news-window.mjs";
+import { WECHAT_QR_ENTRIES, inspectWechatQR } from "./news-qr.mjs";
 
 export const WECHAT_SOURCES = [
   "上海交通大学",
@@ -221,6 +222,8 @@ export class NewsService {
     openReader,
     nativeImage,
     imageFetcher = (...args) => fetch(...args),
+    qrEntries = WECHAT_QR_ENTRIES,
+    qrInspector = inspectWechatQR,
   }) {
     Object.assign(this, {
       fetcher,
@@ -230,8 +233,11 @@ export class NewsService {
       openReader,
       nativeImage,
       imageFetcher,
+      qrEntries,
+      qrInspector,
     });
     this.imageCache = new Map();
+    this.qrOutcomes = new Map();
     this.file = path.join(directory, "campus-news.json");
     this.data = {
       version: 1,
@@ -391,6 +397,7 @@ export class NewsService {
   }
   stop() {
     this.imageCache.clear();
+    this.qrOutcomes.clear();
     this.reader?.close();
     this.reader = null;
     clearInterval(this.interval);
@@ -434,7 +441,7 @@ export class NewsService {
       await boundedBytes(r, 2 * 1024 * 1024, activeSignal),
       r.headers.get("content-type") || "",
     );
-    if (/请输入验证码|访问过于频繁|安全验证|antispider/i.test(html))
+    if (/环境异常|请输入验证码|访问过于频繁|安全验证|antispider/i.test(html))
       throw Error("需要本人验证或稍后重试");
     return html;
   }
@@ -464,6 +471,41 @@ export class NewsService {
     this.data.items = [...prior.values()]
       .sort((a, b) => b.publishedAt - a.publishedAt)
       .slice(0, 3000);
+  }
+  async qrArticles(source, generation, signal) {
+    const entry = this.qrEntries[source];
+    if (!entry || !this.nativeImage) return [];
+    let outcome = this.qrOutcomes.get(source);
+    const ttl = outcome?.status === "client-required" ? 86400000 : 300000;
+    if (!outcome || Date.now() - outcome.checkedAt > ttl) {
+      try {
+        outcome = await this.qrInspector({
+          entry,
+          nativeImage: this.nativeImage,
+          fetcher: this.fetcher,
+          signal,
+        });
+      } catch (error) {
+        signal.throwIfAborted();
+        outcome = { status: "unavailable", urls: [] };
+      }
+      if (generation !== this.generation || !this.allowed()) return [];
+      outcome = { ...outcome, checkedAt: Date.now() };
+      this.qrOutcomes.set(source, outcome);
+    }
+    const rows = [];
+    for (const url of outcome.urls) {
+      signal.throwIfAborted();
+      if (generation !== this.generation || !this.allowed()) break;
+      try {
+        const row = parseArticle(await this.read(url, signal), url);
+        // An account entry can link to other accounts; never relabel those rows.
+        if (row?.source === source) rows.push(row);
+      } catch {
+        signal.throwIfAborted();
+      }
+    }
+    return rows;
   }
   async collect({ windowHours = 24 } = {}) {
     if (windowHours !== 24) throw Error("只支持最近24小时采集");
@@ -560,8 +602,19 @@ export class NewsService {
             const source = sourceQueue.shift();
             if (generation !== this.generation || !this.allowed())
               return this.status();
+            let direct = [];
             try {
-              let count = 0;
+              direct = await this.qrArticles(
+                source,
+                generation,
+                controller.signal,
+              );
+              rows.push(...direct);
+            } catch {
+              if (controller.signal.aborted) break;
+            }
+            try {
+              let count = direct.length;
               for (let page = 1; page <= 2; page++) {
                 const html = await this.read(searchURL(source, page));
                 if (!/news-list|没有找到|未找到/.test(html)) throw Error();
@@ -578,8 +631,11 @@ export class NewsService {
             } catch {
               coverage.push({
                 source,
-                status: "unavailable",
-                note: "公开索引未通过检查，可能需要验证码；未判定为无新文章",
+                status: direct.length ? "partial" : "unavailable",
+                count: direct.length,
+                note: direct.length
+                  ? "已读取部分原文；其他公开来源暂不可用"
+                  : "公开来源暂不可用；未判定为无新文章",
               });
             }
           }

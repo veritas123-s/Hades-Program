@@ -9,7 +9,6 @@ export default function NewsPage({ state, call }) {
     [filter, setFilter] = useState("recent"),
     [organization, setOrganization] = useState("全部组织"),
     [newOrganization, setNewOrganization] = useState(""),
-    [url, setURL] = useState(""),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false),
     [query, setQuery] = useState("");
@@ -69,7 +68,7 @@ export default function NewsPage({ state, call }) {
           onClick={() => run("news.collect", { windowHours: 24 })}
         >
           <RefreshCw size={16} />
-          {data.busy ? "采集中…" : "采集最新信息"}
+          {data.busy ? "更新中…" : "刷新"}
         </button>
       </div>
       <input
@@ -99,71 +98,13 @@ export default function NewsPage({ state, call }) {
           已删除
         </button>
       </div>
-      <Panel className="panel" title="来源与收录" defaultCollapsed>
-        <label className="toggle-row">
-          应用运行时每小时自动采集
-          <input
-            type="checkbox"
-            checked={data.automatic ?? true}
-            onChange={(e) =>
-              run("news.configure", { automatic: e.target.checked })
-            }
-          />
-        </label>
-        <p role="status">
-          {data.lastAttempt
-            ? `上次采集：${new Date(data.lastAttempt).toLocaleString("zh-CN")}`
-            : "首次采集尚未完成"}{" "}
-        </p>
-        <details>
-          <summary>
-            来源覆盖 · {data.sources?.length || 12} 个公众号＋学校新闻网
-          </summary>
-          <div className="news-coverage">
-            {(data.coverage?.length
-              ? data.coverage
-              : [
-                  ...(data.sources || []).map((source) => ({
-                    source,
-                    note: "尚未采集",
-                  })),
-                ]
-            ).map((x) => (
-              <p key={x.source}>
-                <strong>{x.source}</strong> ·{" "}
-                {x.status === "partial"
-                  ? "部分覆盖"
-                  : x.status === "unavailable"
-                    ? "未能读取"
-                    : "待采集"}{" "}
-                · {x.note}
-              </p>
-            ))}
-          </div>
-        </details>
-        <form
-          className="news-import"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            await run("news.import", { url });
-            setURL("");
-          }}
-        >
-          <label>
-            补充公众号文章链接
-            <input
-              type="url"
-              required
-              placeholder="https://mp.weixin.qq.com/…"
-              value={url}
-              onChange={(e) => setURL(e.target.value)}
-            />
-          </label>
-          <button className="button" disabled={busy || data.busy}>
-            读取文章
-          </button>
-        </form>
-      </Panel>
+      <p className="muted" role="status">
+        {data.lastAttempt
+          ? `更新于 ${new Date(data.lastAttempt).toLocaleString("zh-CN")}`
+          : "等待更新"}
+        {!!data.coverage?.some((x) => x.status === "unavailable") &&
+          " · 部分来源暂未更新，已保留现有内容"}
+      </p>
       {filter === "columns" && (
         <Panel className="panel organization-directory">
           <div className="organization-buttons">
@@ -265,9 +206,7 @@ export default function NewsPage({ state, call }) {
       {!items.length && filter !== "recent" && (
         <Panel className="panel">
           <p>
-            {filter === "deleted"
-              ? "没有已删除消息"
-              : "该组织尚未收录文章，可补充原文链接或重新采集。"}
+            {filter === "deleted" ? "没有已删除消息" : "该组织暂无已收录文章。"}
           </p>
         </Panel>
       )}
