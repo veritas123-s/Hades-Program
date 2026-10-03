@@ -1,11 +1,14 @@
-医栈通 V5.2.2
+医栈通 V6.1.0
 
-Windows：Medstack-Setup-5.2.2-x64.exe
-安卓：Medstack-5.2.2-Android.apk。使用同一账号连接电脑，安卓实机同步仍待验证。
+Windows：Medstack-Setup-6.1.0-x64.exe
+Android 9+：Medstack-6.1.0-Android.apk，保留原正式包名和发布证书。
+macOS 13+：Apple 芯片使用 Medstack-6.1.0-macOS-arm64.dmg，Intel 使用 Medstack-6.1.0-macOS-x64.dmg。
+打开 DMG，将 Medstack 拖入 Applications。Mac 包为 ad-hoc 签名，尚无 Apple Developer ID 签名或 Apple 公证，首次打开说明见随包使用手册。
 安装包包含运行环境与离线手册，无需开发工具。
 
 升级前从托盘选择“退出（保存并暂停计时）”。关闭窗口可能只收起到托盘。
 首次使用请注册或登录，个人功能需登录后使用。每人配置自己的模型 API 与校园连接。
 今日概览是独立入口；超星学习通有独立标签；各页面顶部均可打开 Poseidon。
-设置与数据包含使用说明和开发者手册，安装目录“帮助文档”也可离线阅读。
+设置与数据包含使用说明和开发者手册，Windows 安装目录“帮助文档”也可离线阅读，Mac 可从菜单栏“帮助”打开。
+手机同步任务、日程、课表摘要和专注，桌面项目、知识与修订不进入手机云同步。安卓实机同步仍待验证。
 仅分享安装包，请勿分享个人数据目录或密钥。

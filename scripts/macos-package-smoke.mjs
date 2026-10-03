@@ -80,7 +80,7 @@ assert.equal(
 const executable = path.join(target, "Contents/MacOS/Medstack");
 assert.ok(
   execFileSync("lipo", ["-archs", executable], { encoding: "utf8" }).includes(
-    arch,
+    arch === "x64" ? "x86_64" : arch,
   ),
 );
 const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-mac-smoke-"));
@@ -97,7 +97,20 @@ try {
     .waitFor();
   const locked = await page.evaluate(() => window.veritas.call("state"));
   assert.equal(locked.account.authenticated, false);
-  assert.equal(locked.tasks.length, 0);
+  for (const field of [
+    "tasks",
+    "logs",
+    "events",
+    "courses",
+    "research",
+    "workspace",
+    "settings",
+  ])
+    assert.equal(
+      Object.hasOwn(locked, field),
+      false,
+      `Locked snapshot leaked ${field}`,
+    );
   await page.screenshot({ path: path.join(output, `login-${arch}.png`) });
   const native = await app.evaluate(({ app, Menu }) => ({
     arch: process.arch,
@@ -151,6 +164,19 @@ try {
       2,
     ),
   );
+} catch (error) {
+  if (app) {
+    const windows = app.windows();
+    if (windows.length)
+      await windows[0]
+        .screenshot({ path: path.join(output, `failure-${arch}.png`) })
+        .catch(() => {});
+  }
+  fs.writeFileSync(
+    path.join(output, "failure.txt"),
+    error.stack || error.message,
+  );
+  throw error;
 } finally {
   if (app) await app.close();
 }

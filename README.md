@@ -1,5 +1,11 @@
 # Medstack-Program
 
+## V6.1.0
+
+统一桌面表单、按钮、对话框与键盘焦点，恢复 Android，加入 Intel 与 Apple 芯片的 macOS DMG。Mac 使用原生菜单、Command 快捷键、Dock 再打开和离线帮助；Android 调整底部导航、排版与系统深色显示。
+
+本分支正在进行跨平台验收，尚未发布 V6.1.0。范围与边界见 [跨平台计划](docs/CROSS-PLATFORM-PLAN.md)，安装方法见 [使用说明](docs/USER-GUIDE.md)。Mac 最低 macOS13，采用 ad-hoc 签名，尚无 Apple Developer ID 签名或公证。
+
 ## V6.0.2
 
 修复一键更新在校验后关闭程序却未启动安装的问题。校园快讯增加关键词与主题订阅、分类筛选及屏蔽；设置 → 关于注明 SJTU Agent 作者 kuan-er，完整 MIT 许可随源码和安装包保留。
@@ -18,7 +24,7 @@
 
 使用方法见 [工作台指南](docs/WORKHUB-GUIDE.md)，测试及发行边界见 [V6 验证记录](docs/VALIDATION-V6.0.md)。以下 V5 及更早内容为版本历史。
 
-2026-10-03 起，仅支持 Windows。Android 开发、自动构建、发行和技术支持已停止，`android/` 与既有 APK 仅作为历史归档；不再要求桌面版本与归档安卓版本同步。
+V5.3.1 至 V6.0.2 发行阶段仅支持 Windows；V6.1 按用户最新要求恢复 Android，并适配 macOS。早先停止 Android 的政策已由本轮明确要求替代。
 
 ## 医栈通 Medstack V5.3.1
 

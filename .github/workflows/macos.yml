@@ -8,6 +8,7 @@ on:
       - "src/**"
       - "electron/**"
       - "build/**"
+      - "docs/**"
       - "assets/**"
       - "package*.json"
       - "scripts/**"

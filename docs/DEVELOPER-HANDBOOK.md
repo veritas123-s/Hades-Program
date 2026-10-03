@@ -1,6 +1,10 @@
-# 医栈通 V5.3.1 开发者手册
+# 医栈通 V6.1.0 开发者手册
 
-2026-10-03 用户决定停止 Android 开发与支持。本项目当前支持范围为 Windows；安卓源码和已有 APK 保留归档，CI 已停用，发行流程只生成 Windows 下载目录。下文移动端实现仅用于历史架构参考。
+2026-10-03 用户最新要求恢复安卓版并提供 macOS DMG，替代当天早先停止 Android 的决定。Windows 与 macOS 共用 Electron/React 领域模型，Android 使用 Compose 与 Pi 移动运行时。macOS 最低版本13，x64 与 arm64 分别在原生架构 runner 上构建和运行；当前为 ad-hoc 签名，不宣称 Apple 公证。具体验收范围见 [跨平台计划](CROSS-PLATFORM-PLAN.md)。
+
+`electron/platform.mjs` 定义平台下载选择与 Mac 原生菜单；`electron/help.mjs` 在 Mac 读取 `Contents/Resources/帮助文档`，Windows 沿用程序旁的帮助目录。`package.json` 的 `win.extraFiles` 与 `mac.extraResources` 分别放置随包文档及许可证。Mac 关闭窗口隐藏，Dock 激活重新显示；退出仍保存并暂停计时。
+
+Android 发布必须保留原证书，GitHub 只生成无私钥的 unsigned APK，原密钥仅本机签名。构建与模拟器工作流恢复启用。移动云协议仍为5，只同步原任务、日程、课表摘要与专注；不把桌面工作台正文放入旧云协议。
 
 V5.3 更新器位于 `electron/update-installer.mjs`。下载文件由 `src/releases.mjs` 限定至本仓库发行包；只接受更高版本，逐跳校验 GitHub 资产域名并核对 SHA256。独立 Windows 脚本等待主进程退出，备份各账号数据、加密上下文及旧程序，核对后安装；失败时尝试恢复已验证的旧程序，保留数据备份。升级目录和运行缓存不重复备份。Windows 发行包尚未配置代码签名，哈希用于核对文件，不能替代代码签名。
 
@@ -236,11 +240,9 @@ npm run dist:installer:ia32
 
 本轮检查：npm test、npm run test:security、npm --prefix server test、python -m unittest discover -s tests -p test_*.py、npm run build、node scripts/v4-ui-test.mjs、npm run test:desktop、npm run dist:installer，以及发行包内程序启动与隐私扫描。执行结果见 V4 验证记录。
 
-
 ## V5.0 界面与消息窗口
 
 `src/news-window.mjs`提供毫秒窗口与保守合并，不修改原记录；`NewsService.collect`只新增窗口内或日期待核对消息，原历史与删除墓碑保留。日历/快报的活动日期语义不随采集窗口改变。新增主进程依赖必须加入发行文件列表。`Panel.jsx`通过当前账号生命周期的React上下文保存会话折叠状态，隐藏内容保持挂载，避免输入丢失；不得把用户面板标题保存到公共配置。
-
 
 ## V5.1 版本公告发布
 
@@ -259,7 +261,6 @@ npm run dist:installer:ia32
 `electron/news-images.mjs` 提取封面，仅允许明确的学校域名和公开图片 CDN。主进程通过已收录文章 ID 请求图片，使用无凭据请求、拒绝重定向、6 秒超时及 2 MiB 输入上限；本机原生解码并缩放至 480 像素，JPEG 输出不超过 180 KB。最多缓存 24 个缩略图，离开账号上下文清空，登录变更或删除后丢弃迟到结果。界面仅呈现本地 data 图片，保持原 CSP，未增加远程图片域。正文不注入应用 DOM，继续以隔离原文窗口显示。
 
 界面比例参考 Linear 界面重设计（https://linear.app/now/how-we-redesigned-the-linear-ui）与 Fluent 2 字体层级（https://fluent2.microsoft.design/typography）：字体尺度与几何尺度分离，字体缩放限制为0.94—1.06；正文13—15px、页面标题20—24px，字号仍随可用空间变化。导航32px，列表图文采用左图右文，来源设置默认折叠，几何样式覆盖全部主题但保留各自配色。
-
 
 ## V6 工作台与同步边界
 
