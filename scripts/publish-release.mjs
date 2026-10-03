@@ -127,7 +127,7 @@ for (const asset of assets) {
       method: "POST",
       headers: { ...headers, "Content-Type": "application/octet-stream" },
       body: asset.bytes,
-      signal: AbortSignal.timeout(300000),
+      signal: AbortSignal.timeout(600000),
     });
     if (!r.ok) throw Error("安装包上传失败 HTTP " + r.status);
     found = await r.json();

@@ -205,7 +205,7 @@ export function releaseEmail({ release, unsubscribeURL }) {
       "",
       ...Object.entries(checked.downloads).map(
         ([platform, d]) =>
-          `${platform === "windows" ? "Windows" : "安卓"}安装包：${d.url}\nSHA256：${d.sha256}`,
+          `${{ windows: "Windows", android: "安卓", macos_x64: "macOS Intel", macos_arm64: "macOS Apple 芯片" }[platform]}安装包：${d.url}\nSHA256：${d.sha256}`,
       ),
       "",
       "此邮件发送给已订阅版本更新的账号。",
