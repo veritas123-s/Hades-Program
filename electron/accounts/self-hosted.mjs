@@ -131,7 +131,7 @@ export class SelfHostedProvider {
         signal?.throwIfAborted();
         if (done) break;
         size += value.length;
-        if (size > 2 * 1024 * 1024) {
+        if (size > (route === "/api/news/shared" ? 8 : 2) * 1024 * 1024) {
           await reader.cancel();
           throw Error("账号服务返回内容过大");
         }

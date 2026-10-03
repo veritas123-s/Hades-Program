@@ -5,6 +5,7 @@ import { RefreshCw, ExternalLink, Trash2, Undo2 } from "lucide-react";
 import LinkedText from "../../shared/LinkedText.jsx";
 import RecentNews from "./RecentNews.jsx";
 import NewsPreferences from "./NewsPreferences.jsx";
+import NewsRefresh from "./NewsRefresh.jsx";
 import {
   NEWS_TOPICS,
   newsCategories,
@@ -88,9 +89,10 @@ export default function NewsPage({ state, call }) {
           onClick={() => run("news.collect", { windowHours: 24 })}
         >
           <RefreshCw size={16} />
-          {data.busy ? "采集中…" : "采集最新信息"}
+          {data.busy ? "同步中…" : "同步最新信息"}
         </button>
       </div>
+      <NewsRefresh data={data} />
       <input
         className="news-search"
         aria-label="搜索校园快讯"
@@ -148,7 +150,7 @@ export default function NewsPage({ state, call }) {
       />
       <Panel className="panel" title="来源与收录" defaultCollapsed>
         <label className="toggle-row">
-          应用运行时每小时自动采集
+          自动同步服务器快讯
           <input
             type="checkbox"
             checked={data.automatic ?? true}

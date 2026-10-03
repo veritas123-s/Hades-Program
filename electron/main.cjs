@@ -480,6 +480,7 @@ else {
       const { NewsService } = await import("./news-service.mjs");
       const { openNewsReader } = await import("./news-reader.mjs");
       news = new NewsService({
+        sharedFetcher: () => accountProvider.call("/api/news/shared", undefined, { authenticated: true }),
         nativeImage,
         directory: dataDirectory,
         openReader: (url) => openNewsReader(BrowserWindow, url),

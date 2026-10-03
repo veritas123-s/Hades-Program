@@ -49,12 +49,17 @@ data class MedstackUiState(
     val focusStartedAt: Long? = null,
     val focusUntil: Long? = null,
     val clock: Long = System.currentTimeMillis(),
+    val news: JSONObject? = null,
+    val newsReceivedElapsed: Long? = null,
+    val newsBusy: Boolean = false,
+    val newsError: String = "",
 )
 
 class MedstackRepository(context: Context) {
     private val appContext = context.applicationContext
     private val secureStore = SecureStore(appContext)
     private val api = AccountApi(secureStore)
+    private val newsCache = MobileNewsCache(appContext)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val defaultDocument by lazy {
         appContext.assets.open("default-cloud-document.json").bufferedReader().use {
@@ -97,6 +102,7 @@ class MedstackRepository(context: Context) {
                         email = storedUser.optString("email"),
                         nickname = storedUser.optString("name", "医栈通 用户"),
                         document = cached,
+                        news = newsCache.read(uid),
                         remoteVersion = secureStore.get("version:$uid")?.toIntOrNull() ?: 0,
                         dirty = secureStore.get("dirty:$uid") == "1",
                         syncPhase = "offline",
@@ -199,6 +205,8 @@ class MedstackRepository(context: Context) {
                 pendingEmail = "",
                 email = publicUser.optString("email"),
                 nickname = publicUser.optString("name"),
+                news = newsCache.read(publicUser.optString("id")),
+                newsReceivedElapsed = null,
                 message = "",
             ),
         )
@@ -207,6 +215,25 @@ class MedstackRepository(context: Context) {
     private fun userId(): String = secureStore.get("user")
         ?.let { runCatching { JSONObject(it).optString("id") }.getOrDefault("") }
         .orEmpty()
+
+    fun syncSharedNews() {
+        val uid = currentUserId()
+        if (uid.isBlank() || state.newsBusy) return
+        emit(state.copy(newsBusy = true, newsError = ""))
+        scope.launch {
+            try {
+                val news = withContext(Dispatchers.IO) { MobileNewsCache.validate(api.sharedNews()) }
+                if (currentUserId() != uid) return@launch
+                withContext(Dispatchers.IO) { newsCache.save(uid, news) }
+                if (currentUserId() != uid) return@launch
+                emit(state.copy(news = news, newsReceivedElapsed = android.os.SystemClock.elapsedRealtime(), newsBusy = false, newsError = ""))
+            } catch (error: Exception) {
+                if (currentUserId() != uid) return@launch
+                if (error is ApiException && error.status == 401) logoutLocal()
+                else emit(state.copy(newsBusy = false, newsError = "暂时无法同步服务器快讯，已保留历史消息"))
+            }
+        }
+    }
 
     private fun cache(document: JSONObject, version: Int, dirty: Boolean) {
         val uid = userId()

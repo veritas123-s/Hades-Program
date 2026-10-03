@@ -74,7 +74,7 @@ import java.time.LocalDate
 import kotlinx.coroutines.delay
 
 private enum class MobilePage(val title: String) {
-    Today("今日"), Tasks("任务"), Schedule("日程"), Focus("专注"), More("更多"), Assistant("Poseidon"), Connection("账号与设置")
+    Today("今日"), Tasks("任务"), Schedule("日程"), Focus("专注"), More("更多"), News("校园快讯"), Assistant("Poseidon"), Connection("账号与设置")
 }
 
 @Composable
@@ -90,12 +90,15 @@ fun MedstackApp(ui: MedstackUiState, repository: MedstackRepository) {
         return
     }
     var page by remember { mutableStateOf(MobilePage.Today) }
+    LaunchedEffect(ui.email) {
+        while (true) { repository.syncSharedNews(); delay(60000) }
+    }
     Scaffold(
         bottomBar = {
             NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
                 listOf(MobilePage.Today, MobilePage.Tasks, MobilePage.Schedule, MobilePage.Focus, MobilePage.More).forEach { item ->
                     NavigationBarItem(
-                        selected = page == item || (item == MobilePage.More && page in listOf(MobilePage.Assistant, MobilePage.Connection)),
+                        selected = page == item || (item == MobilePage.More && page in listOf(MobilePage.Assistant, MobilePage.Connection, MobilePage.News)),
                         onClick = { page = item },
                         icon = { NavigationIcon(item) },
                         label = { Text(item.title) },
@@ -106,7 +109,7 @@ fun MedstackApp(ui: MedstackUiState, repository: MedstackRepository) {
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             MobileHeader(ui, page, repository)
-            if (page in listOf(MobilePage.Assistant, MobilePage.Connection)) {
+            if (page in listOf(MobilePage.Assistant, MobilePage.Connection, MobilePage.News)) {
                 TextButton({ page = MobilePage.More }, modifier = Modifier.padding(horizontal = 12.dp)) { Text("返回更多") }
             }
             UpdateBanner(updateStatus){updateStatus.release?.let{updateStatus=updates.dismiss(it)}}
@@ -124,6 +127,7 @@ fun MedstackApp(ui: MedstackUiState, repository: MedstackRepository) {
                 MobilePage.Schedule -> ScheduleScreen(ui)
                 MobilePage.Focus -> FocusScreen(ui, repository)
                 MobilePage.More -> MoreScreen { page = it }
+                MobilePage.News -> MobileNewsScreen(ui, repository)
                 MobilePage.Assistant -> AssistantScreen(repository)
                 MobilePage.Connection -> ConnectionScreen(ui, repository, updateStatus, checkUpdates, updates)
             }
@@ -358,6 +362,14 @@ private fun SectionTitle(text: String) { Text(text, style = MaterialTheme.typogr
 @Composable
 private fun MoreScreen(open: (MobilePage) -> Unit) {
     LazyColumn(contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        item {
+            Card(onClick = { open(MobilePage.News) }, modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("校园快讯", style = MaterialTheme.typography.titleLarge)
+                    Text("公众号与学校消息 · 每小时整点刷新", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
         item {
             Card(onClick = { open(MobilePage.Assistant) }, modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {

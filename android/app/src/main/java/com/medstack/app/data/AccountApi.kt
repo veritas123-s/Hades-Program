@@ -50,7 +50,7 @@ class AccountApi(private val secureStore: SecureStore) {
                 val count = stream.read(buffer)
                 if (count < 0) break
                 total += count
-                if (total > 2 * 1024 * 1024) throw ApiException("账号服务返回内容过大", 502)
+                if (total > (if (path == "/api/news/shared") 8 else 2) * 1024 * 1024) throw ApiException("账号服务返回内容过大", 502)
                 output.write(buffer, 0, count)
             }
             val json = try {
@@ -94,6 +94,7 @@ class AccountApi(private val secureStore: SecureStore) {
     ).json
 
     fun current() = request("/api/auth/get-session", authenticated = true).json
+    fun sharedNews() = request("/api/news/shared", authenticated = true).json
 
     fun signOut() {
         try {

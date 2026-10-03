@@ -10,6 +10,7 @@ import { organizationName, activityDetails } from "./news-organizations.mjs";
 import { validDay } from "../src/domain.mjs";
 import { recentNews } from "../src/news-window.mjs";
 import { newsPreferences, selectNews } from "../src/news-preferences.mjs";
+import { sharedNewsBatch } from "./shared-news-client.mjs";
 
 export const WECHAT_SOURCES = [
   "上海交通大学",
@@ -222,6 +223,9 @@ export class NewsService {
     openReader,
     nativeImage,
     imageFetcher = (...args) => fetch(...args),
+    sharedFetcher,
+    deadlineMs = 90000,
+    retainIndexed = false,
   }) {
     Object.assign(this, {
       fetcher,
@@ -231,6 +235,9 @@ export class NewsService {
       openReader,
       nativeImage,
       imageFetcher,
+      sharedFetcher,
+      deadlineMs,
+      retainIndexed,
     });
     this.imageCache = new Map();
     this.file = path.join(directory, "campus-news.json");
@@ -408,11 +415,11 @@ export class NewsService {
     if (this.interval || !this.data.automatic) return;
     this.interval = setInterval(() => {
       if (this.allowed()) this.collect().catch(() => {});
-    }, 3600000);
+    }, this.sharedFetcher ? 60000 : 3600000);
     this.interval.unref?.();
     if (
       this.allowed() &&
-      (!this.data.lastAttempt || Date.now() - this.data.lastAttempt > 3600000)
+      (this.sharedFetcher || !this.data.lastAttempt || Date.now() - this.data.lastAttempt > 3600000)
     )
       queueMicrotask(() => this.collect().catch(() => {}));
   }
@@ -493,10 +500,11 @@ export class NewsService {
     if (windowHours !== 24) throw Error("只支持最近24小时采集");
     if (this.busy) throw Error("正在采集，请等待");
     if (!this.allowed()) throw Error("请先登录");
+    if (this.sharedFetcher) return this.syncShared();
     this.busy = true;
     this.controller = new AbortController();
     const controller = this.controller;
-    const deadline = setTimeout(() => controller.abort(), 90000);
+    const deadline = setTimeout(() => controller.abort(), this.deadlineMs);
     const generation = this.generation,
       coverage = [],
       rows = [];
@@ -613,7 +621,7 @@ export class NewsService {
         return this.status();
       const window = recentNews(rows);
       this.merge(
-        [...window.groups, ...window.uncertainGroups].flatMap((x) => x.items),
+        this.retainIndexed ? rows : [...window.groups, ...window.uncertainGroups].flatMap((x) => x.items),
       );
       this.data.coverage = coverage;
       this.data.lastAttempt = Date.now();
@@ -649,6 +657,31 @@ export class NewsService {
       return this.status();
     } finally {
       clearTimeout(deadline);
+      this.busy = false;
+      this.changed();
+    }
+  }
+  async syncShared() {
+    this.busy = true;
+    const generation = this.generation;
+    this.changed();
+    try {
+      const batch = sharedNewsBatch(await this.sharedFetcher());
+      if (generation !== this.generation || !this.allowed()) return this.status();
+      this.merge(batch.items);
+      this.data.shared = batch.shared;
+      this.data.coverage = batch.coverage;
+      this.data.lastAttempt = batch.shared.lastFinishedAt;
+      this.data.sharedError = "";
+      this.save();
+      return this.status();
+    } catch (error) {
+      if (generation === this.generation && this.allowed()) {
+        this.data.sharedError = "暂时无法同步服务器快讯，已保留历史消息";
+        this.save();
+      }
+      throw error;
+    } finally {
       this.busy = false;
       this.changed();
     }
