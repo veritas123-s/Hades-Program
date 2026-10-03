@@ -16,9 +16,21 @@ import { makeRouter } from "./router.mjs";
 import news from "./news.mjs";
 import links from "./links.mjs";
 import workhub from "./workhub.mjs";
+import mail from "./mail.mjs";
 export function createCommandRouter(context) {
   return makeRouter(
     [
+      {
+        names: [
+          "mail.state",
+          "mail.connect",
+          "mail.refresh",
+          "mail.read",
+          "mail.disconnect",
+          "mail.task",
+        ],
+        execute: mail,
+      },
       {
         names: [
           "hub.save",

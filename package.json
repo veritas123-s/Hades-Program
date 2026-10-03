@@ -27,13 +27,16 @@
     "build:mobile-agent": "vite build --config vite.agent.config.js",
     "test:workhub": "node scripts/workhub-ui-test.mjs",
     "dist:mac": "npm run build && electron-builder --mac dmg",
-    "test:interface": "node scripts/interface-ui-test.mjs"
+    "test:interface": "node scripts/interface-ui-test.mjs",
+    "test:mail": "node scripts/mail-ui-test.mjs"
   },
   "dependencies": {
     "@earendil-works/pi-agent-core": "1.0.0",
     "@earendil-works/pi-ai": "1.0.0",
     "ical.js": "2.2.1",
+    "imapflow": "2.2.2",
     "lucide-react": "1.47.0",
+    "mailparser": "3.9.33",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "typebox": "1.3.27"
@@ -73,7 +76,9 @@
       "src/calendar.mjs",
       "src/cloud-data.mjs",
       "src/agent/**/*.mjs",
-      "src/releases.mjs"
+      "src/releases.mjs",
+      "docs/licenses/IMAPFLOW-MIT.txt",
+      "docs/licenses/MAILPARSER-MIT.txt"
     ],
     "win": {
       "target": "portable",
@@ -107,6 +112,14 @@
         {
           "from": "docs/DEVELOPER-HANDBOOK.md",
           "to": "帮助文档/DEVELOPER-HANDBOOK.md"
+        },
+        {
+          "from": "docs/licenses/IMAPFLOW-MIT.txt",
+          "to": "licenses/IMAPFLOW-MIT.txt"
+        },
+        {
+          "from": "docs/licenses/MAILPARSER-MIT.txt",
+          "to": "licenses/MAILPARSER-MIT.txt"
         }
       ]
     },
@@ -168,6 +181,14 @@
         {
           "from": "docs/DEVELOPER-HANDBOOK.md",
           "to": "帮助文档/DEVELOPER-HANDBOOK.md"
+        },
+        {
+          "from": "docs/licenses/IMAPFLOW-MIT.txt",
+          "to": "licenses/IMAPFLOW-MIT.txt"
+        },
+        {
+          "from": "docs/licenses/MAILPARSER-MIT.txt",
+          "to": "licenses/MAILPARSER-MIT.txt"
         }
       ]
     },

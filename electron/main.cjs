@@ -49,6 +49,7 @@ let win,
   assistant,
   learning,
   news,
+  mail,
   workflows,
   accounts,
   updates,
@@ -72,6 +73,7 @@ const snapshot = () =>
         updates: updates?.status(),
         learning: learning?.status(),
         news: news?.status(),
+        mail: mail?.status(),
         workflows: workflows?.data,
         campusAuth: auth?.status(),
         account: accounts?.status(),
@@ -293,6 +295,7 @@ else {
         bridge?.onboarding?.stop();
         assistant?.cancel();
         news?.stop();
+        mail?.disconnect();
         if (learning) {
           learning.disconnected = true;
           learning.generation++;
@@ -308,6 +311,7 @@ else {
         broadcast();
       };
       async function refreshAccess() {
+        if (!accounts.authenticated) mail?.disconnect();
         if (accounts.authenticated) {
           connectorInitialization ||= Promise.all([
             auth.initialize(),
@@ -477,6 +481,14 @@ else {
         bridge.status.local = "error";
       }
       const { createCommandRouter } = await import("./commands/index.mjs");
+      const { MailService } = await import("./mail-service.mjs");
+      mail = new MailService({
+        owner: () =>
+          accounts.authenticated && personalReady
+            ? accounts.status().user?.id
+            : null,
+        changed: broadcast,
+      });
       const { NewsService } = await import("./news-service.mjs");
       const { openNewsReader } = await import("./news-reader.mjs");
       news = new NewsService({
@@ -498,6 +510,7 @@ else {
       bridge.getNews = () =>
         bridge.onboarding?.config.plan?.runtimeHash ? news.status() : null;
       commandRouter = createCommandRouter({
+        mail,
         themeAssets,
         store,
         domain,
@@ -658,6 +671,7 @@ else {
       app.quit();
     });
   app.on("before-quit", (event) => {
+    mail?.disconnect();
     news?.stop();
     accountSync?.stop();
     bridge?.onboarding?.stop();

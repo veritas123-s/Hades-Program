@@ -1,0 +1,135 @@
+.mail-page {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  height: 100%;
+}
+.mail-page h1 {
+  margin: 0;
+  font-size: 22px;
+}
+.mail-page > header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.mail-actions,
+.mail-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.mail-actions .button {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.mail-login {
+  max-width: 480px;
+  display: grid;
+  gap: 16px;
+}
+.mail-login label {
+  display: grid;
+  gap: 6px;
+}
+.mail-login input,
+.mail-toolbar > input {
+  width: 100%;
+}
+.mail-toolbar > input {
+  max-width: 270px;
+  margin-left: auto;
+}
+.mail-filter {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  white-space: nowrap;
+}
+.mail-filter input {
+  width: auto;
+}
+.mail-columns {
+  flex: 1;
+  min-height: 220px;
+  display: grid;
+  grid-template-columns: minmax(240px, 36%) minmax(0, 1fr);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.mail-list,
+.mail-detail {
+  min-width: 0;
+  overflow: auto;
+}
+.mail-list {
+  border-right: 1px solid var(--border);
+}
+.mail-row {
+  text-align: left;
+  width: 100%;
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  color: inherit;
+  background: transparent;
+  border-radius: 0;
+}
+.mail-row:hover,
+.mail-row.selected {
+  background: var(--surface);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.mail-row strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.mail-row span,
+.mail-row time {
+  font-size: 12px;
+  opacity: 0.75;
+  overflow-wrap: anywhere;
+}
+.mail-detail {
+  padding: 20px;
+}
+.mail-detail h2 {
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+.mail-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  line-height: 1.75;
+  margin-top: 18px;
+}
+.mail-attachments {
+  border-top: 1px solid var(--border);
+  margin-top: 20px;
+  padding-top: 12px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 900px) {
+  .mail-columns {
+    grid-template-columns: 1fr;
+    overflow: visible;
+  }
+  .mail-list {
+    max-height: 280px;
+    border-right: 0;
+  }
+  .mail-detail {
+    overflow: visible;
+  }
+  .mail-page {
+    height: auto;
+  }
+}
