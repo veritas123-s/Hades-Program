@@ -63,12 +63,14 @@ test("macOS 固定帮助路径位于 Contents，菜单保留编辑和退出角�
   };
   assert.equal(
     helpPath(app, "user", "darwin"),
-    path.resolve("synthetic/Medstack.app/Contents/帮助文档/USER-GUIDE.html"),
+    path.resolve(
+      "synthetic/Medstack.app/Contents/Resources/帮助文档/USER-GUIDE.html",
+    ),
   );
   assert.equal(
     helpMarkdownPath(app, "developer", "darwin"),
     path.resolve(
-      "synthetic/Medstack.app/Contents/帮助文档/DEVELOPER-HANDBOOK.md",
+      "synthetic/Medstack.app/Contents/Resources/帮助文档/DEVELOPER-HANDBOOK.md",
     ),
   );
   let shown = 0,

@@ -32,7 +32,9 @@ export function helpMarkdownPath(app, kind, platform = process.platform) {
 function bundledHelpDirectory(app, platform) {
   const directory = path.dirname(app.getPath("exe"));
   return path.join(
-    platform === "darwin" ? path.dirname(directory) : directory,
+    platform === "darwin"
+      ? path.join(path.dirname(directory), "Resources")
+      : directory,
     "帮助文档",
   );
 }

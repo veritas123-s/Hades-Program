@@ -459,6 +459,7 @@ export default function App() {
             className={page === "settings" ? "active" : ""}
             title={navigation.collapsed ? "设置与数据" : undefined}
             aria-label="设置与数据"
+            aria-current={page === "settings" ? "page" : undefined}
           >
             <Settings size={18} />
             <b>设置与数据</b>

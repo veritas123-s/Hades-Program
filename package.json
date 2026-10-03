@@ -78,7 +78,37 @@
     "win": {
       "target": "portable",
       "signExecutable": false,
-      "icon": "assets/icon.ico"
+      "icon": "assets/icon.ico",
+      "extraFiles": [
+        {
+          "from": "docs/licenses/SJTU-AGENT-MIT.txt",
+          "to": "licenses/SJTU-AGENT-MIT.txt"
+        },
+        {
+          "from": "docs/安装后使用说明.txt",
+          "to": "使用说明.txt"
+        },
+        {
+          "from": "docs/ORIGIN.md",
+          "to": "来源说明.md"
+        },
+        {
+          "from": "docs/TENCENT-CLI-LICENSE.txt",
+          "to": "licenses/TENCENT-CLI-LICENSE.txt"
+        },
+        {
+          "from": "docs/offline",
+          "to": "帮助文档"
+        },
+        {
+          "from": "docs/USER-GUIDE.md",
+          "to": "帮助文档/USER-GUIDE.md"
+        },
+        {
+          "from": "docs/DEVELOPER-HANDBOOK.md",
+          "to": "帮助文档/DEVELOPER-HANDBOOK.md"
+        }
+      ]
     },
     "portable": {
       "artifactName": "Medstack-${version}-Windows-${arch}.exe"
@@ -99,47 +129,47 @@
       "language": "2052",
       "allowToChangeInstallationDirectory": true
     },
-    "extraFiles": [
-      {
-        "from": "docs/licenses/SJTU-AGENT-MIT.txt",
-        "to": "licenses/SJTU-AGENT-MIT.txt"
-      },
-      {
-        "from": "docs/安装后使用说明.txt",
-        "to": "使用说明.txt"
-      },
-      {
-        "from": "docs/ORIGIN.md",
-        "to": "来源说明.md"
-      },
-      {
-        "from": "docs/TENCENT-CLI-LICENSE.txt",
-        "to": "licenses/TENCENT-CLI-LICENSE.txt"
-      },
-      {
-        "from": "docs/offline",
-        "to": "帮助文档"
-      },
-      {
-        "from": "docs/USER-GUIDE.md",
-        "to": "帮助文档/USER-GUIDE.md"
-      },
-      {
-        "from": "docs/DEVELOPER-HANDBOOK.md",
-        "to": "帮助文档/DEVELOPER-HANDBOOK.md"
-      }
-    ],
     "mac": {
       "target": "dmg",
       "category": "public.app-category.productivity",
       "artifactName": "Medstack-${version}-macOS-${arch}.${ext}",
       "icon": "assets/icon.png",
-      "minimumSystemVersion": "12.0",
+      "minimumSystemVersion": "13.0",
       "identity": "-",
       "hardenedRuntime": true,
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
-      "notarize": false
+      "notarize": false,
+      "extraResources": [
+        {
+          "from": "docs/licenses/SJTU-AGENT-MIT.txt",
+          "to": "licenses/SJTU-AGENT-MIT.txt"
+        },
+        {
+          "from": "docs/安装后使用说明.txt",
+          "to": "使用说明.txt"
+        },
+        {
+          "from": "docs/ORIGIN.md",
+          "to": "来源说明.md"
+        },
+        {
+          "from": "docs/TENCENT-CLI-LICENSE.txt",
+          "to": "licenses/TENCENT-CLI-LICENSE.txt"
+        },
+        {
+          "from": "docs/offline",
+          "to": "帮助文档"
+        },
+        {
+          "from": "docs/USER-GUIDE.md",
+          "to": "帮助文档/USER-GUIDE.md"
+        },
+        {
+          "from": "docs/DEVELOPER-HANDBOOK.md",
+          "to": "帮助文档/DEVELOPER-HANDBOOK.md"
+        }
+      ]
     },
     "dmg": {
       "title": "Medstack ${version}",

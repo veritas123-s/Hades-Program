@@ -49,7 +49,7 @@ test("公开帮助仅能打开随包固定文档，不能访问个人目录或�
     opened,
     path.resolve(
       process.platform === "darwin"
-        ? "synthetic/Medstack.app/Contents/帮助文档/USER-GUIDE.html"
+        ? "synthetic/Medstack.app/Contents/Resources/帮助文档/USER-GUIDE.html"
         : "synthetic/帮助文档/USER-GUIDE.html",
     ),
   );

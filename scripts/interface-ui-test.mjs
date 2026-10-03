@@ -79,7 +79,8 @@ try {
     await tour.getByRole("button", { name: "跳过", exact: true }).click();
   const nav = page.getByRole("navigation", { name: "主导航" });
   async function open(label) {
-    await nav
+    await page
+      .locator(".sidebar")
       .getByRole("button", {
         name: label === "任务清单" ? /^任务清单/ : label,
         exact: true,
@@ -178,7 +179,20 @@ try {
           BrowserWindow.getAllWindows()[0].setContentSize(...size),
         [width, height],
       );
-      for (const label of ["今日概览", "校园快讯"]) {
+      for (const label of [
+        "今日概览",
+        "校园快讯",
+        "工作台",
+        "项目管理",
+        "知识库",
+        "任务清单",
+        "四象限",
+        "日程日历",
+        "专注空间",
+        "时间记录",
+        "主题与小组件",
+        "设置与数据",
+      ]) {
         await open(label);
         const layout = await page
           .locator(".page-viewport")
@@ -192,7 +206,10 @@ try {
           layout.scrollWidth <= layout.width + 2,
           `${theme.id}/${width}/${label}: horizontal overflow`,
         );
-        assert.equal(await nav.locator('[aria-current="page"]').count(), 1);
+        assert.equal(
+          await page.locator('.sidebar [aria-current="page"]').count(),
+          1,
+        );
         if (label === "今日概览" && width === 1366)
           assert.ok(
             layout.scrollHeight <= layout.height + 2,
@@ -203,10 +220,7 @@ try {
           await page.screenshot({
             scale: "css",
             animations: "disabled",
-            path: path.join(
-              output,
-              `${theme.id}-${label === "今日概览" ? "overview" : "news"}.png`,
-            ),
+            path: path.join(output, `${theme.id}-${label}.png`),
           });
       }
     }
