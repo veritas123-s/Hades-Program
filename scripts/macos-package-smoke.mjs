@@ -157,6 +157,9 @@ try {
   assert.equal(state.account.authenticated, true);
   assert.equal(state.updates.platform, `macos_${arch}`);
   await page.screenshot({ path: path.join(output, `workspace-${arch}.png`) });
+  const tour = page.getByRole("dialog", { name: "医栈通 新手教程" });
+  if (await tour.isVisible())
+    await tour.getByRole("button", { name: "跳过", exact: true }).click();
   await page.getByRole("button", { name: "设置与数据", exact: true }).click();
   await page.getByRole("tab", { name: "关于", exact: true }).click();
   await page.getByText("由 Medtrix 团队制作", { exact: true }).waitFor();
