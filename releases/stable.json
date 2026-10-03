@@ -1,21 +1,19 @@
 {
   "schema": 1,
-  "version": "5.3.1",
-  "publishedAt": "2026-10-02T17:29:23.247Z",
-  "title": "医栈通 V5.3.1",
+  "version": "6.0.0",
+  "publishedAt": "2026-10-03T08:26:52.182Z",
+  "title": "医栈通 V6.0 · 医学学习与科研 · 工作台",
   "notes": [
-    "加入 Medtrix 团队品牌标识，保留医栈通应用名称与图标。",
-    "嵌入课表的月视图显示课程名和时间，年视图显示课程数量。",
-    "校园快讯直接打开，增加官方栏目和页面中的公众号原文采集；保留来源覆盖状态。",
-    "修复空封面误用文章网址、图片加载失败缓存、错误编码声明及可逆乱码。",
-    "增加 Windows 一键更新：核验下载文件，保存计时，备份数据与程序后安装。",
-    "加强公开请求跳转、图片解码和停滞响应保护；修正文章信息不复活已删除快讯。"
+    "项目管理、里程碑、任务与日程关联，汇总进度及专注投入。",
+    "知识库提供学习、文献、实验与会议模板，支持检索、修订恢复及回收站。",
+    "Poseidon可检索逐篇授权的知识；项目和知识等新记录保存在当前账号本机，请定期导出完整备份。",
+    "仅支持Windows。既有云同步与个人数据兼容保留。"
   ],
   "urgent": false,
   "downloads": {
     "windows": {
-      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.3.1/Medstack-Setup-5.3.1-x64.exe",
-      "sha256": "29940cbc33b89c75eba7cebe20c92993796219fc90181152c7f1051a544b80b0"
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v6.0.0/Medstack-Setup-6.0.0-x64.exe",
+      "sha256": "c91015aa485cd665945cce35b75465789f59ffdec1e244614799dc9802a0237c"
     }
   }
 }
