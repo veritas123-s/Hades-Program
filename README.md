@@ -1,10 +1,16 @@
 # Medstack-Program
 
+## V6.1.3
+
+校园快讯统一从服务器同步，纳入12个既有公众号及学校新闻来源，每小时整点采集，显示下一次刷新倒计时。Android增加快讯列表、搜索和来源状态。失败保留历史消息与个人删除记录，公开索引可能延迟或遗漏，完整覆盖仍需验证。
+
+[V6.1.3 下载](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.1.3) · [验证记录](docs/VALIDATION-V6.1.3.md)。四平台安装包已发布并核验SHA256，166项规则、Windows和两种Mac实际程序、Android编译及模拟器快讯操作均通过。线上公告缓存已同步V6.1.3。Mac仍为ad-hoc签名，无Apple公证。
+
 ## V6.1.2
 
 入口和关于页的 Medtrix 团队署名使用透明背景；医栈通主标志、应用图标与名称保持原样。四个平台安装包已发布并核验 SHA256。
 
-[V6.1.2 下载](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.1.2) · [验证记录](docs/VALIDATION-V6.1.2.md)。Mac 采用 ad-hoc 签名，尚无 Developer ID 和公证。线上公告缓存同步待完成。
+[V6.1.2 下载](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.1.2) · [验证记录](docs/VALIDATION-V6.1.2.md)。Mac 采用 ad-hoc 签名，尚无 Developer ID 和公证。此版本公告缓存由后续V6.1.3统一接续。
 
 ## V6.1.1
 
@@ -135,3 +141,4 @@ npm run dist:installer
 ## V5.1.2
 
 组件根据实际内容区自适应，支持窄窗口与显示缩放。新增无框主题图标和经典医疗主题。验收见 VALIDATION-V5.1.2.md。
+
