@@ -22,3 +22,28 @@ log = Path('test-results/android-smoke/logcat.txt').read_text(errors='replace')
 assert 'FATAL EXCEPTION' not in log, log[-2000:]
 Path('test-results/android-smoke/result.txt').write_text('PASS release APK launch, brand, slogan, login gate, no fatal exception\n')
 PY
+adb shell cmd uimode night yes
+adb shell settings put system font_scale 1.3
+adb shell am force-stop com.medstack.app
+adb shell am start -W -n com.medstack.app/.MainActivity
+sleep 3
+adb shell uiautomator dump /sdcard/medstack-dark-layout.xml
+adb pull /sdcard/medstack-dark-layout.xml test-results/android-smoke/dark-layout.xml
+adb exec-out screencap -p > test-results/android-smoke/dark-large-text.png
+adb shell input swipe 160 500 160 180 400
+sleep 1
+adb shell uiautomator dump /sdcard/medstack-dark-scrolled.xml
+adb pull /sdcard/medstack-dark-scrolled.xml test-results/android-smoke/dark-scrolled.xml
+adb exec-out screencap -p > test-results/android-smoke/dark-scrolled.png
+python3 - <<'PY'
+from pathlib import Path
+import xml.etree.ElementTree as ET
+def labels(name):
+    return ' '.join(node.attrib.get('text', '') for node in ET.parse('test-results/android-smoke/'+name).getroot().iter())
+assert '医栈通 Medstack' in labels('dark-layout.xml')
+assert '登录' in labels('dark-scrolled.xml'), labels('dark-scrolled.xml')
+with Path('test-results/android-smoke/result.txt').open('a') as stream:
+    stream.write('PASS system dark appearance, 130% font scale, scrollable login controls\n')
+PY
+adb shell settings put system font_scale 1.0
+adb shell cmd uimode night no

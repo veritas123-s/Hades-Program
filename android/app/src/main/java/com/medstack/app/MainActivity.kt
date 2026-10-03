@@ -6,6 +6,13 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.SideEffect
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import com.medstack.app.data.MedstackRepository
 import com.medstack.app.data.MedstackUiState
 import com.medstack.app.ui.MedstackApp
@@ -20,8 +27,16 @@ class MainActivity : ComponentActivity() {
         repository = MedstackRepository(applicationContext)
         repository.onStateChanged = { uiState = it }
         setContent {
+            val dark = isSystemInDarkTheme()
+            SideEffect {
+                val bars = WindowCompat.getInsetsController(window, window.decorView)
+                bars.isAppearanceLightStatusBars = !dark
+                bars.isAppearanceLightNavigationBars = !dark
+            }
             MedstackTheme {
-                MedstackApp(uiState, repository)
+                Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                    MedstackApp(uiState, repository)
+                }
             }
         }
     }
