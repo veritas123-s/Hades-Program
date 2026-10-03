@@ -35,11 +35,6 @@ class MobileWorkspaceTest {
         val capture = File(folder, "$name.png")
         capture.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
         bitmap.recycle()
-        // Gradle uninstalls the synthetic app after testing; keep screenshots in shell-owned storage.
-        val command = "mkdir -p /data/local/tmp/medstack-ui-evidence && cp '${capture.absolutePath}' '/data/local/tmp/medstack-ui-evidence/$name.png' && echo EVIDENCE_SAVED"
-        val descriptor = InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(command)
-        val result = android.os.ParcelFileDescriptor.AutoCloseInputStream(descriptor).bufferedReader().use { it.readText() }
-        check(result.contains("EVIDENCE_SAVED")) { "Screenshot evidence was not preserved" }
     }
 
     @Test fun offlineWorkspaceActionsNavigationEncryptionAndLogout() {
