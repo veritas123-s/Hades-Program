@@ -46,6 +46,8 @@ jobs:
         run: node scripts/macos-package-smoke.mjs
       - name: Exercise projects, notes and themes in the installed app
         run: node scripts/workhub-ui-test.mjs "$RUNNER_TEMP/medstack-installed/Medstack.app/Contents/MacOS/Medstack"
+      - name: Verify shared news and server countdown in the installed app
+        run: node scripts/shared-news-ui-test.mjs "$RUNNER_TEMP/medstack-installed/Medstack.app/Contents/MacOS/Medstack"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -54,5 +56,6 @@ jobs:
             release-medstack-*/*.dmg
             test-results/macos/
             test-results/workhub*
+            test-results/shared-news/
           if-no-files-found: error
           retention-days: 14

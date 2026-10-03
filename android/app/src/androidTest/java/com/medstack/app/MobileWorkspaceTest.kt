@@ -11,6 +11,9 @@ import com.medstack.app.data.MedstackRepository
 import com.medstack.app.data.MedstackUiState
 import com.medstack.app.security.SecureStore
 import org.json.JSONObject
+import org.json.JSONArray
+import android.os.SystemClock
+import com.medstack.app.data.MobileNewsCache
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
@@ -80,6 +83,31 @@ class MobileWorkspaceTest {
         compose.runOnIdle { assertEquals(1, repository.state.document!!.getJSONArray("logs").length()) }
         screenshot("focus")
         navigate("更多")
+        compose.runOnIdle {
+            val serverNow = System.currentTimeMillis() + 9 * 3600000L
+            val news = JSONObject().put("version", 1).put("serverNow", serverNow).put("nextRunAt", serverNow + 8000)
+                .put("sources", JSONArray().put("上海交通大学"))
+                .put("coverage", JSONArray().put(JSONObject().put("source", "上海交通大学").put("status", "unavailable").put("note", "合成失败来源")))
+                .put("items", JSONArray().put(JSONObject().put("id", "synthetic-news").put("title", "合成校园消息").put("source", "上海交通大学")
+                    .put("url", "https://mp.weixin.qq.com/s/synthetic").put("excerpt", "合成摘要").put("publishedAt", serverNow - 1000)))
+            val cached = MobileNewsCache(compose.activity)
+            cached.save(uid, MobileNewsCache.validate(news))
+            assertEquals("合成校园消息", cached.read(uid)!!.getJSONArray("items").getJSONObject(0).getString("title"))
+            assertNull(cached.read("another-synthetic-account"))
+            assertFalse(MobileNewsCache.safeURL("https://mp.weixin.qq.com.evil.invalid/"))
+            assertFalse(MobileNewsCache.safeURL("http://127.0.0.1/"))
+            val emit = MedstackRepository::class.java.getDeclaredMethod("emit", MedstackUiState::class.java).apply { isAccessible = true }
+            emit.invoke(repository, repository.state.copy(news = news, newsReceivedElapsed = SystemClock.elapsedRealtime()))
+        }
+        navigate("校园快讯")
+        compose.onNodeWithText("合成校园消息").assertIsDisplayed()
+        compose.onNodeWithText("距下次刷新 00:00:", substring = true).assertIsDisplayed()
+        screenshot("news-countdown")
+        compose.onNodeWithText("查看来源状态").performClick()
+        compose.onNodeWithText("合成失败来源", substring = true).assertIsDisplayed()
+        compose.waitUntil(15000) { compose.onAllNodesWithText("等待服务器刷新结果").fetchSemanticsNodes().isNotEmpty() }
+        screenshot("news-refresh-pending")
+        compose.onNodeWithText("返回更多").performClick()
         navigate("Poseidon")
         compose.onNodeWithText("自己的 API 密钥").performScrollTo().assertIsDisplayed()
         screenshot("assistant")
