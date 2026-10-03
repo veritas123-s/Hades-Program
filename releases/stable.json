@@ -1,19 +1,21 @@
 {
   "schema": 1,
-  "version": "6.0.0",
-  "publishedAt": "2026-10-03T08:26:52.182Z",
-  "title": "医栈通 V6.0 · 医学学习与科研 · 工作台",
+  "version": "6.0.1",
+  "publishedAt": "2026-10-03T08:35:24.469Z",
+  "title": "医栈通 V6.0.1 · 界面精修",
   "notes": [
-    "项目管理、里程碑、任务与日程关联，汇总进度及专注投入。",
-    "知识库提供学习、文献、实验与会议模板，支持检索、修订恢复及回收站。",
-    "Poseidon可检索逐篇授权的知识；项目和知识等新记录保存在当前账号本机，请定期导出完整备份。",
-    "仅支持Windows。既有云同步与个人数据兼容保留。"
+    "校园快讯与今日概览并列，导航统一图标、间距与选中状态。",
+    "分类标题降低视觉权重，折叠时保留当前页面所在分类提示。",
+    "校园快讯采用轻分隔图文列表，减少浮动卡片与重复边框。",
+    "首页指标整合为统一表面，收敛大面积色块和顶栏装饰。",
+    "工作台、项目管理与知识库使用统一的边界和状态样式，保留 V6.0 功能。",
+    "保留八款主题、个人配色、侧栏整理与不同窗口的自适应布局。"
   ],
   "urgent": false,
   "downloads": {
     "windows": {
-      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v6.0.0/Medstack-Setup-6.0.0-x64.exe",
-      "sha256": "c91015aa485cd665945cce35b75465789f59ffdec1e244614799dc9802a0237c"
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v6.0.1/Medstack-Setup-6.0.1-x64.exe",
+      "sha256": "2698ff5458809ebd7c2d543dedde8a90ab5b858548bf11fec087f54eaa9e81be"
     }
   }
 }
