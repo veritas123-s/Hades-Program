@@ -218,7 +218,7 @@ class MedstackRepository(context: Context) {
 
     fun syncSharedNews() {
         val uid = currentUserId()
-        if (uid.isBlank() || state.newsBusy) return
+        if (uid.isBlank() || state.newsBusy || !api.hasSession()) return
         emit(state.copy(newsBusy = true, newsError = ""))
         scope.launch {
             try {
