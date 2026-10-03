@@ -1,5 +1,11 @@
 # Medstack-Program
 
+## V6.1.2
+
+入口和关于页的 Medtrix 团队署名使用透明背景；医栈通主标志、应用图标与名称保持原样。四个平台安装包已发布并核验 SHA256。
+
+[V6.1.2 下载](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.1.2) · [验证记录](docs/VALIDATION-V6.1.2.md)。Mac 采用 ad-hoc 签名，尚无 Developer ID 和公证。线上公告缓存同步待完成。
+
 ## V6.1.1
 
 精简关于页及使用、开发说明，制作团队与联系方式保持原有信息。四个平台安装包已发布并校验，线上公告缓存已同步 V6.1.1，Windows、Android、macOS Intel 与 Apple 芯片下载入口齐全。
