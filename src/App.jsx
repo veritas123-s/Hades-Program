@@ -20,6 +20,7 @@ import {
   ChevronDown,
   GraduationCap,
   Newspaper,
+  BookOpen,
 } from "lucide-react";
 import { QUADRANTS, dayKey, elapsed, dayTotals } from "./domain.mjs";
 import { TaskEditor, TaskCard, timeText } from "./components.jsx";
@@ -294,40 +295,41 @@ export default function App() {
           <kbd>Ctrl N</kbd>
         </button>
         <div className="sidebar-scroll">
-          <nav>
+          <nav aria-label="主导航">
             {visibleNav
               .filter(([id]) => id === "today")
               .map(([id, label, Icon]) => (
                 <button
                   key={id}
-                  className={`overview-nav ${page === id ? "active" : ""}`}
+                  className={`nav-item overview-nav ${page === id ? "active" : ""}`}
                   aria-label={label}
+                  aria-current={page === id ? "page" : undefined}
                   onClick={() => setPage(id)}
                 >
                   <Icon size={18} />
                   <span>{label}</span>
                 </button>
               ))}
+            {visibleNav.some(([id]) => id === "campus-news") && (
+              <button
+                className={`nav-item news-direct-nav ${page === "campus-news" ? "active" : ""}`}
+                aria-label="校园快讯"
+                aria-current={page === "campus-news" ? "page" : undefined}
+                onClick={() => {
+                  setPage("campus-news");
+                  setGroupMenu(null);
+                }}
+              >
+                <Newspaper size={18} />
+                <span>校园快讯</span>
+              </button>
+            )}
             {NAV_GROUPS.map((group) => (
               <React.Fragment key={group.id}>
-                {group.id === "news" &&
-                  visibleNav.some(([id]) => id === "campus-news") && (
-                    <button
-                      className={`overview-nav news-direct-nav ${page === "campus-news" ? "active" : ""}`}
-                      aria-label="校园快讯"
-                      onClick={() => {
-                        setPage("campus-news");
-                        setGroupMenu(null);
-                      }}
-                    >
-                      <Newspaper size={18} />
-                      <span>校园快讯</span>
-                    </button>
-                  )}
                 {group.id !== "news" &&
                   visibleNav.some(([id]) => routeGroup(id) === group.id) && (
                     <button
-                      className={`nav-group-button ${navigation.collapsed && routeGroup(page) === group.id ? "active" : ""}`}
+                      className={`nav-group-button ${(navigation.collapsed || foldedGroups.includes(group.id)) && routeGroup(page) === group.id ? "active" : ""}`}
                       aria-label={`${group.title}板块`}
                       aria-expanded={
                         navigation.collapsed
@@ -346,7 +348,9 @@ export default function App() {
                             )
                       }
                     >
-                      {group.id === "efficiency" ? (
+                      {group.id === "research" ? (
+                        <BookOpen size={18} />
+                      ) : group.id === "efficiency" ? (
                         <Timer size={18} />
                       ) : group.id === "academic" ? (
                         <GraduationCap size={18} />
@@ -366,7 +370,8 @@ export default function App() {
                       <button
                         key={id}
                         title={navigation.collapsed ? label : undefined}
-                        className={page === id ? "active" : ""}
+                        className={`nav-item ${page === id ? "active" : ""}`}
+                        aria-current={page === id ? "page" : undefined}
                         onClick={() => setPage(id)}
                       >
                         <Icon size={18} />

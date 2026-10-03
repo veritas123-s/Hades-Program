@@ -1,0 +1,353 @@
+/* Shared interface rules. Theme palettes and personal backgrounds remain inputs. */
+:root[data-theme] {
+  --ui-line: color-mix(in srgb, var(--border) 65%, transparent);
+  --ui-hover: color-mix(in srgb, var(--text) 4%, transparent);
+  --ui-selection: color-mix(in srgb, var(--accent) 11%, transparent);
+  --ui-radius: 6px;
+}
+
+/* Navigation has one row geometry; categories are quiet, collapsible labels. */
+:root[data-theme] .sidebar {
+  background: color-mix(in srgb, var(--surface-soft) 65%, var(--bg));
+  border-right: 1px solid var(--ui-line);
+  box-shadow: none;
+}
+:root[data-theme] .sidebar .brand {
+  margin-bottom: 18px;
+}
+:root[data-theme] .sidebar .new-task {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--ui-line);
+  font-size: 13px;
+  font-weight: 500;
+  min-height: 34px;
+  box-shadow: none;
+}
+:root[data-theme] .sidebar .new-task:hover {
+  background: var(--surface-soft);
+}
+:root[data-theme] .sidebar .new-task kbd {
+  color: var(--muted);
+  background: none;
+  opacity: 1;
+}
+:root[data-theme] .sidebar nav {
+  gap: 2px;
+}
+:root[data-theme] .sidebar nav .nav-item,
+:root[data-theme] .sidebar-bottom > button {
+  min-height: 34px;
+  padding: 7px 10px;
+  margin: 0;
+  border: 0;
+  border-radius: var(--ui-radius);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 400;
+  gap: 10px;
+  box-shadow: none;
+}
+:root[data-theme] .sidebar nav .nav-item svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  stroke-width: 1.65;
+  color: var(--muted);
+  opacity: 1;
+}
+:root[data-theme] .sidebar nav .nav-item:hover,
+:root[data-theme] .sidebar-bottom > button:hover {
+  background: var(--ui-hover);
+}
+:root[data-theme] .sidebar nav .nav-item.active,
+:root[data-theme] .sidebar nav .nav-group-button.active,
+:root[data-theme] .sidebar-bottom > button.active {
+  background: var(--ui-selection);
+  color: var(--text);
+  font-weight: 600;
+}
+:root[data-theme] .sidebar nav .nav-item.active svg {
+  color: var(--accent);
+}
+:root[data-theme] .sidebar nav .nav-group-button {
+  min-height: 28px;
+  margin: 16px 0 2px;
+  padding: 4px 10px 4px 36px;
+  border-radius: var(--ui-radius);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  color: var(--muted);
+  background: transparent;
+  gap: 10px;
+}
+:root[data-theme]
+  .sidebar:not(.collapsed)
+  nav
+  .nav-group-button
+  > svg:first-child {
+  display: none;
+}
+:root[data-theme] .sidebar nav .nav-group-button > svg:last-child {
+  width: 12px;
+  height: 12px;
+  opacity: 0.65;
+  transition: transform 120ms ease;
+}
+:root[data-theme]
+  .sidebar:not(.collapsed)
+  nav
+  .nav-group-button[aria-expanded="false"]
+  > svg:last-child {
+  transform: rotate(-90deg);
+}
+:root[data-theme] .sidebar.collapsed nav .nav-group-button {
+  min-height: 34px;
+  margin: 10px 0 0;
+  padding: 7px 10px;
+  font-size: 13px;
+  font-weight: 400;
+}
+:root[data-theme] .sidebar.collapsed nav .nav-item span {
+  display: inline;
+}
+:root[data-theme] .sidebar.collapsed nav .nav-item {
+  justify-content: flex-start;
+}
+:root[data-theme] .sidebar .sidebar-projects {
+  margin-top: 20px;
+}
+:root[data-theme] .sidebar .nav-label {
+  font-size: 12px;
+  font-weight: 500;
+  margin-left: 36px;
+}
+:root[data-theme] .sidebar-projects > button {
+  padding: 7px 10px;
+  gap: 10px;
+  min-height: 32px;
+  border-radius: var(--ui-radius);
+  font-size: 13px;
+}
+:root[data-theme] .sidebar-projects > button > i {
+  width: 6px;
+  height: 6px;
+  margin: 0 5px;
+  flex-shrink: 0;
+}
+:root[data-theme] .sidebar-bottom {
+  border-top-color: var(--ui-line);
+}
+:root[data-theme] .sidebar-bottom > button svg {
+  width: 16px;
+  height: 16px;
+  color: var(--muted);
+  stroke-width: 1.65;
+}
+
+/* Navigation chrome recedes; content keeps its existing responsive typography. */
+:root[data-theme] .workspace > .topbar {
+  border-bottom: 1px solid var(--ui-line);
+  box-shadow: none;
+}
+:root[data-theme] .topbar :is(.search, .theme-shortcut, .assistant-launch) {
+  border-radius: var(--ui-radius);
+  box-shadow: none;
+}
+:root[data-theme] .topbar .search {
+  background: transparent;
+  border: 1px solid transparent;
+}
+:root[data-theme] .topbar .search:focus-within {
+  background: var(--surface);
+  border-color: var(--accent);
+}
+:root[data-theme] .topbar :is(.theme-shortcut, .assistant-launch) {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  font-weight: 500;
+}
+:root[data-theme] .topbar :is(.theme-shortcut, .assistant-launch):hover {
+  background: var(--ui-hover);
+  color: var(--text);
+}
+:root[data-theme] .page-viewport h1 {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+:root[data-theme] .page-viewport :is(.panel, .stat, .quadrant) {
+  border-color: var(--ui-line);
+  border-radius: 8px;
+  box-shadow: none;
+}
+
+/* News is a reading surface with rows, rather than a stack of floating cards. */
+:root[data-theme] .page-campus-news .news-search {
+  width: min(100%, 480px);
+  background: var(--surface);
+  border-color: var(--ui-line);
+  border-radius: var(--ui-radius);
+  margin-bottom: 8px;
+}
+:root[data-theme] .page-campus-news .tabs {
+  gap: 20px;
+  border-bottom: 1px solid var(--ui-line);
+  padding: 0;
+  margin-bottom: 12px;
+}
+:root[data-theme] .page-campus-news .tabs button {
+  padding: 9px 0;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-weight: 400;
+}
+:root[data-theme] .page-campus-news .tabs button.active {
+  border-bottom-color: var(--accent);
+  color: var(--text);
+  background: transparent;
+  font-weight: 600;
+}
+:root[data-theme] .page-campus-news > [role="status"] {
+  font-size: 12px;
+  margin: 0 0 12px;
+}
+:root[data-theme] .page-campus-news .recent-news {
+  padding: 0;
+  background: transparent;
+  border: 0;
+}
+:root[data-theme] .page-campus-news .recent-news-card,
+:root[data-theme] .page-campus-news .news-article-row {
+  margin: 0;
+  padding: 18px 0 !important;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--ui-line);
+  border-radius: 0;
+}
+:root[data-theme] .page-campus-news .news-cover {
+  border-radius: var(--ui-radius);
+  background: var(--surface-soft);
+}
+:root[data-theme] .page-campus-news .news-copy h3 .news-title-link {
+  font-weight: 550;
+  line-height: 1.5;
+}
+:root[data-theme] .page-campus-news .recent-news-card details {
+  margin-left: calc(
+    clamp(90px, calc(120px * var(--layout-scale, 1)), 148px) +
+      clamp(12px, 2cqw, 22px)
+  );
+}
+:root[data-theme] .page-campus-news .recent-news-card summary {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Dashboard metrics share a surface. Accent is reserved for meaningful data. */
+:root[data-theme] .overview-summary-grid {
+  gap: 0;
+  background: var(--surface);
+  border: 1px solid var(--ui-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+:root[data-theme] .overview-summary {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+}
+:root[data-theme] .overview-summary + .overview-summary {
+  border-left: 1px solid var(--ui-line);
+}
+:root[data-theme] .overview-clock {
+  background: transparent;
+  color: var(--text);
+  align-items: flex-start;
+  text-align: left;
+}
+:root[data-theme] .overview-clock > svg {
+  display: none;
+}
+:root[data-theme] .overview-clock > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+:root[data-theme] .overview-metric {
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+:root[data-theme] .overview-information-grid .overview-card {
+  border-radius: 8px;
+  box-shadow: none;
+}
+:root[data-theme] .overview-card h2 svg {
+  color: var(--muted);
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.65;
+}
+:root[data-theme] .overview-row {
+  border-bottom-color: var(--ui-line);
+}
+
+/* Keep interaction cues available to keyboard users and reduced-motion users. */
+:root[data-theme] .research-shell :is(.hub-card, .hub-search, .hub-record) {
+  border-radius: 8px;
+  border-color: var(--ui-line);
+  box-shadow: none;
+}
+:root[data-theme] .research-shell .hub-record.selected {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  background: var(--ui-selection);
+}
+:root[data-theme]
+  .research-shell
+  :is(.hub-project-row, .hub-simple-row, .hub-linked-row, .hub-detail section) {
+  border-color: var(--ui-line);
+}
+:root[data-theme] .research-shell .hub-metrics strong {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+:root[data-theme] .research-shell .hub-metrics svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.65;
+}
+
+:root[data-theme]
+  :is(
+    .sidebar button,
+    .topbar button,
+    .news-title-link,
+    .tabs button
+  ):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+@container workspace (max-width: 850px) {
+  :root[data-theme] .overview-deadlines {
+    border-left: 0;
+    border-top: 1px solid var(--ui-line);
+  }
+}
+@container workspace (max-width: 500px) {
+  :root[data-theme] .overview-summary + .overview-summary {
+    border-left: 0;
+    border-top: 1px solid var(--ui-line);
+  }
+  :root[data-theme] .page-campus-news .recent-news-card details {
+    margin-left: 90px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] .sidebar nav .nav-group-button > svg:last-child {
+    transition: none;
+  }
+}
