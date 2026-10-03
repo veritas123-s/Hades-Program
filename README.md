@@ -46,7 +46,7 @@ V5.3.1 至 V6.0.2 发行阶段仅支持 Windows；V6.1 按用户最新要求恢�
 - 长任务与记录采用列表内滚动；保留七款主题、自定义背景和小组件。
 - 详见 [界面修订说明](docs/COMPACT-UI.md)。
 
-A tool to bridge the gaps between those complicated apps of SHSMU
+医栈通：连接医学学习、校园事务与个人科研安排。
 
 ## Medstack V3.2 · Poseidon（测试版）
 

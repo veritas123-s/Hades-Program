@@ -157,6 +157,12 @@ try {
   assert.equal(state.account.authenticated, true);
   assert.equal(state.updates.platform, `macos_${arch}`);
   await page.screenshot({ path: path.join(output, `workspace-${arch}.png`) });
+  await page.getByRole("button", { name: "设置与数据", exact: true }).click();
+  await page.getByRole("tab", { name: "关于", exact: true }).click();
+  await page.getByText("由 Medtrix 团队制作", { exact: true }).waitFor();
+  assert.equal(await page.getByText(/MySHSMU|酱紫办/).count(), 0);
+  await page.screenshot({ path: path.join(output, `about-${arch}.png`) });
+  checks.push("About page retains Medtrix and removes obsolete campus attribution");
   checks.push(
     "Authenticated workspace, close/reopen from Dock, matching update architecture",
   );

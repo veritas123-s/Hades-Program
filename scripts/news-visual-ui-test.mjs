@@ -148,24 +148,12 @@ try {
   await page.getByRole("button", { name: "设置与数据", exact: true }).click();
   await page.getByRole("tab", { name: "关于", exact: true }).click();
   await page.getByText("由 Medtrix 团队制作", { exact: true }).waitFor();
-  await page.getByText("鸣谢 MySHSMU", { exact: true }).waitFor();
+  assert.equal(await page.getByText(/MySHSMU|酱紫办/).count(), 0);
   await page.getByRole("button", { name: "复制微信号", exact: true }).click();
   await page.getByText("微信号已复制", { exact: true }).waitFor();
   assert.equal(
     await app.evaluate(({ clipboard }) => clipboard.readText()),
     "Veritas_Enterprise",
-  );
-  await app.evaluate(({ shell }) => {
-    shell.openExternal = async (url) => {
-      globalThis.syntheticAboutLink = url;
-    };
-  });
-  await page
-    .getByRole("link", { name: "tototwoto/MySHSMU", exact: true })
-    .click();
-  assert.equal(
-    await app.evaluate(() => globalThis.syntheticAboutLink),
-    "https://github.com/tototwoto/MySHSMU",
   );
   await page.screenshot({
     animations: "disabled",

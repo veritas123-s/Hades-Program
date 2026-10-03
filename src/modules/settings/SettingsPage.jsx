@@ -244,21 +244,6 @@ export default function SettingsPage({
                 复制微信号
               </button>
             </Panel>
-            <Panel className="panel" title="鸣谢 MySHSMU">
-              <h2>鸣谢 MySHSMU</h2>
-              <LinkedText
-                text="感谢 [tototwoto/MySHSMU](https://github.com/tototwoto/MySHSMU) 为校园功能提供参考。"
-                call={call}
-              />
-              <p>
-                教务接口与字段映射参考 ShsmuService.kt，课表解析与展示逻辑参考
-                CurriculumUtils.kt、MainViewModel.kt；一次登录后的会话恢复参考
-                PersistentCookieJar 与 MainViewModel。
-              </p>
-              <p>
-                这些逻辑已改写为桌面端实现，登录信息使用本机加密保存。任务、专注、Poseidon、校园快讯与云账号等模块由本项目独立实现。
-              </p>
-            </Panel>
             <Panel className="panel" title="鸣谢 SJTU Agent">
               <h2>鸣谢 SJTU Agent</h2>
               <LinkedText

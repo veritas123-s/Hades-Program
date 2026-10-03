@@ -1,8 +1,8 @@
-医栈通 V6.1.0
+医栈通 V6.1.1
 
-Windows：Medstack-Setup-6.1.0-x64.exe
-Android 9+：Medstack-6.1.0-Android.apk，保留原正式包名和发布证书。
-macOS 13+：Apple 芯片使用 Medstack-6.1.0-macOS-arm64.dmg，Intel 使用 Medstack-6.1.0-macOS-x64.dmg。
+Windows：Medstack-Setup-6.1.1-x64.exe
+Android 9+：Medstack-6.1.1-Android.apk，保留原正式包名和发布证书。
+macOS 13+：Apple 芯片使用 Medstack-6.1.1-macOS-arm64.dmg，Intel 使用 Medstack-6.1.1-macOS-x64.dmg。
 打开 DMG，将 Medstack 拖入 Applications。Mac 包为 ad-hoc 签名，尚无 Apple Developer ID 签名或 Apple 公证，首次打开说明见随包使用手册。
 安装包包含运行环境与离线手册，无需开发工具。
 

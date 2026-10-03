@@ -1,0 +1,9 @@
+{
+  "title": "医栈通 V6.1.1",
+  "platforms": ["windows", "android", "macos_x64", "macos_arm64"],
+  "notes": [
+    "移除关于页中的 MySHSMU 名称与致敬，整理使用说明和开发说明。",
+    "保留 Windows、Android、macOS Intel 与 Apple 芯片安装包，原账号和数据目录保持兼容。",
+    "macOS 包采用 ad-hoc 签名，尚未取得 Apple Developer ID 签名和 Apple 公证。"
+  ]
+}
