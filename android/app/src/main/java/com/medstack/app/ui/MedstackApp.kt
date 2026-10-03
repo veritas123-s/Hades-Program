@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -136,7 +137,7 @@ private fun AuthScreen(ui: MedstackUiState, repository: MedstackRepository) {
     var email by remember { mutableStateOf(ui.pendingEmail) }
     var password by remember { mutableStateOf("") }
     var code by remember { mutableStateOf("") }
-    Box(Modifier.fillMaxSize().imePadding().padding(24.dp), contentAlignment = Alignment.Center) {
+    Box(Modifier.fillMaxSize().safeDrawingPadding().imePadding().padding(24.dp), contentAlignment = Alignment.Center) {
         Card(
             modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
             shape = RoundedCornerShape(16.dp),
@@ -165,7 +166,7 @@ private fun AuthScreen(ui: MedstackUiState, repository: MedstackRepository) {
                 if (ui.message.isNotBlank()) Text(ui.message, color = MaterialTheme.colorScheme.error)
                 HorizontalDivider()
                 Image(painterResource(R.drawable.medtrix_brand), contentDescription = "Medtrix 团队", modifier = Modifier.width(160.dp).height(42.dp), contentScale = ContentScale.Crop)
-                Text("账号令牌与离线缓存由 Android 系统密钥库加密。未登录时不显示个人任务、日程或专注记录。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("登录后查看个人任务、日程与专注记录。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

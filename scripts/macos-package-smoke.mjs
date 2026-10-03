@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { _electron as electron } from "playwright";
 import {
   launchAuthenticated,
@@ -44,9 +44,14 @@ try {
     "DMG must offer the Applications shortcut",
   );
   fs.mkdirSync(installed, { recursive: true });
-  fs.cpSync(path.join(mount, "Medstack.app"), target, {
-    recursive: true,
-    dereference: false,
+  execFileSync(
+    "codesign",
+    ["--verify", "--deep", "--strict", path.join(mount, "Medstack.app")],
+    { stdio: "inherit" },
+  );
+  // ditto preserves framework-relative symlinks and signing extended attributes.
+  execFileSync("ditto", [path.join(mount, "Medstack.app"), target], {
+    stdio: "inherit",
   });
 } finally {
   execFileSync("hdiutil", ["detach", mount], { stdio: "inherit" });
@@ -54,10 +59,24 @@ try {
 execFileSync("codesign", ["--verify", "--deep", "--strict", target], {
   stdio: "inherit",
 });
-const signature = execFileSync("codesign", ["-dv", "--verbose=4", target], {
+const signatureResult = spawnSync("codesign", ["-dv", "--verbose=4", target], {
   encoding: "utf8",
-  stdio: ["ignore", "pipe", "pipe"],
 });
+assert.equal(signatureResult.status, 0);
+const signature = signatureResult.stderr;
+assert.ok(signature.includes("Signature=adhoc"));
+assert.equal(
+  execFileSync(
+    "/usr/libexec/PlistBuddy",
+    [
+      "-c",
+      "Print :LSMinimumSystemVersion",
+      path.join(target, "Contents/Info.plist"),
+    ],
+    { encoding: "utf8" },
+  ).trim(),
+  "13.0",
+);
 const executable = path.join(target, "Contents/MacOS/Medstack");
 assert.ok(
   execFileSync("lipo", ["-archs", executable], { encoding: "utf8" }).includes(
