@@ -1,0 +1,52 @@
+name: Medstack Android workspace verification
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/medstack-cross-platform]
+    paths: ["android/**", ".github/workflows/android-functional.yml"]
+permissions:
+  contents: read
+jobs:
+  workspace:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci --ignore-scripts && npm run build:mobile-agent
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Compile isolated test APKs
+        working-directory: android
+        run: chmod +x gradlew && ./gradlew --no-daemon :app:assembleDebug :app:assembleDebugAndroidTest
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          arch: x86_64
+          disable-animations: true
+          script: cd android && ./gradlew --no-daemon :app:connectedDebugAndroidTest
+      - name: Collect UI evidence
+        if: always()
+        run: |
+          mkdir -p test-results/android-workspace
+          adb pull /sdcard/Android/data/com.medstack.app.debug/files/ui-evidence test-results/android-workspace/ || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Medstack-Android-workspace-evidence
+          path: |
+            test-results/android-workspace/
+            android/app/build/reports/androidTests/
+            android/app/build/outputs/androidTest-results/
+          retention-days: 14
