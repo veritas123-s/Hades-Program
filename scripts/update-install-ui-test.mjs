@@ -27,13 +27,13 @@ try {
       new URL(url).pathname === "/api/releases/latest"
         ? Response.json({
             schema: 1,
-            version: "5.4.0",
+            version: "6.0.3",
             publishedAt: "2026-01-01T00:00:00Z",
             title: "合成更新",
             notes: ["不安装，只验证拒绝错误哈希"],
             downloads: {
               windows: {
-                url: "https://github.com/veritas123-s/Medstack-Program/releases/download/v5.4.0/Medstack-Setup-5.4.0-x64.exe",
+                url: "https://github.com/veritas123-s/Medstack-Program/releases/download/v6.0.3/Medstack-Setup-6.0.3-x64.exe",
                 sha256: "0".repeat(64),
               },
             },
@@ -41,7 +41,7 @@ try {
         : original(url, options);
     const originalFetch = global.fetch;
     global.fetch = async (url, options) =>
-      String(url).includes("/releases/download/v5.4.0/")
+      String(url).includes("/releases/download/v6.0.3/")
         ? new Response(new Uint8Array(150000))
         : originalFetch(url, options);
   });

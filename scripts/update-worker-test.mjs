@@ -13,6 +13,8 @@ const source = path.join(root, "fixture.cs"),
 fs.writeFileSync(
   source,
   `using System;using System.IO;using System.Reflection;
+[assembly: AssemblyFileVersion("5.3.0.0")]
+[assembly: AssemblyInformationalVersion("5.3.0")]
 class Fixture {static int Main(string[] args){var self=Assembly.GetExecutingAssembly().Location;
 if(args.Length==0){File.WriteAllText(Path.Combine(Path.GetDirectoryName(self),"test-launched.txt"),"synthetic");return 0;}
 var all=String.Join(" ",args);var i=all.IndexOf("/D=");if(i<0)return 2;var dir=all.Substring(i+3).Trim('"');

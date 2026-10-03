@@ -4,9 +4,16 @@ import React, { useState } from "react";
 import { RefreshCw, ExternalLink, Trash2, Undo2 } from "lucide-react";
 import LinkedText from "../../shared/LinkedText.jsx";
 import RecentNews from "./RecentNews.jsx";
+import NewsPreferences from "./NewsPreferences.jsx";
+import {
+  NEWS_TOPICS,
+  newsCategories,
+  selectNews,
+} from "../../news-preferences.mjs";
 export default function NewsPage({ state, call }) {
   const data = state.news || {},
     [filter, setFilter] = useState("recent"),
+    [category, setCategory] = useState("all"),
     [organization, setOrganization] = useState("全部组织"),
     [newOrganization, setNewOrganization] = useState(""),
     [url, setURL] = useState(""),
@@ -14,20 +21,24 @@ export default function NewsPage({ state, call }) {
     [busy, setBusy] = useState(false),
     [query, setQuery] = useState("");
   const matches = (x) =>
-    !query.trim() ||
-    [x.title, x.excerpt, x.source].some((value) =>
-      String(value || "")
-        .toLowerCase()
-        .includes(query.trim().toLowerCase()),
-    );
+    (category === "all" || newsCategories(x).includes(category)) &&
+    (!query.trim() ||
+      [x.title, x.excerpt, x.source].some((value) =>
+        String(value || "")
+          .toLowerCase()
+          .includes(query.trim().toLowerCase()),
+      ));
+  const matchingGroups = (groups) =>
+    groups
+      .map((group) => ({ ...group, items: group.items.filter(matches) }))
+      .filter((group) => group.items.length)
+      .map((group) => ({ ...group, title: group.items[0].title }));
   const visibleNews = {
     ...data,
     recent: data.recent && {
       ...data.recent,
-      groups: data.recent.groups.filter((g) => g.items.some(matches)),
-      uncertainGroups: data.recent.uncertainGroups.filter((g) =>
-        g.items.some(matches),
-      ),
+      groups: matchingGroups(data.recent.groups),
+      uncertainGroups: matchingGroups(data.recent.uncertainGroups),
     },
   };
   const run = async (action, p = {}) => {
@@ -41,13 +52,21 @@ export default function NewsPage({ state, call }) {
       setBusy(false);
     }
   };
-  const items = (data.items || [])
+  const items = (
+    filter === "deleted"
+      ? data.items || []
+      : filter === "subscribed"
+        ? data.subscriptions || []
+        : selectNews(data.items || [], data.preferences)
+  )
     .filter(matches)
     .filter((x) =>
       filter === "deleted"
         ? x.deletedAt
         : !x.deletedAt &&
-          (organization === "全部组织" || x.source === organization),
+          (filter !== "columns" ||
+            organization === "全部组织" ||
+            x.source === organization),
     );
   const organizations = [
     ...new Set([
@@ -81,6 +100,12 @@ export default function NewsPage({ state, call }) {
       />
       <div className="tabs">
         <button
+          className={filter === "subscribed" ? "active" : ""}
+          onClick={() => setFilter("subscribed")}
+        >
+          我的订阅
+        </button>
+        <button
           className={filter === "recent" ? "active" : ""}
           onClick={() => setFilter("recent")}
         >
@@ -99,6 +124,28 @@ export default function NewsPage({ state, call }) {
           已删除
         </button>
       </div>
+      <div className="inline news-filter">
+        <label>
+          分类{" "}
+          <select
+            aria-label="快讯分类"
+            value={category}
+            onChange={(event) => setCategory(event.target.value)}
+          >
+            <option value="all">全部分类</option>
+            {NEWS_TOPICS.map((topic) => (
+              <option key={topic.id} value={topic.id}>
+                {topic.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <NewsPreferences
+        preferences={data.preferences}
+        run={run}
+        busy={busy || data.busy}
+      />
       <Panel className="panel" title="来源与收录" defaultCollapsed>
         <label className="toggle-row">
           应用运行时每小时自动采集
@@ -219,6 +266,9 @@ export default function NewsPage({ state, call }) {
         </p>
       )}
       {filter === "recent" && <RecentNews news={visibleNews} call={call} />}
+      {filter === "subscribed" && !items.length && (
+        <p className="empty-line">暂无符合订阅条件的消息</p>
+      )}
       <div className="news-list" hidden={filter === "recent"}>
         {items.map((x) => (
           <article className="panel news-article-row" key={x.id}>

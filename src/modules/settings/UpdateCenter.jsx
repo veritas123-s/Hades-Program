@@ -6,17 +6,21 @@ function InstallUpdate({ updates, call }) {
   if (!updates?.available || !install?.supported) return null;
   const busy =
     starting ||
-    ["downloading", "verifying", "installing"].includes(install.phase);
+    ["downloading", "verifying", "preparing", "installing"].includes(
+      install.phase,
+    );
   const label =
     install.phase === "downloading"
       ? `下载中 ${install.total ? Math.floor((install.received / install.total) * 100) + "%" : "…"}`
       : install.phase === "verifying"
         ? "校验中…"
-        : install.phase === "installing"
-          ? "安装中…"
-          : starting
-            ? "准备中…"
-            : "一键更新";
+        : install.phase === "preparing"
+          ? "准备安装…"
+          : install.phase === "installing"
+            ? "安装中…"
+            : starting
+              ? "准备中…"
+              : "一键更新";
   return (
     <div>
       <button
@@ -36,6 +40,7 @@ function InstallUpdate({ updates, call }) {
       >
         {label}
       </button>
+      {busy && <p role="status">安装时会关闭程序，完成后自动打开。</p>}
       {(error || install.error) && <p role="alert">{error || install.error}</p>}
     </div>
   );

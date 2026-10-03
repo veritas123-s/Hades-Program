@@ -9,6 +9,7 @@ import {
   UpdateInstaller,
   installerURL,
   updateWorker,
+  waitForWorker,
 } from "../electron/update-installer.mjs";
 const payload = Buffer.alloc(150000, 65);
 const release = {
@@ -85,14 +86,28 @@ test("校验后才调用保存退出与独立安装器，工作脚本使用固�
     },
     launch: (_shell, args, options) => {
       sequence.push("launch");
-      assert.ok(args.includes("-NonInteractive"));
+      assert.ok(args.includes("//B"));
       assert.equal(options.windowsHide, true);
-      const worker = fs.readFileSync(args.at(-1), "utf8");
+      assert.equal(options.detached, true);
+      const launcher = fs.readFileSync(args.at(-1), "utf16le");
+      assert.match(launcher, /-NonInteractive/);
+      assert.match(launcher, /, 0, True/);
+      const worker = fs.readFileSync(
+        path.join(path.dirname(args.at(-1)), "install-update.ps1"),
+        "utf8",
+      );
       assert.match(worker, /Backup verification failed/);
       assert.match(worker, /\$backupVerified -and \$installerStarted/);
       assert.match(worker, /Personal data changed/);
       const child = new EventEmitter();
+      child.pid = 12345;
+      child.kill = () => {};
       child.unref = () => {};
+      const token = worker.match(/token='([a-f0-9]{32})'/)[1];
+      fs.writeFileSync(
+        path.join(path.dirname(args.at(-1)), "worker-ready.json"),
+        JSON.stringify({ token, pid: child.pid }),
+      );
       queueMicrotask(() => child.emit("spawn"));
       return child;
     },
@@ -110,4 +125,49 @@ test("安装脚本拒绝非法PID、校验和与应用名称", () => {
   assert.throws(() =>
     updateWorker({ pid: 0, sha256: "a".repeat(64), version: "5.3.0" }),
   );
+});
+
+test("更新脚本提前退出或没有确认时拒绝退出主程序", async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-handoff-"));
+  try {
+    for (const earlyExit of [true, false]) {
+      const child = new EventEmitter();
+      let killed = false;
+      child.pid = 888;
+      child.kill = () => {
+        killed = true;
+      };
+      const pending = waitForWorker(
+        child,
+        path.join(directory, "ready.json"),
+        "a".repeat(32),
+        150,
+      );
+      if (earlyExit) queueMicrotask(() => child.emit("exit", 1));
+      await assert.rejects(pending, /应用已保留/);
+      assert.ok(killed);
+    }
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("无关进程或旧确认文件不能触发退出", async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "medstack-handoff-"));
+  try {
+    const child = new EventEmitter();
+    child.pid = 888;
+    child.kill = () => {};
+    const ready = path.join(directory, "ready.json");
+    fs.writeFileSync(
+      ready,
+      JSON.stringify({ token: "a".repeat(32), pid: 999 }),
+    );
+    await assert.rejects(
+      waitForWorker(child, ready, "a".repeat(32), 150),
+      /应用已保留/,
+    );
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
 });

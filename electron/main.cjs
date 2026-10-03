@@ -230,13 +230,13 @@ else {
           fetcher: (...args) => fetch(...args),
           exit: async (launch) => {
             store.change((s) => domain.timerAction(s, "pause"));
-            accountSync?.stop();
-            assistant?.cancel();
             if (connectorInitialization) {
               await auth?.persist();
               await learning?.persist();
             }
             await launch();
+            accountSync?.stop();
+            assistant?.cancel();
             authFlushed = true;
             quitting = true;
             app.quit();

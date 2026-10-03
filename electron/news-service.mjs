@@ -9,6 +9,7 @@ import { publicResponse, boundedBytes } from "./public-fetch.mjs";
 import { organizationName, activityDetails } from "./news-organizations.mjs";
 import { validDay } from "../src/domain.mjs";
 import { recentNews } from "../src/news-window.mjs";
+import { newsPreferences, selectNews } from "../src/news-preferences.mjs";
 
 export const WECHAT_SOURCES = [
   "上海交通大学",
@@ -255,6 +256,7 @@ export class NewsService {
             d.followedSources.some((x) => organizationName(x) !== x))
         )
           throw Error();
+        d.preferences = newsPreferences(d.preferences);
         this.data = d;
         const repaired = d.items.map((x) => ({
           ...x,
@@ -293,7 +295,11 @@ export class NewsService {
       ...this.data,
       busy: this.busy,
       sources: this.sources(),
-      recent: recentNews(this.data.items),
+      preferences: newsPreferences(this.data.preferences),
+      recent: recentNews(selectNews(this.data.items, this.data.preferences)),
+      subscriptions: selectNews(this.data.items, this.data.preferences, {
+        subscribed: true,
+      }),
     };
   }
   sources() {
@@ -410,13 +416,31 @@ export class NewsService {
     )
       queueMicrotask(() => this.collect().catch(() => {}));
   }
-  configure({ automatic }) {
-    if (typeof automatic !== "boolean") throw Error("自动采集选项无效");
-    this.data.automatic = automatic;
-    this.save();
-    this.stop();
-    this.interval = null;
-    if (automatic) this.start();
+  configure({ automatic, preferences } = {}) {
+    if (!this.allowed()) throw Error("请先登录");
+    if (automatic !== undefined && typeof automatic !== "boolean")
+      throw Error("自动采集选项无效");
+    if (automatic === undefined && preferences === undefined)
+      throw Error("快讯设置无效");
+    const before = this.data;
+    this.data = {
+      ...before,
+      ...(automatic === undefined ? {} : { automatic }),
+      ...(preferences === undefined
+        ? {}
+        : { preferences: newsPreferences(preferences) }),
+    };
+    try {
+      this.save();
+    } catch (error) {
+      this.data = before;
+      throw error;
+    }
+    if (automatic !== undefined) {
+      this.stop();
+      if (automatic) this.start();
+    }
+    this.changed();
     return this.status();
   }
   async read(url, signal = this.controller?.signal) {

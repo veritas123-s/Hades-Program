@@ -1,7 +1,7 @@
 {
   "name": "ai-veritas",
   "productName": "Medstack",
-  "version": "6.0.1",
+  "version": "6.0.2",
   "private": true,
   "description": "医栈通 · 医栈事，一站通",
   "author": "Medtrix",
@@ -48,7 +48,7 @@
     "appId": "local.ai.veritas",
     "productName": "Medstack",
     "directories": {
-      "output": "release-medstack-6.0.1"
+      "output": "release-medstack-6.0.2"
     },
     "files": [
       "dist/**/*",
@@ -59,6 +59,8 @@
       "assets/**/*",
       "src/briefing.mjs",
       "src/news-window.mjs",
+      "src/news-preferences.mjs",
+      "docs/licenses/SJTU-AGENT-MIT.txt",
       "src/domain/**/*.mjs",
       "src/platform/**/*.mjs",
       "src/themes/catalog.mjs",
@@ -96,6 +98,10 @@
       "allowToChangeInstallationDirectory": true
     },
     "extraFiles": [
+      {
+        "from": "docs/licenses/SJTU-AGENT-MIT.txt",
+        "to": "licenses/SJTU-AGENT-MIT.txt"
+      },
       {
         "from": "docs/安装后使用说明.txt",
         "to": "使用说明.txt"

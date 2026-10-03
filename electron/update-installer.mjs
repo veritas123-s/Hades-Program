@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { spawn } from "node:child_process";
 import { validateRelease, newerVersion } from "../src/releases.mjs";
 import { publicResponse, abortable } from "./public-fetch.mjs";
@@ -31,6 +31,8 @@ export function updateWorker({
   directory,
   backup,
   version,
+  ready,
+  token,
 }) {
   if (
     !Number.isSafeInteger(pid) ||
@@ -47,6 +49,8 @@ export function updateWorker({
     path.basename(executable).toLowerCase() !== "medstack.exe"
   )
     throw Error("安装路径无效");
+  if (ready && (!path.isAbsolute(ready) || !/^[a-f0-9]{32}$/.test(token)))
+    throw Error("更新确认参数无效");
   return `$ErrorActionPreference='Stop'
 $env:PSModulePath=Join-Path $PSHOME 'Modules'
 $installer=${quote(installer)}
@@ -59,7 +63,11 @@ $oldProgram=Join-Path $backup 'previous-program'
 $installed=$false
 $backupVerified=$false
 $installerStarted=$false
+$stage='prepare'
 try {
+  if((Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLower() -ne '${sha256}'){throw 'Installer hash mismatch'}
+  ${ready ? `@{token='${token}';pid=$PID;launcher=(Get-CimInstance Win32_Process -Filter "ProcessId=$PID").ParentProcessId} | ConvertTo-Json | Set-Content -LiteralPath ${quote(ready)} -Encoding UTF8` : ""}
+  $stage='waiting'
   for($i=0;$i -lt 120;$i++){if(-not(Get-Process -Id ${pid} -ErrorAction SilentlyContinue)){break};Start-Sleep -Seconds 1}
   if(Get-Process -Id ${pid} -ErrorAction SilentlyContinue){throw 'Application did not exit'}
   Start-Sleep -Seconds 2
@@ -67,6 +75,7 @@ try {
   New-Item -ItemType Directory -Path $backup -Force | Out-Null
   $skip=@('upgrade-backups','updates','Cache','Code Cache','GPUCache','GPUPersistentCache','GrShaderCache','ShaderCache','DawnGraphiteCache','DawnWebGPUCache')
   $manifest=@()
+  $stage='backup'
   function Copy-Checked($source,$target){
     $entry=Get-Item -LiteralPath $source
     if($entry.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Profile links are not supported'}
@@ -74,25 +83,65 @@ try {
     else{Copy-Item -LiteralPath $source -Destination $target -Force; if((Get-FileHash -LiteralPath $source).Hash -ne (Get-FileHash -LiteralPath $target).Hash){throw 'Backup verification failed'}}
   }
   foreach($item in Get-ChildItem -LiteralPath $profile -Force){if($skip -notcontains $item.Name){Copy-Checked $item.FullName (Join-Path $backup $item.Name)}}
-  foreach($file in Get-ChildItem -LiteralPath $profile -Filter 'veritas-data.json' -Recurse -File | Where-Object {$_.FullName -notlike '*\\upgrade-backups\\*'}){
+  foreach($file in Get-ChildItem -LiteralPath $backup -Filter 'veritas-data.json' -Recurse -File){
     $null=Get-Content -LiteralPath $file.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
-    $manifest+=@{file=$file.FullName;hash=(Get-FileHash -LiteralPath $file.FullName).Hash}
+    $relative=$file.FullName.Substring($backup.Length+1)
+    $manifest+=@{file=(Join-Path $profile $relative);hash=(Get-FileHash -LiteralPath $file.FullName).Hash}
   }
   Copy-Checked $destination $oldProgram
   $manifest | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $backup 'update-manifest.json') -Encoding UTF8
   $backupVerified=$true
   $installerStarted=$true
+  $stage='install'
   $installProcess=Start-Process -FilePath $installer -ArgumentList @('/S',('/D='+$destination)) -WindowStyle Hidden -Wait -PassThru
   if($installProcess.ExitCode -ne 0){throw 'Installer failed'}
   if(-not(Test-Path -LiteralPath $exe)){throw 'Installed application is missing'}
+  if((Get-Item -LiteralPath $exe).VersionInfo.ProductVersion -notmatch '^${version.replaceAll(".", "\\.")}($|\\.)'){throw 'Installed version does not match'}
+  $stage='verify'
   foreach($record in $manifest){if((Get-FileHash -LiteralPath $record.file).Hash -ne $record.hash){throw 'Personal data changed during installation'}}
   $installed=$true
   @{ok=$true;version='${version}';backup=$backup} | ConvertTo-Json | Set-Content -LiteralPath $receipt -Encoding UTF8
 } catch {
   if($backupVerified -and $installerStarted){Get-ChildItem -LiteralPath $oldProgram -Force | ForEach-Object {Copy-Item -LiteralPath $_.FullName -Destination $destination -Recurse -Force}}
-  @{ok=$false;version='${version}';backup=$backup;error='Update failed. Previous program and data backup retained.'} | ConvertTo-Json | Set-Content -LiteralPath $receipt -Encoding UTF8
-} finally {if(Test-Path -LiteralPath $exe){Start-Process -FilePath $exe -WorkingDirectory $destination}}
+  @{ok=$false;version='${version}';backup=$backup;stage=$stage;error='Update failed. Previous program and data backup retained.'} | ConvertTo-Json | Set-Content -LiteralPath $receipt -Encoding UTF8
+} finally {if(-not(Get-Process -Id ${pid} -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath $exe)){Start-Process -FilePath $exe -WorkingDirectory $destination}}
 `;
+}
+
+export function waitForWorker(child, ready, token, timeout = 15000) {
+  return new Promise((resolve, reject) => {
+    let poll;
+    const finish = (error) => {
+      clearInterval(poll);
+      clearTimeout(timer);
+      child.removeListener("error", failed);
+      child.removeListener("exit", failed);
+      if (error) {
+        try {
+          child.kill();
+        } catch {}
+        reject(
+          Error("更新安装程序未能启动，应用已保留，请重试或手动下载安装包"),
+        );
+      } else resolve();
+    };
+    const failed = () => finish(true);
+    const timer = setTimeout(failed, timeout);
+    child.once("error", failed);
+    child.once("exit", failed);
+    poll = setInterval(() => {
+      try {
+        const status = JSON.parse(
+          fs.readFileSync(ready, "utf8").replace(/^\ufeff/, ""),
+        );
+        if (
+          status.token === token &&
+          (status.pid === child.pid || status.launcher === child.pid)
+        )
+          finish(false);
+      } catch {}
+    }, 100);
+  });
 }
 export class UpdateInstaller {
   constructor({
@@ -122,6 +171,25 @@ export class UpdateInstaller {
       error: "",
       supported: process.platform === "win32" && packaged,
     };
+    try {
+      const receipt = JSON.parse(
+        fs
+          .readFileSync(
+            path.join(directory, "medstack-update-result.json"),
+            "utf8",
+          )
+          .replace(/^\ufeff/, ""),
+      );
+      if (
+        receipt.ok === false &&
+        /^\d+\.\d+\.\d+$/.test(receipt.version) &&
+        newerVersion(receipt.version, version)
+      ) {
+        this.state.phase = "error";
+        this.state.error =
+          "上次更新未完成，旧版本已保留，请重试或手动下载安装包";
+      }
+    } catch {}
   }
   status() {
     return { ...this.state };
@@ -132,7 +200,11 @@ export class UpdateInstaller {
   }
   async install(input) {
     if (!this.state.supported) throw Error("一键更新仅支持已安装的 Windows 版");
-    if (["downloading", "verifying", "installing"].includes(this.state.phase))
+    if (
+      ["downloading", "verifying", "preparing", "installing"].includes(
+        this.state.phase,
+      )
+    )
       throw Error("正在更新，请等待");
     const release = validateRelease(input);
     if (!newerVersion(release.version, this.version))
@@ -195,6 +267,9 @@ export class UpdateInstaller {
         `auto-v${release.version}-${Date.now()}`,
       );
       const worker = path.join(destination, "install-update.ps1");
+      const ready = path.join(destination, "worker-ready.json");
+      const token = randomBytes(16).toString("hex");
+      fs.rmSync(ready, { force: true });
       fs.writeFileSync(
         worker,
         "\ufeff" +
@@ -206,10 +281,13 @@ export class UpdateInstaller {
             directory: this.directory,
             backup,
             version: release.version,
+            ready,
+            token,
           }),
         { mode: 0o600 },
       );
       // Pause/persist before launching the worker; failure leaves the app running.
+      this.set({ phase: "preparing" });
       await this.exit(async () => {
         const shell = path.join(
           process.env.WINDIR || "C:\\Windows",
@@ -218,22 +296,27 @@ export class UpdateInstaller {
           "v1.0",
           "powershell.exe",
         );
+        // Detached PowerShell can exit without executing the script. A GUI
+        // Windows Script Host launcher survives app exit and starts it hidden.
+        const launcher = path.join(destination, "install-launcher.vbs");
+        const command = `"${shell}" -NoProfile -NonInteractive -ExecutionPolicy Bypass -File "${worker}"`;
+        fs.writeFileSync(
+          launcher,
+          Buffer.from(
+            `\ufeffSet updateShell = CreateObject("WScript.Shell")\r\nupdateShell.Run "${command.replaceAll('"', '""')}", 0, True\r\n`,
+            "utf16le",
+          ),
+        );
         const child = this.launch(
-          shell,
-          [
-            "-NoProfile",
-            "-NonInteractive",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-File",
-            worker,
-          ],
+          path.join(
+            process.env.WINDIR || "C:\\Windows",
+            "System32",
+            "wscript.exe",
+          ),
+          ["//B", "//NoLogo", launcher],
           { detached: true, windowsHide: true, stdio: "ignore" },
         );
-        await new Promise((resolve, reject) => {
-          child.once("spawn", resolve);
-          child.once("error", reject);
-        });
+        await waitForWorker(child, ready, token);
         child.unref();
         this.set({ phase: "installing" });
       });

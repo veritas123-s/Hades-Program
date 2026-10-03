@@ -351,3 +351,25 @@
     transition: none;
   }
 }
+.news-preferences {
+  display: grid;
+  gap: 12px;
+  max-width: 680px;
+}
+.news-topic-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.news-topic-table th,
+.news-topic-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.news-topic-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+.news-filter {
+  margin: 8px 0 12px;
+}

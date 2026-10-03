@@ -259,6 +259,15 @@ export default function SettingsPage({
                 这些逻辑已改写为桌面端实现，登录信息使用本机加密保存。任务、专注、Poseidon、校园快讯与云账号等模块由本项目独立实现。
               </p>
             </Panel>
+            <Panel className="panel" title="鸣谢 SJTU Agent">
+              <h2>鸣谢 SJTU Agent</h2>
+              <LinkedText
+                text="感谢 [kuan-er](https://github.com/kuan-er) 开发的 [SJTU Agent](https://github.com/kuan-er/sjtu-agent)。校园新闻关键词排序、主题订阅和屏蔽规则参考并改写自该项目。"
+                call={call}
+              />
+              <p>Copyright (c) 2026 kuan-er · MIT License</p>
+              <p>完整许可随应用安装在 licenses/SJTU-AGENT-MIT.txt。</p>
+            </Panel>
           </div>
         </div>
       </div>

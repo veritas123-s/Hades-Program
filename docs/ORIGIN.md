@@ -16,3 +16,6 @@ V1.3.1 的腾讯云浏览器授权流程参考 TencentCloud/tencentcloud-cli 的
 
 Medstack V2.0 保留 AI·VERITAS 的应用 ID、数据目录与加密上下文。学习通连接器独立编写；协议字段参考超星官方登录页面、Zhanghuaimin-233/chaoxing-homework-checker 的 API.md 与 DanMo661/Xuexitong-mcp 的接口说明（2026-09-27查阅）。未复制上述项目程序代码。页面变化可能导致连接失效，真实账号需本人扫码验证；不包含自动答题或提交。
 参考： https://i.chaoxing.com/ 、https://github.com/Zhanghuaimin-233/chaoxing-homework-checker/blob/main/API.md 、https://github.com/DanMo661/Xuexitong-mcp
+
+
+SJTU Agent：https://github.com/kuan-er/sjtu-agent ，基线 bffce4c750a41bbfd15c892266f0c7c6e84f6d4f。校园快讯的关键词评分与主题订阅、分类屏蔽参考并改写自 sjtu_agent/news_aggregator/ranker.py 与 profile.py，改为用户明确设置的关键词与主题，不移植聊天画像分析或 LLM 排序。改写实现 src/news-preferences.mjs；账号本机设置接入 electron/news-service.mjs 与校园快讯页面。Copyright (c) 2026 kuan-er，完整 MIT 原文保留在 docs/licenses/SJTU-AGENT-MIT.txt，发行包同时附于 licenses/SJTU-AGENT-MIT.txt；开发者与项目链接列入设置 → 关于 → 鸣谢 SJTU Agent。
