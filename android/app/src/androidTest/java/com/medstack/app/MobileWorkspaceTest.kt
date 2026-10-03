@@ -100,11 +100,13 @@ class MobileWorkspaceTest {
             emit.invoke(repository, repository.state.copy(news = news, newsReceivedElapsed = SystemClock.elapsedRealtime()))
         }
         navigate("校园快讯")
-        compose.onNodeWithText("合成校园消息").assertIsDisplayed()
         compose.onNodeWithText("距下次刷新 00:00:", substring = true).assertIsDisplayed()
         screenshot("news-countdown")
-        compose.onNodeWithText("查看来源状态").performClick()
-        compose.onNodeWithText("合成失败来源", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("合成校园消息").performScrollTo().assertIsDisplayed()
+        screenshot("news-article")
+        compose.onNodeWithText("查看来源状态").performScrollTo().performClick()
+        compose.onNodeWithText("合成失败来源", substring = true).performScrollTo().assertIsDisplayed()
+        compose.onNode(hasScrollToIndexAction()).performScrollToIndex(0)
         compose.waitUntil(15000) { compose.onAllNodesWithText("等待服务器刷新结果").fetchSemanticsNodes().isNotEmpty() }
         screenshot("news-refresh-pending")
         compose.onNodeWithText("返回更多").performClick()
