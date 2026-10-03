@@ -1,10 +1,16 @@
 # Medstack-Program
 
+## V6.1.1
+
+精简关于页及使用、开发说明，制作团队与联系方式保持原有信息。四个平台安装包已发布并校验，线上公告缓存已同步 V6.1.1，Windows、Android、macOS Intel 与 Apple 芯片下载入口齐全。
+
+[V6.1.1 下载](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.1.1) · [验证记录](docs/VALIDATION-V6.1.1.md)。163 项规则、Windows 实际发行程序、Android 模拟器及两种原生 Mac 程序检查通过。Mac 仍使用 ad-hoc 签名，无 Developer ID 或公证；本机真实安装与个人资料未修改。
+
 ## V6.1.0
 
 统一桌面表单、按钮、对话框与键盘焦点，恢复 Android，加入 Intel 与 Apple 芯片的 macOS DMG。Mac 使用原生菜单、Command 快捷键、Dock 再打开和离线帮助；Android 调整底部导航、排版与系统深色显示。
 
-[V6.1.0 下载](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.1.0)包含 Windows x64、Android、macOS Intel 与 Apple 芯片四个安装包，远端附件大小与 SHA256 已核对。163 项规则、290 项桌面界面检查、安卓模拟器与两种原生 Mac 实际包验证通过；细节及限制见 [验证记录](docs/VALIDATION-V6.1.0.md)，安装方法见 [使用说明](docs/USER-GUIDE.md)。Mac 最低 macOS13，采用 ad-hoc 签名，尚无 Apple Developer ID 签名或公证。线上账号服务公告缓存尚未同步，本机真实安装未替换。
+[V6.1.0 下载](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.1.0)包含 Windows x64、Android、macOS Intel 与 Apple 芯片四个安装包，远端附件大小与 SHA256 已核对。163 项规则、290 项桌面界面检查、安卓模拟器与两种原生 Mac 实际包验证通过；细节及限制见 [验证记录](docs/VALIDATION-V6.1.0.md)，安装方法见 [使用说明](docs/USER-GUIDE.md)。Mac 最低 macOS13，采用 ad-hoc 签名，尚无 Apple Developer ID 签名或公证。发行时公告缓存待同步，后续已随 V6.1.1 完成；本机真实安装未替换。
 
 ## V6.0.2
 
