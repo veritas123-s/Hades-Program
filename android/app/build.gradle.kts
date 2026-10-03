@@ -18,8 +18,8 @@ android {
         applicationId = "com.medstack.app"
         minSdk = 28
         targetSdk = 36
-        versionCode = 611
-        versionName = "6.1.1"
+        versionCode = 612
+        versionName = "6.1.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "ACCOUNT_BASE_URL", "\"https://122.51.44.155\"")
     }
@@ -72,3 +72,4 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test:runner:1.7.0")
 }
+

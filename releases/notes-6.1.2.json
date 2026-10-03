@@ -1,0 +1,9 @@
+{
+  "title": "医栈通 V6.1.2",
+  "platforms": ["windows", "android", "macos_x64", "macos_arm64"],
+  "notes": [
+    "入口与关于页的 Medtrix 团队标志使用透明背景，移除白底矩形。",
+    "保留医栈通自己的标志、应用图标与名称。",
+    "macOS 包采用 ad-hoc 签名，尚未取得 Apple Developer ID 签名和 Apple 公证。"
+  ]
+}

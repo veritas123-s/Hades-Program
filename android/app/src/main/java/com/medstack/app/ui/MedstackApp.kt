@@ -165,7 +165,7 @@ private fun AuthScreen(ui: MedstackUiState, repository: MedstackRepository) {
                 if (ui.loading) Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) { CircularProgressIndicator(Modifier.size(22.dp)); Text("正在连接…") }
                 if (ui.message.isNotBlank()) Text(ui.message, color = MaterialTheme.colorScheme.error)
                 HorizontalDivider()
-                Image(painterResource(R.drawable.medtrix_brand), contentDescription = "Medtrix 团队", modifier = Modifier.width(160.dp).height(42.dp), contentScale = ContentScale.Crop)
+                Image(painterResource(R.drawable.medtrix_wordmark_transparent), contentDescription = "Medtrix 团队", modifier = Modifier.width(160.dp).height(54.dp), contentScale = ContentScale.Fit)
                 Text("登录后查看个人任务、日程与专注记录。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
@@ -416,3 +416,4 @@ private fun quadrantName(value: String) = when (value) {
     "delegate" -> "紧急不重要"
     else -> "以后处理"
 }
+

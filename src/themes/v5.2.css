@@ -650,10 +650,10 @@
   width: clamp(160px, 20vw, 220px);
   max-width: 100%;
   height: auto;
-  aspect-ratio: 1100 / 295;
+  object-fit: contain;
   overflow: hidden;
-  background: #fff;
-  border-radius: 4px;
+  background: transparent;
+  border-radius: 0;
   margin-bottom: 16px;
 }
 .team-brand-compact {
