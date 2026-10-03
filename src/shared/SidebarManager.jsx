@@ -33,7 +33,7 @@ export default function SidebarManager({ nav, workspace, call, onClose }) {
             <PanelLeftClose size={20} />
           )}
           <span>
-            <b>{navigation.collapsed ? "展开侧栏" : "仅显示三大板块"}</b>
+            <b>{navigation.collapsed ? "展开侧栏" : "仅显示功能板块"}</b>
             <small>随时可从侧栏底部切换回来</small>
           </span>
         </button>

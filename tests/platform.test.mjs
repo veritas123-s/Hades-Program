@@ -46,7 +46,7 @@ test("V1.1迁移到V1.2保留业务字段和原始副本，补齐工作台", () 
   const raw = JSON.stringify(old);
   fs.writeFileSync(path.join(dir, "veritas-data.json"), raw);
   const store = new Store(dir);
-  assert.equal(store.state.schemaVersion, 5);
+  assert.equal(store.state.schemaVersion, 6);
   assert.deepEqual(store.state.workspace, initialWorkspace());
   assert.equal(store.state.cycles, 9);
   assert.equal(

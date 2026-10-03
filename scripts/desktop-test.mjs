@@ -34,7 +34,7 @@ try {
   await page.screenshot({ path: path.join(output, "01-overview-empty.png") });
   ok("独立桌面启动、空白状态、渲染沙箱");
   await page.getByRole("button", { name: "整理侧栏" }).click();
-  await page.getByRole("button", { name: "仅显示三大板块" }).click();
+  await page.getByRole("button", { name: "仅显示功能板块" }).click();
   assert.match(
     (await page.locator(".sidebar").getAttribute("class")) || "",
     /collapsed/,
@@ -248,7 +248,8 @@ try {
       httpOnly: true,
     });
   });
-  await page.getByRole("button", { name: "快报与提醒", exact: true }).click();
+  await page.getByRole("button", { name: "设置与数据", exact: true }).click();
+  await page.getByRole("button", { name: "早晚报与推送", exact: true }).click();
   await page.getByLabel("快报预览日期").fill("2026-09-24");
   await page
     .getByText("测试课程（合成数据）", { exact: true })

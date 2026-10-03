@@ -259,3 +259,16 @@ npm run dist:installer:ia32
 `electron/news-images.mjs` 提取封面，仅允许明确的学校域名和公开图片 CDN。主进程通过已收录文章 ID 请求图片，使用无凭据请求、拒绝重定向、6 秒超时及 2 MiB 输入上限；本机原生解码并缩放至 480 像素，JPEG 输出不超过 180 KB。最多缓存 24 个缩略图，离开账号上下文清空，登录变更或删除后丢弃迟到结果。界面仅呈现本地 data 图片，保持原 CSP，未增加远程图片域。正文不注入应用 DOM，继续以隔离原文窗口显示。
 
 界面比例参考 Linear 界面重设计（https://linear.app/now/how-we-redesigned-the-linear-ui）与 Fluent 2 字体层级（https://fluent2.microsoft.design/typography）：字体尺度与几何尺度分离，字体缩放限制为0.94—1.06；正文13—15px、页面标题20—24px，字号仍随可用空间变化。导航32px，列表图文采用左图右文，来源设置默认折叠，几何样式覆盖全部主题但保留各自配色。
+
+
+## V6 工作台与同步边界
+
+`src/domain/workhub.mjs` 定义项目、知识、修订、检索及操作记录；`electron/commands/workhub.mjs` 仅在主进程 Store.change 事务中写入，新命令统一经过账号门禁。`src/modules/research` 沿用模块注册与八主题，不读取任意本机文件。新库没有引入额外依赖。
+
+本地 schema 5 → 6 创建空 workhub，迁移前 Store 保留原文件。知识最多5000篇、单篇60000字符，历史20版；项目1000个；最近3000条操作记录；整个工作台上限1200万字符。所有更新校验 revision，过期编辑拒绝落盘。关联使用稳定ID，清单改名不影响关联，删除项目不会级联删除任务与专注。
+
+`cloudDocument` 保持线上 schema 5 和既有字段白名单，不上传 workhub。AccountSync 拉取保留本地 schema 6、工作台和当前计时；完整备份仍由 validateState 往返全部记录。后续若增加云科研同步，须独立设计用户授权、容量和旧客户端兼容，不能直接把正文加入现有摘要。
+
+Pi 的 `search_research` 工具只读，知识默认 aiVisible=false，每次检索读取当前 Store 权限；恢复修订会关闭授权。关闭助手附带上下文时不注册工具，也不带旧对话。已发送给模型的片段无法通过本机关闭授权撤回。
+
+验证入口：`npm test`、`npm run build`、`npm run test:workhub`；脚本也接受实际发行 Medstack.exe 路径。详细范围见 VALIDATION-V6.0.md。

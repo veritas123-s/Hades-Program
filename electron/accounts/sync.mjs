@@ -134,7 +134,11 @@ export class AccountSync {
           resolution === "remote")
       ) {
         this.backup(local, doc);
-        this.store.commit({ ...this.store.state, ...doc });
+        this.store.commit({
+          ...this.store.state,
+          ...doc,
+          schemaVersion: this.store.state.schemaVersion,
+        });
         this.settle(remote.version, remoteHash);
       } else {
         if (resolution === "local" && doc) this.backup(local, doc);

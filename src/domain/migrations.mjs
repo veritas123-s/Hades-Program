@@ -1,6 +1,8 @@
 import { initialWorkspace } from "../platform/model.mjs";
-export const CURRENT_DATA_VERSION = 5;
+import { initialHub } from "./workhub.mjs";
+export const CURRENT_DATA_VERSION = 6;
 const migrations = {
+  5: (data) => ({ ...data, schemaVersion: 6, workhub: data.workhub ?? initialHub() }),
   4: (data) => ({...data,schemaVersion:5,events:(data.events||[]).map(e=>({...e,allDay:!!e.allDay,calendarUid:e.calendarUid||''}))}),
   1: (data) => ({
     ...data,

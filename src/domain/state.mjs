@@ -6,9 +6,11 @@ import { DEFAULT_SETTINGS, settingsInput } from "./settings.mjs";
 import { emptyTimer } from "./timer.mjs";
 import { taskInput } from "./tasks.mjs";
 import { contentInput } from "./content.mjs";
+import { initialHub, validateHub } from "./workhub.mjs";
 export function initialState() {
   return {
     schemaVersion: CURRENT_DATA_VERSION,
+    workhub: initialHub(),
     workspace: initialWorkspace(),
     tasks: [],
     lists: [{ id: "list:收集箱", name: "收集箱", deletedAt: null }],
@@ -36,6 +38,7 @@ export function validateState(raw) {
   )
     throw new Error("备份格式或版本不支持");
   const state = initialState();
+  state.workhub = validateHub(raw.workhub);
   state.workspace = workspaceInput(raw.workspace);
   state.settings = settingsInput(raw.settings || {});
   const ids = new Set();

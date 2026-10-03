@@ -36,6 +36,8 @@ export default async function execute(action, p, { store }) {
         appearance: state.workspace.appearance,
         customThemes: state.workspace.customThemes,
         widgetData: state.workspace.widgetData,
+        navigation: state.workspace.navigation,
+        onboardingVersion: state.workspace.onboardingVersion,
       };
   });
 }

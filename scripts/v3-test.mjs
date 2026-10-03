@@ -57,7 +57,7 @@ try {
   }));
   assert.ok(["auto", "scroll"].includes(side.overflow));
   assert.ok(side.scroll > side.height);
-  await page.getByLabel("搜索任务", { exact: true }).fill("合成测试");
+  await page.getByLabel("搜索工作台", { exact: true }).fill("合成测试");
   assert.equal(
     await page
       .locator(".search input")
@@ -66,7 +66,7 @@ try {
   );
   await page.getByLabel("清空搜索").click();
   assert.equal(
-    await page.getByLabel("搜索任务", { exact: true }).inputValue(),
+    await page.getByLabel("搜索工作台", { exact: true }).inputValue(),
     "",
   );
   console.log("PASS 搜索焦点单层边框，图标固定方形，导航区域独立滚动");

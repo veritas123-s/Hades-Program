@@ -14,7 +14,13 @@ export const CLOUD_KEYS = [
 export const MAX_CLOUD_BYTES = 800 * 1024;
 export function cloudDocument(state) {
   const validated = validateState(state);
-  return Object.fromEntries(CLOUD_KEYS.map((key) => [key, validated[key]]));
+  // Existing server protocol remains v5. Research records stay account-local.
+  return Object.fromEntries(
+    CLOUD_KEYS.map((key) => [
+      key,
+      key === "schemaVersion" ? 5 : validated[key],
+    ]),
+  );
 }
 export function validateCloudDocument(document) {
   if (

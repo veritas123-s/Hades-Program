@@ -32,10 +32,14 @@ export default async function execute(
       broadcast();
       return assistant.status(store.state);
     }
-    const entry = await assistant.chat(p, {
-      ...store.state,
-      learning: learning?.status(),
-    });
+    const entry = await assistant.chat(
+      p,
+      {
+        ...store.state,
+        learning: learning?.status(),
+      },
+      () => store.state,
+    );
     if (
       workflows?.data.autoCommit &&
       entry.tasks.length &&

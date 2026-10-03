@@ -42,7 +42,7 @@ test("V2.1 原始数据升级不丢失任务和专注记录，迁移保存原文
     raw = JSON.stringify(s);
   fs.writeFileSync(path.join(d, "veritas-data.json"), raw);
   const store = new Store(d);
-  assert.equal(store.state.schemaVersion, 5);
+  assert.equal(store.state.schemaVersion, 6);
   assert.equal(store.state.logs[0].durationMs, 1500000);
   assert.deepEqual(store.state.logs[0].segments, s.logs[0].segments);
   assert.deepEqual(store.state.tasks, validateState(s).tasks);

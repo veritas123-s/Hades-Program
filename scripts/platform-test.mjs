@@ -29,17 +29,23 @@ async function start() {
   app = await launchAuthenticated({ args: [root], env, timeout: 30000 });
   page = await app.firstWindow();
   page.on("pageerror", (e) => errors.push(e.message));
+  const tour = page.getByRole("dialog", { name: "医栈通 新手教程" });
+  if (await tour.isVisible()) await tour.getByRole("button", {name:"跳过",exact:true}).click();
   await page.getByRole("heading", { name: "今天的安排" }).waitFor();
   await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].setSize(1400, 1000),
   );
 }
 async function go(name) {
+  if (name === "快报与提醒") {
+    await page.getByRole("button", { name: "设置与数据", exact: true }).click();
+    await page.getByRole("button", { name: "早晚报与推送", exact: true }).click(); return;
+  }
   await page.getByRole("button", { name, exact: true }).click();
 }
 async function workbench() {
   await page.getByRole("button", { name: "更换主题", exact: true }).click();
-  await page.getByRole("heading", { name: "一个工作台，多种可能" }).waitFor();
+  await page.getByRole("heading", { name: "主题与小组件" }).waitFor();
 }
 async function shot(name) {
   await page.evaluate(() => window.scrollTo(0, 0));
@@ -78,7 +84,7 @@ try {
     );
     await shot(`v12-${id}-themes.png`);
     await go("今日概览");
-    await page.locator('[data-calendar="unified"]').waitFor();
+    await page.locator('.overview-schedule').waitFor();
     await shot(`v12-${id}-overview.png`);
     assert.equal(
       await page.evaluate(
@@ -96,19 +102,19 @@ try {
   ok("三套主题即时切换，计时不中断，业务数据不重置");
   await call("timer", { action: "finish" });
   for (const [name, heading] of [
-    ["四象限", "重要的事，放在对的位置"],
+    ["四象限", "四象限"],
     ["专注空间", "专注空间"],
     ["校园与课表", "校园与课表"],
-    ["快报与提醒", "让计划，在恰当时刻抵达"],
+    ["快报与提醒", "快报"],
   ]) {
     await go(name);
     await page.getByRole("heading", { name: heading, exact: true }).waitFor();
     assert.equal(await page.locator(".module-error").count(), 0);
     await shot(`v12-dark-${name}.png`);
   }
-  await page.locator(".sidebar-bottom button").click();
+  await page.getByRole("button", { name: "设置与数据", exact: true }).click();
   await page
-    .getByRole("heading", { name: "适合你的，才是好节奏", exact: true })
+    .getByRole("heading", { name: "设置", exact: true })
     .waitFor();
   await shot("v12-dark-settings.png");
   await workbench();
@@ -125,11 +131,13 @@ try {
   await app.evaluate(({ BrowserWindow }) =>
     BrowserWindow.getAllWindows()[0].setSize(1400, 1000),
   );
+  await go("小组件");
   await go("隐藏本周投入");
   await go("添加随手记");
   await go("上移随手记");
   await page.getByLabel("随手记宽度", { exact: true }).selectOption("full");
   await go("今日概览");
+  await page.locator("summary").filter({hasText:"小组件"}).click();
   await page
     .getByLabel("随手记内容")
     .fill("V1.2 合成测试便笺：一个独立的小组件。");
@@ -152,9 +160,11 @@ try {
   );
   ok("首页小组件增减、排序、宽度与独立内容保存");
   await workbench();
+  await go("小组件");
   await go("隐藏随手记");
   await go("添加随手记");
   await go("今日概览");
+  await page.locator("summary").filter({hasText:"小组件"}).click();
   assert.equal(
     await page.getByLabel("随手记内容").inputValue(),
     savedWorkspace.widgetData["quick-note"].data.text,
@@ -193,6 +203,7 @@ try {
   await app.close();
   app = null;
   await start();
+  await page.locator("summary").filter({hasText:"小组件"}).click();
   await page.waitForFunction(
     () => document.documentElement.dataset.theme === "midnight",
   );

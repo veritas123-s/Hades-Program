@@ -7,6 +7,7 @@ for (const filename of ['VALIDATION-V3.1.html', 'VALIDATION-V4.0.html', 'VALIDAT
   if(fs.existsSync(file)) fs.unlinkSync(file);
 }
 const documents = {
+  "WORKHUB-GUIDE.md": "docs/WORKHUB-GUIDE.md",
   "USER-GUIDE.md": "docs/USER-GUIDE.md",
   "DEVELOPER-HANDBOOK.md": "docs/DEVELOPER-HANDBOOK.md",
   "WIDGET-GUIDE.md": "docs/WIDGET-GUIDE.md",

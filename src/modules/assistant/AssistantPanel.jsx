@@ -555,7 +555,7 @@ export default function AssistantPanel({
             checked={includeContext}
             onChange={(e) => setIncludeContext(e.target.checked)}
           />
-          附带任务与课表摘要
+          附带工作台摘要与已授权知识
         </label>
         <small>
           只发送必要字段；不发送账号、会话、成绩和任务长笔记。对话保留在本机。

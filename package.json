@@ -1,7 +1,7 @@
 {
   "name": "ai-veritas",
   "productName": "Medstack",
-  "version": "5.3.1",
+  "version": "6.0.0",
   "private": true,
   "description": "医栈通 · 医栈事，一站通",
   "author": "Medtrix",
@@ -24,7 +24,8 @@
     "test:security": "node scripts/security-redteam.mjs",
     "dist:installer": "npm run build && electron-builder --win nsis --x64 --config.electronDist=node_modules/electron/dist",
     "dist:installer:ia32": "npm run build && node scripts/prepare-ia32.mjs && electron-builder --win nsis --ia32 --config.electronVersion=43.7.5 --config.electronDist=.cache/electron-43.7.5-ia32",
-    "build:mobile-agent": "vite build --config vite.agent.config.js"
+    "build:mobile-agent": "vite build --config vite.agent.config.js",
+    "test:workhub": "node scripts/workhub-ui-test.mjs"
   },
   "dependencies": {
     "@earendil-works/pi-agent-core": "1.0.0",
@@ -47,7 +48,7 @@
     "appId": "local.ai.veritas",
     "productName": "Medstack",
     "directories": {
-      "output": "release-medstack-5.3.1"
+      "output": "release-medstack-6.0.0"
     },
     "files": [
       "dist/**/*",

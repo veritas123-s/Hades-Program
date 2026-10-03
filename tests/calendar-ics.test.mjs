@@ -40,7 +40,7 @@ test('拒绝过大输入、过长范围与高频重复，忽略邀请和网络�
 });
 test('全天与来源标识通过备份和第4版迁移保留，旧任务专注不改变',()=>{
  const s=initialState();s.schemaVersion=4;s.events=[eventInput({title:'全天',start:'2026-09-28T00:00',end:'2026-09-30T00:00',allDay:true,calendarUid:'sample-uid'})];
- const next=validateState(s);assert.equal(next.schemaVersion,5);assert.equal(next.events[0].calendarUid,'sample-uid');assert.equal(next.events[0].allDay,true);assert.deepEqual(next.logs,s.logs);assert.deepEqual(next.tasks,s.tasks);
+ const next=validateState(s);assert.equal(next.schemaVersion,6);assert.equal(next.events[0].calendarUid,'sample-uid');assert.equal(next.events[0].allDay,true);assert.deepEqual(next.logs,s.logs);assert.deepEqual(next.tasks,s.tasks);
 });
 test('预览不写入，确认去重，已删除与手工编辑不会被重复导入覆盖',async()=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'medstack-ics-')),store=new Store(dir),file=path.join(dir,'synthetic.ics');

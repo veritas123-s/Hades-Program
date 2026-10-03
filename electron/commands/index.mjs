@@ -15,9 +15,22 @@ import calendar from "./calendar.mjs";
 import { makeRouter } from "./router.mjs";
 import news from "./news.mjs";
 import links from "./links.mjs";
+import workhub from "./workhub.mjs";
 export function createCommandRouter(context) {
   return makeRouter(
     [
+      {
+        names: [
+          "hub.save",
+          "hub.delete",
+          "hub.restore",
+          "hub.link",
+          "hub.createTask",
+          "hub.createEvent",
+          "hub.noteRestore",
+        ],
+        execute: workhub,
+      },
       { names: ["link.open"], execute: links },
       {
         names: [

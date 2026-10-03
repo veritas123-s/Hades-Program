@@ -45,6 +45,7 @@ export default function App() {
     [focusTask, setFocusTask] = useState(""),
     [busy, setBusy] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [researchSelection, setResearchSelection] = useState(null);
   const setPage = (next) =>
     next === "assistant"
       ? setAssistantOpen(true)
@@ -55,6 +56,13 @@ export default function App() {
   const [foldedGroups, setFoldedGroups] = useState([]);
   const [manualKind, setManualKind] = useState(null);
   const [tourOpen, setTourOpen] = useState(false);
+  useEffect(() => {
+    setQuery("");
+    setResearchSelection(null);
+    setEditor(null);
+    setAssistantOpen(false);
+    setPageState("today");
+  }, [state?.account?.user?.id, state?.locked]);
   const [, setClock] = useState(0);
   useEffect(() => {
     const t = setInterval(() => setClock((x) => x + 1), 30000);
@@ -475,12 +483,13 @@ export default function App() {
             <Search size={16} />
             <input
               id="global-search"
-              aria-label="搜索任务"
-              placeholder="搜索任务与备注"
+              aria-label="搜索工作台"
+              placeholder="搜索项目、知识与任务"
+              maxLength={200}
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value);
-                setPage("tasks");
+                setPage("research-hub");
                 setFilter("active");
                 setProject("全部清单");
               }}
@@ -556,6 +565,9 @@ export default function App() {
                 startTour: () => setTourOpen(true),
                 openSidebarManager: () => setSidebarManagerOpen(true),
                 query,
+                setQuery,
+                researchSelection,
+                setResearchSelection,
                 active,
                 today,
                 todayMs,

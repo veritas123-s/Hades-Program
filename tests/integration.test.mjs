@@ -58,14 +58,14 @@ test("V1 数据迁移保留原文件并补齐截止钟点", () => {
   const raw = JSON.stringify(s);
   fs.writeFileSync(path.join(d, "veritas-data.json"), raw);
   const store = new Store(d);
-  assert.equal(store.state.schemaVersion, 5);
+  assert.equal(store.state.schemaVersion, 6);
   assert.equal(store.state.tasks[0].title, "旧任务");
   assert.equal(store.state.tasks[0].dueTime, "");
   const backup = fs
     .readdirSync(d)
     .find((x) => x.startsWith("veritas-data.pre-schema"));
   assert.equal(fs.readFileSync(path.join(d, backup), "utf8"), raw);
-  assert.equal(validateState(store.state).schemaVersion, 5);
+  assert.equal(validateState(store.state).schemaVersion, 6);
 });
 test("截止钟点必须有日期且是合法时间", () => {
   assert.throws(() =>

@@ -167,7 +167,7 @@ try {
   await open("四象限");
   await measure("长列表四象限");
   await page.getByRole("button", { name: "收起侧栏", exact: true }).click();
-  assert.equal(await page.locator(".sidebar nav > button").count(), 4);
+  assert.equal(await page.locator(".sidebar nav > button").count(), 5);
   await measure("收起侧栏");
   await page.getByRole("button", { name: "展开侧栏", exact: true }).click();
   await open("专注空间");

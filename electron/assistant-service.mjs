@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { apiBase, validModel } from "./assistant-connection.mjs";
 import { selectModel } from "../src/agenda.mjs";
 import { runPi, workspaceTool } from '../src/agent/pi-runtime.mjs';
+import { researchTool } from "../src/agent/research-tool.mjs";
 import {
   ASSISTANT_API,
   assistantMessages,
@@ -247,7 +248,7 @@ export class AssistantService {
     );
     fs.renameSync(this.file + ".tmp", this.file);
   }
-  async chat(input, state) {
+  async chat(input, state, readResearch = () => state) {
     return this.exclusive(async () => {
       const model = selectModel({
         defaultModel: this.secrets.data.model ?? "deepseek-chat",
@@ -276,7 +277,7 @@ export class AssistantService {
       try {
         result = await runPi({ model, messages, signal: controller.signal,
           request: body => this.request('/chat/completions', body),
-          tools: input.includeContext === false ? [] : [workspaceTool(() => assistantContext(state, this.now()))],
+          tools: input.includeContext === false ? [] : [workspaceTool(() => assistantContext(state, this.now())), researchTool(readResearch)],
         });
       } finally { this.agentController = null; }
       const content = result.text;
