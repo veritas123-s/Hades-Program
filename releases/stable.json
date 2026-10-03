@@ -1,20 +1,18 @@
 {
   "schema": 1,
-  "version": "6.0.1",
-  "publishedAt": "2026-10-03T08:35:24.469Z",
-  "title": "医栈通 V6.0.1",
+  "version": "6.0.2",
+  "publishedAt": "2026-10-03T09:58:01.179Z",
+  "title": "医栈通 V6.0.2",
   "notes": [
-    "校园快讯移到今日概览下方。",
-    "侧栏分类折叠后，仍显示当前页面所在的分类。",
-    "校园快讯改为图文列表，来源与原文入口和正文对齐。",
-    "首页时间、今日专注和今日截止放在同一区域。",
-    "统一工作台、项目管理和知识库的选中样式。"
+    "一键更新确认安装程序已启动后再退出；启动失败时保留应用并显示错误。",
+    "校园快讯新增我的订阅、关键词订阅、主题筛选及关键词和分类屏蔽。",
+    "设置中的鸣谢列出 SJTU Agent 开发者 kuan-er，安装包保留完整 MIT 许可。"
   ],
   "urgent": false,
   "downloads": {
     "windows": {
-      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v6.0.1/Medstack-Setup-6.0.1-x64.exe",
-      "sha256": "2698ff5458809ebd7c2d543dedde8a90ab5b858548bf11fec087f54eaa9e81be"
+      "url": "https://github.com/veritas123-s/Medstack-Program/releases/download/v6.0.2/Medstack-Setup-6.0.2-x64.exe",
+      "sha256": "24d5ff8be8bdef9c1122181277857437c3799991b394c5bcc6e4ab718e728ebb"
     }
   }
 }
