@@ -1,5 +1,6 @@
 import { UpdateBanner } from "./modules/settings/UpdateCenter.jsx";
 import BrandMark from "./shared/BrandMark.jsx";
+import { commandKey } from "./platform/shortcuts.mjs";
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { PanelProvider } from "./shared/Panel.jsx";
@@ -292,7 +293,7 @@ export default function App() {
         <button className="new-task" onClick={() => addTask()}>
           <Plus size={18} />
           <span>新建任务</span>
-          <kbd>Ctrl N</kbd>
+          <kbd>{commandKey()} N</kbd>
         </button>
         <div className="sidebar-scroll">
           <nav aria-label="主导航">
@@ -508,7 +509,7 @@ export default function App() {
                 <X size={15} />
               </button>
             )}
-            <kbd>Ctrl K</kbd>
+            <kbd>{commandKey()} K</kbd>
           </div>
           <button
             className="theme-shortcut"

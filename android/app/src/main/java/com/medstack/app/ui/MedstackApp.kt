@@ -2,6 +2,7 @@ package com.medstack.app.ui
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -59,6 +60,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.StrokeCap
 import com.medstack.app.R
 import com.medstack.app.BuildConfig
 import com.medstack.app.data.MedstackRepository
@@ -67,8 +72,8 @@ import com.medstack.app.data.MobileTask
 import java.time.LocalDate
 import kotlinx.coroutines.delay
 
-private enum class MobilePage(val title: String, val mark: String) {
-    Today("今日", "今"), Tasks("任务", "清"), Schedule("日程", "历"), Focus("专注", "钟"), Assistant("助手", "助"), Connection("连接", "云")
+private enum class MobilePage(val title: String) {
+    Today("今日"), Tasks("任务"), Schedule("日程"), Focus("专注"), More("更多"), Assistant("Poseidon"), Connection("账号与设置")
 }
 
 @Composable
@@ -86,12 +91,12 @@ fun MedstackApp(ui: MedstackUiState, repository: MedstackRepository) {
     var page by remember { mutableStateOf(MobilePage.Today) }
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                MobilePage.entries.forEach { item ->
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
+                listOf(MobilePage.Today, MobilePage.Tasks, MobilePage.Schedule, MobilePage.Focus, MobilePage.More).forEach { item ->
                     NavigationBarItem(
-                        selected = page == item,
+                        selected = page == item || (item == MobilePage.More && page in listOf(MobilePage.Assistant, MobilePage.Connection)),
                         onClick = { page = item },
-                        icon = { Text(item.mark, fontWeight = FontWeight.Bold) },
+                        icon = { NavigationIcon(item) },
                         label = { Text(item.title) },
                     )
                 }
@@ -100,6 +105,9 @@ fun MedstackApp(ui: MedstackUiState, repository: MedstackRepository) {
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             MobileHeader(ui, page, repository)
+            if (page in listOf(MobilePage.Assistant, MobilePage.Connection)) {
+                TextButton({ page = MobilePage.More }, modifier = Modifier.padding(horizontal = 12.dp)) { Text("返回更多") }
+            }
             UpdateBanner(updateStatus){updateStatus.release?.let{updateStatus=updates.dismiss(it)}}
             if (ui.message.isNotBlank()) {
                 Surface(
@@ -114,6 +122,7 @@ fun MedstackApp(ui: MedstackUiState, repository: MedstackRepository) {
                 MobilePage.Tasks -> TasksScreen(ui, repository)
                 MobilePage.Schedule -> ScheduleScreen(ui)
                 MobilePage.Focus -> FocusScreen(ui, repository)
+                MobilePage.More -> MoreScreen { page = it }
                 MobilePage.Assistant -> AssistantScreen(repository)
                 MobilePage.Connection -> ConnectionScreen(ui, repository, updateStatus, checkUpdates, updates)
             }
@@ -130,11 +139,11 @@ private fun AuthScreen(ui: MedstackUiState, repository: MedstackRepository) {
     Box(Modifier.fillMaxSize().imePadding().padding(24.dp), contentAlignment = Alignment.Center) {
         Card(
             modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState()),
-            shape = RoundedCornerShape(28.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         ) {
-            Column(Modifier.padding(28.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Image(painterResource(R.drawable.medstack_icon),contentDescription="Medstack",modifier=Modifier.size(64.dp))
+            Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Image(painterResource(R.drawable.medstack_icon),contentDescription="Medstack",modifier=Modifier.size(48.dp))
                 Text("医栈通 Medstack", style = MaterialTheme.typography.headlineLarge)
                 Text("医栈事，一站通", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (ui.needsVerification) {
@@ -344,6 +353,54 @@ private fun ConnectionScreen(ui: MedstackUiState, repository: MedstackRepository
 
 @Composable
 private fun SectionTitle(text: String) { Text(text, style = MaterialTheme.typography.titleLarge, modifier = Modifier.padding(top = 6.dp)) }
+
+@Composable
+private fun MoreScreen(open: (MobilePage) -> Unit) {
+    LazyColumn(contentPadding = PaddingValues(18.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        item {
+            Card(onClick = { open(MobilePage.Assistant) }, modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("Poseidon", style = MaterialTheme.typography.titleLarge)
+                    Text("任务草稿与学习问答", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+        item {
+            Card(onClick = { open(MobilePage.Connection) }, modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("账号与设置", style = MaterialTheme.typography.titleLarge)
+                    Text("同步与版本更新", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NavigationIcon(page: MobilePage) {
+    val color = MaterialTheme.colorScheme.onSurfaceVariant
+    Canvas(Modifier.size(24.dp)) {
+        val unit = size.width / 24f
+        val stroke = Stroke(1.7f * unit, cap = StrokeCap.Round)
+        fun line(x1: Float, y1: Float, x2: Float, y2: Float) = drawLine(color, Offset(x1 * unit, y1 * unit), Offset(x2 * unit, y2 * unit), 1.7f * unit, StrokeCap.Round)
+        when (page) {
+            MobilePage.Today -> {
+                drawCircle(color, 4f * unit, style = stroke)
+                for (i in 0..7) {
+                    val angle = Math.PI * i / 4
+                    line(12 + (7 * kotlin.math.cos(angle)).toFloat(), 12 + (7 * kotlin.math.sin(angle)).toFloat(), 12 + (9 * kotlin.math.cos(angle)).toFloat(), 12 + (9 * kotlin.math.sin(angle)).toFloat())
+                }
+            }
+            MobilePage.Tasks -> for (y in listOf(6f, 12f, 18f)) { line(4f, y, 5.5f, y + 1.5f); line(5.5f, y + 1.5f, 8f, y - 1.5f); line(12f, y, 21f, y) }
+            MobilePage.Schedule -> {
+                drawRoundRect(color, Offset(3f * unit, 5f * unit), Size(18f * unit, 16f * unit), androidx.compose.ui.geometry.CornerRadius(2f * unit), style = stroke)
+                line(3f, 10f, 21f, 10f); line(8f, 3f, 8f, 7f); line(16f, 3f, 16f, 7f)
+            }
+            MobilePage.Focus -> { drawCircle(color, 9f * unit, style = stroke); line(12f, 6f, 12f, 12f); line(12f, 12f, 16f, 14f) }
+            else -> for (x in listOf(6f, 18f)) for (y in listOf(6f, 18f)) drawCircle(color, 2f * unit, Offset(x * unit, y * unit), style = stroke)
+        }
+    }
+}
 
 @Composable
 private fun EmptyCard(text: String) {

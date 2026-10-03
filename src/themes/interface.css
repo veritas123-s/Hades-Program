@@ -373,3 +373,88 @@
 .news-filter {
   margin: 8px 0 12px;
 }
+
+/* Shared controls and reading surfaces across every module and theme. */
+:root[data-theme] {
+  --ui-control-height: 34px;
+  --ui-focus: color-mix(in srgb, var(--accent) 22%, transparent);
+}
+:root[data-theme]
+  :is(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+:root[data-theme]
+  :is(input, select, textarea):not([type="checkbox"]):not([type="radio"]) {
+  border-radius: var(--ui-radius);
+  border-color: var(--ui-line);
+  color: var(--text);
+  caret-color: var(--accent);
+}
+:root[data-theme] :is(input, select, textarea):disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+:root[data-theme] .button {
+  min-height: var(--ui-control-height);
+  border-radius: var(--ui-radius);
+  border-color: var(--ui-line);
+  font-weight: 500;
+  box-shadow: none;
+}
+:root[data-theme] .button.primary {
+  border-color: var(--accent);
+}
+:root[data-theme] .button.small {
+  min-height: 28px;
+}
+:root[data-theme] .button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+:root[data-theme] .modal {
+  border: 1px solid var(--ui-line);
+  border-radius: 12px;
+  max-width: calc(100vw - 40px);
+  box-shadow: 0 16px 60px color-mix(in srgb, var(--text) 16%, transparent);
+}
+:root[data-theme] .modal > header h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+:root[data-theme] :is(.modal form > label, .form-grid label) {
+  font-size: 13px;
+  line-height: 1.5;
+}
+:root[data-theme] :is(.settings-grid h2, .panel h2) {
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+:root[data-theme]
+  :is(.calendar-grid, .calendar-toolbar, .focus-card, .assistant-panel) {
+  border-color: var(--ui-line);
+}
+:root[data-theme] :is(.task-row, .hub-project-row, .overview-row):hover {
+  background-color: var(--ui-hover);
+}
+:root[data-theme] :is(.focus-time, .overview-metric, .stat strong) {
+  font-variant-numeric: tabular-nums;
+}
+:root[data-theme] :is(.modal, .assistant-panel, .page-viewport) {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+:root[data-theme] ::selection {
+  background: var(--ui-selection);
+  color: var(--text);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root[data-theme] *,
+  :root[data-theme] *::before,
+  :root[data-theme] *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

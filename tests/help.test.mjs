@@ -14,7 +14,12 @@ import { requireAccount } from "../electron/accounts/access.mjs";
 test("公开帮助仅能打开随包固定文档，不能访问个人目录或任意网址", async () => {
   const app = {
     isPackaged: true,
-    getPath: () => path.resolve("synthetic/Medstack.exe"),
+    getPath: () =>
+      path.resolve(
+        process.platform === "darwin"
+          ? "synthetic/Medstack.app/Contents/MacOS/Medstack"
+          : "synthetic/Medstack.exe",
+      ),
   };
   requireAccount(null, "help.open");
   requireAccount(null, "help.read");
@@ -40,7 +45,14 @@ test("公开帮助仅能打开随包固定文档，不能访问个人目录或�
     },
     "user",
   );
-  assert.equal(opened, path.resolve("synthetic/帮助文档/USER-GUIDE.html"));
+  assert.equal(
+    opened,
+    path.resolve(
+      process.platform === "darwin"
+        ? "synthetic/Medstack.app/Contents/帮助文档/USER-GUIDE.html"
+        : "synthetic/帮助文档/USER-GUIDE.html",
+    ),
+  );
   await assert.rejects(
     openHelp(app, { openPath: async () => "missing" }, "developer"),
     /未能打开/,

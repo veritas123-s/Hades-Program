@@ -1,0 +1,57 @@
+name: Medstack macOS packages
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/medstack-cross-platform]
+    paths:
+      - "src/**"
+      - "electron/**"
+      - "build/**"
+      - "assets/**"
+      - "package*.json"
+      - "scripts/**"
+      - ".github/workflows/macos.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            runner: macos-15-intel
+          - arch: arm64
+            runner: macos-15
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Verify source
+        run: npm test
+      - name: Build native DMG
+        run: npm run build && npx electron-builder --mac dmg --${{ matrix.arch }} --publish never
+      - name: Mount, verify signature and run packaged app
+        env:
+          MEDSTACK_EXPECTED_ARCH: ${{ matrix.arch }}
+        run: node scripts/macos-package-smoke.mjs
+      - name: Exercise projects, notes and themes in the installed app
+        run: node scripts/workhub-ui-test.mjs "$RUNNER_TEMP/medstack-installed/Medstack.app/Contents/MacOS/Medstack"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Medstack-macOS-${{ matrix.arch }}
+          path: |
+            release-medstack-*/*.dmg
+            test-results/macos/
+            test-results/workhub*
+          if-no-files-found: error
+          retention-days: 14

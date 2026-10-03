@@ -1,0 +1,11 @@
+{
+  "title": "医栈通 V6.1.0",
+  "platforms": ["windows", "android", "macos_x64", "macos_arm64"],
+  "notes": [
+    "统一桌面按钮、表单、对话框和键盘焦点，保留八款主题与个人背景。",
+    "恢复安卓版，调整底部导航、字号和登录页，深色显示跟随系统。",
+    "新增 macOS Intel 与 Apple 芯片 DMG，支持原生菜单、Command 快捷键、Dock 再打开与离线帮助。",
+    "更新下载按当前平台和芯片选择安装包；Android 沿用原包名与发布证书。",
+    "macOS 包采用 ad-hoc 签名，尚未取得 Apple Developer ID 签名和 Apple 公证。"
+  ]
+}

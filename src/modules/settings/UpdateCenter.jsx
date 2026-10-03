@@ -71,7 +71,8 @@ export function UpdateBanner({ updates, call }) {
         <InstallUpdate updates={updates} call={call} />
         <button
           className="button"
-          onClick={() => call("updates.download", { platform: "windows" })}
+          onClick={() => call("updates.download")}
+          disabled={!updates.release.downloads[updates.platform]}
         >
           下载新版
         </button>
@@ -132,7 +133,14 @@ export default function UpdateCenter({ updates, call, toast, userId }) {
                 className="button"
                 onClick={() => call("updates.download", { platform })}
               >
-                {platform === "windows" ? "Windows 安装包" : "安卓安装包"}
+                {
+                  {
+                    windows: "Windows 安装包",
+                    android: "安卓安装包",
+                    macos_x64: "macOS · Intel",
+                    macos_arm64: "macOS · Apple 芯片",
+                  }[platform]
+                }
               </button>
             ))}
           </div>

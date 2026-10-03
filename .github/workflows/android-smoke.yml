@@ -11,8 +11,6 @@ permissions:
   actions: read
 jobs:
   smoke:
-    # Archived platform; do not run without a new explicit owner decision.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -23,7 +21,7 @@ jobs:
           java-version: "17"
       - uses: actions/download-artifact@v4
         with:
-          name: Medstack-5.1.2-Android-unsigned
+          name: Medstack-Android-unsigned
           run-id: ${{ inputs.build_run }}
           github-token: ${{ github.token }}
           path: test-input

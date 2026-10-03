@@ -14,6 +14,23 @@ export function newerVersion(candidate, installed) {
   for (let i = 0; i < 3; i++) if (a[i] !== b[i]) return a[i] > b[i];
   return false;
 }
+export const RELEASE_PLATFORMS = [
+  "windows",
+  "android",
+  "macos_x64",
+  "macos_arm64",
+];
+export function releaseFilename(version, platform) {
+  versionParts(version);
+  const filenames = {
+    windows: `Medstack-Setup-${version}-x64.exe`,
+    android: `Medstack-${version}-Android.apk`,
+    macos_x64: `Medstack-${version}-macOS-x64.dmg`,
+    macos_arm64: `Medstack-${version}-macOS-arm64.dmg`,
+  };
+  if (!Object.hasOwn(filenames, platform)) throw Error("不支持的发行平台");
+  return filenames[platform];
+}
 export function validateRelease(input) {
   if (!input || input.schema !== 1) throw Error("更新公告格式无效");
   versionParts(input.version);
@@ -39,13 +56,10 @@ export function validateRelease(input) {
   )
     throw Error("更新内容无效");
   const downloads = {};
-  for (const platform of ["windows", "android"]) {
+  for (const platform of RELEASE_PLATFORMS) {
     const item = input.downloads?.[platform];
     if (!item) continue;
-    const filename =
-      platform === "windows"
-        ? `Medstack-Setup-${input.version}-x64.exe`
-        : `Medstack-${input.version}-Android.apk`;
+    const filename = releaseFilename(input.version, platform);
     const expected = `https://github.com/veritas123-s/Medstack-Program/releases/download/v${input.version}/${filename}`;
     if (item.url !== expected || !/^[a-f0-9]{64}$/.test(item.sha256 || ""))
       throw Error("下载地址或校验值无效");

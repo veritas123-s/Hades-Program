@@ -2,14 +2,22 @@ name: Android build
 
 on:
   workflow_dispatch:
+  push:
+    branches: [codex/medstack-cross-platform]
+    paths:
+      [
+        "android/**",
+        "src/agent/**",
+        "package*.json",
+        "vite.agent.config.js",
+        ".github/workflows/android.yml",
+      ]
 
 permissions:
   contents: read
 
 jobs:
   build:
-    # Android development and support stopped by the owner on 2026-10-03.
-    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

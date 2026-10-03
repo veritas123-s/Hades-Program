@@ -2,14 +2,14 @@ import path from "node:path";
 import fs from "node:fs/promises";
 
 // Public, bundled documentation only. Never accept a path or URL from the renderer.
-export function helpPath(app, kind) {
+export function helpPath(app, kind, platform = process.platform) {
   const names = {
     user: "USER-GUIDE.html",
     developer: "DEVELOPER-HANDBOOK.html",
   };
   if (!Object.hasOwn(names, kind)) throw Error("未知帮助文档");
   const directory = app.isPackaged
-    ? path.join(path.dirname(app.getPath("exe")), "帮助文档")
+    ? bundledHelpDirectory(app, platform)
     : path.join(app.getAppPath(), "docs", "offline");
   return path.join(directory, names[kind]);
 }
@@ -20,13 +20,21 @@ export async function openHelp(app, shell, kind) {
   return { ok: true };
 }
 
-export function helpMarkdownPath(app, kind) {
+export function helpMarkdownPath(app, kind, platform = process.platform) {
   const names = { user: "USER-GUIDE.md", developer: "DEVELOPER-HANDBOOK.md" };
   if (!Object.hasOwn(names, kind)) throw Error("未知帮助文档");
   const directory = app.isPackaged
-    ? path.join(path.dirname(app.getPath("exe")), "帮助文档")
+    ? bundledHelpDirectory(app, platform)
     : path.join(app.getAppPath(), "docs");
   return path.join(directory, names[kind]);
+}
+
+function bundledHelpDirectory(app, platform) {
+  const directory = path.dirname(app.getPath("exe"));
+  return path.join(
+    platform === "darwin" ? path.dirname(directory) : directory,
+    "帮助文档",
+  );
 }
 
 export async function readHelp(app, kind) {

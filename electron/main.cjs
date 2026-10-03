@@ -20,7 +20,7 @@ const fs = require("node:fs");
 const { pathToFileURL } = require("node:url");
 const APP_VERSION = app.getVersion();
 app.setName(`医栈通 Medstack V${APP_VERSION}`);
-app.setAppUserModelId("local.ai.veritas");
+if (process.platform === "win32") app.setAppUserModelId("local.ai.veritas");
 const testMode = process.env.VERITAS_TEST === "1";
 if (testMode && process.env.VERITAS_TEST_DATA)
   app.setPath("userData", process.env.VERITAS_TEST_DATA);
@@ -77,6 +77,7 @@ const broadcast = () => {
     win.webContents.send("veritas:state", snapshot());
 };
 function show() {
+  if (store && (!win || win.isDestroyed())) createWindow();
   if (win && !win.isDestroyed()) {
     win.show();
     win.focus();
@@ -117,7 +118,11 @@ function createWindow() {
     if (url !== "veritas://app/index.html") e.preventDefault();
   });
   win.on("close", (e) => {
-    if (!quitting && store.state.settings.closeToTray && tray) {
+    if (
+      !quitting &&
+      (process.platform === "darwin" ||
+        (store.state.settings.closeToTray && tray))
+    ) {
       e.preventDefault();
       win.hide();
     } else if (!quitting) {
@@ -506,6 +511,24 @@ else {
         getWindow: () => win,
       });
       createWindow();
+      if (process.platform === "darwin") {
+        const { macMenuTemplate } = await import("./platform.mjs");
+        const { openHelp } = await import("./help.mjs");
+        Menu.setApplicationMenu(
+          Menu.buildFromTemplate(
+            macMenuTemplate("Medstack", show, (kind) => {
+              openHelp(app, shell, kind).catch((error) =>
+                dialog.showErrorBox("帮助文档", error.message),
+              );
+            }),
+          ),
+        );
+        app.setAboutPanelOptions({
+          applicationName: "Medstack",
+          applicationVersion: APP_VERSION,
+          copyright: "Medtrix",
+        });
+      }
       if (!testMode) {
         updates.check().catch(() => {});
         setInterval(
@@ -653,6 +676,7 @@ else {
       }
   });
   app.on("window-all-closed", () => {
-    if (!tray) app.quit();
+    if (!tray && process.platform !== "darwin") app.quit();
   });
+  app.on("activate", show);
 }

@@ -2,7 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { validateRelease } from "../src/releases.mjs";
+import {
+  validateRelease,
+  releaseFilename,
+  RELEASE_PLATFORMS,
+} from "../src/releases.mjs";
 const pkg = JSON.parse(fs.readFileSync("package.json")),
   version = pkg.version;
 const notes = JSON.parse(
@@ -11,11 +15,16 @@ const notes = JSON.parse(
 const directory = path.resolve(pkg.build.directories.output),
   assets = [],
   downloads = {};
-for (const platform of ["windows"]) {
-  const name =
-    platform === "windows"
-      ? `Medstack-Setup-${version}-x64.exe`
-      : `Medstack-${version}-Android.apk`;
+const platforms = notes.platforms || ["windows"];
+if (
+  !Array.isArray(platforms) ||
+  !platforms.length ||
+  new Set(platforms).size !== platforms.length ||
+  platforms.some((platform) => !RELEASE_PLATFORMS.includes(platform))
+)
+  throw Error("发行平台清单无效");
+for (const platform of platforms) {
+  const name = releaseFilename(version, platform);
   const file = path.join(directory, name),
     bytes = fs.readFileSync(file),
     sha256 = crypto.createHash("sha256").update(bytes).digest("hex");

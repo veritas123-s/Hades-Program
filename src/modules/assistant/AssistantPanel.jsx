@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { QUADRANTS } from "../../domain.mjs";
 import { ASSISTANT_API } from "../../assistant.mjs";
+import { commandKey } from "../../platform/shortcuts.mjs";
 
 function DraftBatch({ entry, run, busy, onBriefing }) {
   const [drafts, setDrafts] = useState(() =>
@@ -575,7 +576,7 @@ export default function AssistantPanel({
           }}
         />
         <div>
-          <small>Ctrl + Enter 发送</small>
+          <small>{commandKey()} + Enter 发送</small>
           {busy ? (
             <button
               type="button"

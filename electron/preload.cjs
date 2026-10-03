@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("veritas", {
+  platform: process.platform,
   call: (action, payload) =>
     ipcRenderer.invoke("veritas:call", action, payload),
   subscribe: (callback) => {

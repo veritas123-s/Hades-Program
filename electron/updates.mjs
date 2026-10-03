@@ -5,6 +5,7 @@ import {
   validateRelease,
   newerVersion,
 } from "../src/releases.mjs";
+import { releasePlatform } from "./platform.mjs";
 export class Updates {
   constructor({
     directory,
@@ -15,6 +16,7 @@ export class Updates {
     open = () => {},
     clock = () => Date.now(),
     installer,
+    platform = releasePlatform(),
   }) {
     Object.assign(this, {
       version,
@@ -24,6 +26,7 @@ export class Updates {
       open,
       clock,
       installer,
+      platform,
     });
     this.file = path.join(directory, "medstack-updates.json");
     this.data = { dismissed: [], release: null, checkedAt: null };
@@ -44,6 +47,7 @@ export class Updates {
     const release = this.data.release;
     return {
       installed: this.version,
+      platform: this.platform,
       release,
       available: !!release && newerVersion(release.version, this.version),
       dismissed: !!release && this.data.dismissed.includes(release.version),
@@ -119,6 +123,19 @@ export class Updates {
         release = await this.read(
           this.provider.origin + "/api/releases/latest",
         );
+        // Older server catalogs can filter out newly supported platforms.
+        if (this.platform && !release?.downloads[this.platform]) {
+          try {
+            const alternate = await this.read(RELEASE_FEED);
+            if (
+              alternate?.downloads[this.platform] &&
+              (!release || !newerVersion(release.version, alternate.version))
+            )
+              release = alternate;
+          } catch {
+            // Keep the valid primary catalog if the public fallback is offline.
+          }
+        }
       } catch {
         release = await this.read(RELEASE_FEED);
       }
@@ -153,7 +170,7 @@ export class Updates {
       });
     return this.status();
   }
-  download(platform = "windows") {
+  download(platform = this.platform) {
     const release = this.data.release;
     if (!release) throw Error("暂无可下载版本");
     const item = validateRelease(release).downloads[platform];

@@ -1,7 +1,7 @@
 {
   "name": "ai-veritas",
   "productName": "Medstack",
-  "version": "6.0.2",
+  "version": "6.1.0",
   "private": true,
   "description": "医栈通 · 医栈事，一站通",
   "author": "Medtrix",
@@ -25,7 +25,9 @@
     "dist:installer": "npm run build && electron-builder --win nsis --x64 --config.electronDist=node_modules/electron/dist",
     "dist:installer:ia32": "npm run build && node scripts/prepare-ia32.mjs && electron-builder --win nsis --ia32 --config.electronVersion=43.7.5 --config.electronDist=.cache/electron-43.7.5-ia32",
     "build:mobile-agent": "vite build --config vite.agent.config.js",
-    "test:workhub": "node scripts/workhub-ui-test.mjs"
+    "test:workhub": "node scripts/workhub-ui-test.mjs",
+    "dist:mac": "npm run build && electron-builder --mac dmg",
+    "test:interface": "node scripts/interface-ui-test.mjs"
   },
   "dependencies": {
     "@earendil-works/pi-agent-core": "1.0.0",
@@ -48,7 +50,7 @@
     "appId": "local.ai.veritas",
     "productName": "Medstack",
     "directories": {
-      "output": "release-medstack-6.0.2"
+      "output": "release-medstack-6.1.0"
     },
     "files": [
       "dist/**/*",
@@ -126,6 +128,38 @@
         "from": "docs/DEVELOPER-HANDBOOK.md",
         "to": "帮助文档/DEVELOPER-HANDBOOK.md"
       }
-    ]
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.productivity",
+      "artifactName": "Medstack-${version}-macOS-${arch}.${ext}",
+      "icon": "assets/icon.png",
+      "minimumSystemVersion": "12.0",
+      "identity": "-",
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": false
+    },
+    "dmg": {
+      "title": "Medstack ${version}",
+      "artifactName": "Medstack-${version}-macOS-${arch}.${ext}",
+      "window": {
+        "width": 560,
+        "height": 360
+      },
+      "contents": [
+        {
+          "x": 160,
+          "y": 170
+        },
+        {
+          "x": 400,
+          "y": 170,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
   }
 }

@@ -47,6 +47,7 @@ test("公告检查不带令牌，离线保留、版本去重、下一版本再�
     offline = false;
   const opened = [];
   const options = {
+    platform: "windows",
     directory,
     version: "5.1.0",
     provider: {

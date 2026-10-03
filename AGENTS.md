@@ -1,6 +1,6 @@
 # Medstack development
 
-Windows Electron + React。主进程在 electron/，中文界面与领域模型在 src/。2026-10-03 用户明确停止 Android 开发与支持；android/ 仅保留历史归档，不再构建、发行或要求桌面与安卓版本同步。
+桌面采用 Electron + React，支持 Windows 与 macOS；Android 使用原生 Compose。主进程在 electron/，中文界面与领域模型在 src/。2026-10-03 用户重新明确要求安卓版及 macOS DMG，恢复 Android 构建与支持，替代本日早先停止 Android 的决定。macOS 分 Intel x64 与 Apple Silicon arm64 验证，不声称未完成的 Apple 公证。
 
 - 面向用户的标题、版本公告、更新说明只写名称、版本号和具体变化。不要添加“界面精修”“体验升级”等自我评价或解释性副标题；必要的使用提示、限制和验证信息保留。
 
@@ -14,4 +14,4 @@ Windows Electron + React。主进程在 electron/，中文界面与领域模型�
 - 新增功能使用已有模块/小组件架构，保留七主题与自定义主题兼容。
 - 个人功能必须登录后使用；新模块默认经过主进程账号检查，未登录快照不可包含个人数据。保留旧数据与加密上下文，明确迁移后归入单一账号，禁止跨账号复用密钥。
 
-- 完成 Windows 新版构建及发行验证后，使用 scripts/publish-release.mjs 上传 Windows 安装包到 GitHub Release，核验 SHA256，再提交 releases/stable.json 并同步服务器公告；不再发布 Android 更新。仅公开版本信息，不群发给未订阅用户。旧客户端首次切换至V5.1后才能收到后续应用内更新。
+- 完成 Windows 新版构建及发行验证后，使用 scripts/publish-release.mjs 上传各已验证平台安装包到 GitHub Release，核验 SHA256，再提交 releases/stable.json 并同步服务器公告；Android 沿用 com.medstack.app 和原发布证书，密钥不得上传。仅公开版本信息，不群发给未订阅用户。旧客户端首次切换至V5.1后才能收到后续应用内更新。
