@@ -120,6 +120,11 @@ try {
     name: app.getName(),
   }));
   assert.equal(native.arch, arch);
+  assert.equal(
+    native.name,
+    "Medstack",
+    "Keychain application name must not contain the version",
+  );
   for (const role of ["quit", "copy", "paste", "undo", "services"])
     assert.ok(native.roles.includes(role), role);
   const help = await page.evaluate(() =>

@@ -19,7 +19,13 @@ const path = require("node:path");
 const fs = require("node:fs");
 const { pathToFileURL } = require("node:url");
 const APP_VERSION = app.getVersion();
-app.setName(`医栈通 Medstack V${APP_VERSION}`);
+// macOS safeStorage uses the application name for its Keychain service.
+// Keep it stable across upgrades so existing encrypted account vaults remain readable.
+app.setName(
+  process.platform === "darwin"
+    ? "Medstack"
+    : `医栈通 Medstack V${APP_VERSION}`,
+);
 if (process.platform === "win32") app.setAppUserModelId("local.ai.veritas");
 const testMode = process.env.VERITAS_TEST === "1";
 if (testMode && process.env.VERITAS_TEST_DATA)
