@@ -48,6 +48,8 @@ jobs:
         run: node scripts/workhub-ui-test.mjs "$RUNNER_TEMP/medstack-installed/Medstack.app/Contents/MacOS/Medstack"
       - name: Verify shared news and server countdown in the installed app
         run: node scripts/shared-news-ui-test.mjs "$RUNNER_TEMP/medstack-installed/Medstack.app/Contents/MacOS/Medstack"
+      - name: Verify topic subscriptions and removed keyword input in the installed app
+        run: node scripts/news-preferences-ui-test.mjs "$RUNNER_TEMP/medstack-installed/Medstack.app/Contents/MacOS/Medstack"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -57,5 +59,7 @@ jobs:
             test-results/macos/
             test-results/workhub*
             test-results/shared-news/
+            test-results/news-preferences-ui.json
+            test-results/news-subscriptions.png
           if-no-files-found: error
           retention-days: 14

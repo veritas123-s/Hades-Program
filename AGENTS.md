@@ -1,5 +1,7 @@
 # Medstack development
 
+- 产品界面、默认内容、教程、测试与演示统一使用通用校园情境，禁止引用个人课题、真实研究资料、个人账号或身份信息作为示例。
+
 桌面采用 Electron + React，支持 Windows 与 macOS；Android 使用原生 Compose。主进程在 electron/，中文界面与领域模型在 src/。2026-10-03 用户重新明确要求安卓版及 macOS DMG，恢复 Android 构建与支持，替代本日早先停止 Android 的决定。macOS 分 Intel x64 与 Apple Silicon arm64 验证，不声称未完成的 Apple 公证。
 
 - 面向用户的标题、版本公告、更新说明只写名称、版本号和具体变化。不要添加“界面精修”“体验升级”等自我评价或解释性副标题；必要的使用提示、限制和验证信息保留。

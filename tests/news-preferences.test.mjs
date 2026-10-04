@@ -9,7 +9,7 @@ const now = Date.now();
 const rows = [
   {
     id: "a",
-    title: "IgG4 学术讲座",
+    title: "校园学术讲座",
     source: "合成学校",
     publishedAt: now - 3600000,
   },
@@ -20,12 +20,11 @@ const rows = [
     source: "合成学校",
     publishedAt: now - 2000,
   },
-  { id: "d", title: "IgG4 论文", deletedAt: 1, publishedAt: now },
+  { id: "d", title: "校园科研论文", deletedAt: 1, publishedAt: now },
 ];
-test("订阅按关键词与主题匹配排序，屏蔽优先且删除项不再出现", () => {
+test("订阅按主题匹配排序，屏蔽优先且删除项不再出现", () => {
   const prefs = {
-    keywords: ["igg4"],
-    subscribedCategories: ["opportunity"],
+    subscribedCategories: ["academic", "opportunity"],
     blockedKeywords: ["报名"],
   };
   assert.deepEqual(
@@ -39,17 +38,18 @@ test("订阅按关键词与主题匹配排序，屏蔽优先且删除项不再�
   assert.equal(selectNews(rows, {}, { subscribed: true }).length, 0);
   assert.equal(rows[0].categories, undefined);
 });
-test("筛选参数限制与Unicode关键词匹配", () => {
-  assert.throws(() => newsPreferences({ keywords: "wrong" }));
+test("保留屏蔽词Unicode匹配，旧订阅关键词不再参与筛选或持久化", () => {
+  assert.equal(newsPreferences({ keywords: ["legacy"] }).keywords, undefined);
+  assert.equal(selectNews(rows, { keywords: ["校园"] }, { subscribed: true }).length, 0);
+  assert.throws(() => newsPreferences({ blockedKeywords: "wrong" }));
   assert.throws(() => newsPreferences({ blockedCategories: ["unknown"] }));
-  assert.throws(() => newsPreferences({ keywords: ["x".repeat(41)] }));
+  assert.throws(() => newsPreferences({ blockedKeywords: ["x".repeat(41)] }));
   assert.equal(
     selectNews(
-      [{ title: "ＩｇＧ４", publishedAt: now }],
-      { keywords: ["igG4"] },
-      { subscribed: true },
+      [{ title: "ＣＡＭＰＵＳ", publishedAt: now }],
+      { blockedKeywords: ["campus"] },
     ).length,
-    1,
+    0,
   );
 });
 test("账号订阅可持久化与重置，屏蔽不修改文章或已关注来源，失败回滚", () => {
@@ -67,7 +67,7 @@ test("账号订阅可持久化与重置，屏蔽不修改文章或已关注来�
     service.follow({ name: "合成科研组织" });
     const original = JSON.stringify(service.data.items),
       sources = service.sources();
-    service.configure({ preferences: { keywords: ["IgG4"] } });
+    service.configure({ preferences: { subscribedCategories: ["academic"] } });
     const restored = new NewsService({ directory });
     assert.equal(restored.status().subscriptions.length, 1);
     restored.configure({ preferences: {} });
@@ -78,7 +78,7 @@ test("账号订阅可持久化与重置，屏蔽不修改文章或已关注来�
       throw Error("synthetic write failure");
     };
     assert.throws(() =>
-      service.configure({ preferences: { keywords: ["other"] } }),
+      service.configure({ preferences: { subscribedCategories: ["study"] } }),
     );
     assert.equal(JSON.stringify(service.data), before);
     const locked = new NewsService({ directory, allowed: () => false });

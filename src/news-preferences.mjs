@@ -48,7 +48,6 @@ export function newsPreferences(input = {}) {
     return [...new Set(values.map((v) => v.trim()))];
   };
   return {
-    keywords: list("keywords"),
     blockedKeywords: list("blockedKeywords"),
     subscribedCategories: list("subscribedCategories", true),
     blockedCategories: list("blockedCategories", true),
@@ -80,23 +79,17 @@ export function selectNews(
       preferences.blockedCategories.some((id) => categories.includes(id))
     )
       continue;
-    const keywords = preferences.keywords.filter((word) =>
-      text.includes(normalize(word)),
-    );
     const topics = preferences.subscribedCategories.filter((id) =>
       categories.includes(id),
     );
-    if (subscribed && !keywords.length && !topics.length) continue;
+    if (subscribed && !topics.length) continue;
     const ageHours = Math.max(0, (now - item.publishedAt) / 3600000);
     const score = Math.min(
       1,
-      keywords.length *
-        Math.log(1 + 10 / Math.max(1, preferences.keywords.length)) *
-        0.3 +
-        topics.length * 0.5 +
+      topics.length * 0.5 +
         (ageHours < 2 ? 0.2 : ageHours < 6 ? 0.1 : ageHours < 12 ? 0.05 : 0),
     );
-    selected.push({ ...item, categories, matchedKeywords: keywords, score });
+    selected.push({ ...item, categories, score });
   }
   return selected.sort(
     (a, b) =>

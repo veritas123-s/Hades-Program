@@ -15,10 +15,11 @@ fs.mkdirSync(profile, { recursive: true });
 const news = {
   version: 1,
   automatic: false,
+  preferences: { keywords: ["旧订阅词"] },
   items: [
     {
       id: "academic",
-      title: "合成 IgG4 学术讲座",
+      title: "合成校园学术讲座",
       excerpt: "合成科研消息",
       source: "合成学校",
       publishedAt: Date.now() - 60000,
@@ -35,7 +36,7 @@ const news = {
     },
     {
       id: "deleted",
-      title: "合成 IgG4 旧论文",
+      title: "合成校园旧论文",
       source: "合成学校",
       deletedAt: 1,
       publishedAt: Date.now() - 180000,
@@ -68,12 +69,8 @@ try {
   await page
     .getByRole("button", { name: "展开筛选与订阅", exact: true })
     .click();
-  await page.getByLabel("订阅关键词", { exact: true }).fill("igG4");
-  await page.waitForTimeout(2200);
-  assert.equal(
-    await page.getByLabel("订阅关键词", { exact: true }).inputValue(),
-    "igG4",
-  );
+  assert.equal(await page.getByLabel("订阅关键词", { exact: true }).count(), 0);
+  await page.getByLabel("订阅学术科研", { exact: true }).check();
   await page.getByRole("button", { name: "保存订阅", exact: true }).click();
   await page.getByRole("button", { name: "我的订阅", exact: true }).click();
   await page.locator(".news-article-row:visible").first().waitFor();
@@ -91,6 +88,7 @@ try {
   );
   assert.equal(raw.items.length, 3);
   assert.equal(raw.items.find((x) => x.id === "deleted").deletedAt, 1);
+  assert.equal(raw.preferences.keywords, undefined);
   await app.close();
   app = await launchAuthenticated(options);
   page = await openNews();
@@ -98,10 +96,8 @@ try {
   await page
     .getByRole("button", { name: "展开筛选与订阅", exact: true })
     .click();
-  assert.equal(
-    await page.getByLabel("订阅关键词", { exact: true }).inputValue(),
-    "igG4",
-  );
+  assert.equal(await page.getByLabel("订阅关键词", { exact: true }).count(), 0);
+  assert.ok(await page.getByLabel("订阅学术科研", { exact: true }).isChecked());
   assert.ok(await page.getByLabel("屏蔽学术科研").isChecked());
   await page.getByRole("button", { name: "重置筛选", exact: true }).click();
   await page.waitForFunction(
@@ -149,6 +145,8 @@ try {
         synthetic: true,
         packaged: !!process.argv[2],
         subscription: true,
+        keywordSubscriptionRemoved: true,
+        legacyKeywordsRemoved: true,
         categoryFilter: true,
         blockKeywords: true,
         blockCategory: true,

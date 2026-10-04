@@ -9,12 +9,10 @@ const split = (text) =>
 export default function NewsPreferences({ preferences, run, busy }) {
   const saved = JSON.stringify(newsPreferences(preferences));
   const [draft, setDraft] = useState(() => newsPreferences(preferences));
-  const [keywords, setKeywords] = useState(draft.keywords.join("，"));
   const [blocked, setBlocked] = useState(draft.blockedKeywords.join("，"));
   useEffect(() => {
     const next = JSON.parse(saved);
     setDraft(next);
-    setKeywords(next.keywords.join("，"));
     setBlocked(next.blockedKeywords.join("，"));
   }, [saved]);
   const toggle = (field, id, checked) =>
@@ -33,22 +31,11 @@ export default function NewsPreferences({ preferences, run, busy }) {
           run("news.configure", {
             preferences: {
               ...draft,
-              keywords: split(keywords),
               blockedKeywords: split(blocked),
             },
           });
         }}
       >
-        <label>
-          订阅关键词
-          <input
-            aria-label="订阅关键词"
-            value={keywords}
-            onChange={(event) => setKeywords(event.target.value)}
-            placeholder="例如：IgG4，影像，奖学金"
-            maxLength={1230}
-          />
-        </label>
         <label>
           屏蔽关键词
           <input
