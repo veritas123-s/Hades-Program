@@ -12,4 +12,13 @@ Windows实际发行程序的主题订阅、屏蔽、旧值丢弃、重启持久�
 
 原始研究文件、已保存个人项目和真实用户数据未删除或读取，实际个人安装未替换。本轮检查针对当前源、默认文案、打包内容与合成示例；不改写历史Git提交。Mac采用ad-hoc签名，没有Apple公证；Android真机、学校会话和长期生产采集不属于本次验证。完整端侧功能对齐、顶部栏、工作文件夹与独立IMAP工作保留原边界。稳定的产品示例隔离要求已记录到共享DECISIONS，发行结果随后补记。
 
-四平台安装包已全部通过各自检查；公开发布及线上公告验证结果待后续追加。
+四平台安装包已发布到[公开V6.1.4发行](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.1.4)，远端附件大小、SHA256、下载URL与本地逐项一致，`releases/stable.json`与main一致。使用 `node scripts/publish-release.mjs releases/notes-6.1.4.json --publish`，公开目录提交 `c03983a`，新增验证文档提交仅改变记录。线上缓存已备份并同步，公开端点读回6.1.4四个平台及同一摘要，HTTPS健康200、匿名快讯401，无服务重启。最后只读复核 `inv-v9fq3fg9bd` 于11:00:55成功退出0；规范JSON摘要 `8482918625a101c7247d23e2f9e9662fbcda6e95c1067774fb74c4ff02bbed57`。本机证据 `test-results/public-release-proof.json` 和 `test-results/cloud-v614-announcement.txt/png`。最终私有发布隔离核验261个公开产品文件通过，私有目录不属于Git且发布入口拒绝执行。
+
+| 平台 | 字节 | SHA256 |
+| --- | ---: | --- |
+| Windows x64 | 120888370 | b27060219f291b3d942cf611804f1f7ce637776358c8bdd84a94ba4a67b2b36b |
+| Android | 2952843 | 53f4746ba4a2d9538bb9a928525b54d52695129c613676f6c1c1aabb0a77412c |
+| macOS Intel x64 | 148161010 | 81926da5c51522522ce1c2e4d4fdbee7f16a4a16765faa346ef169afb98a9adc |
+| macOS Apple Silicon arm64 | 142651167 | fc161914b4e8d44eb9e0a1ad19bdc0684d76c6a6d0c8bf95742bf0b818f7c6b4 |
+
+独立IMAP开发目录随后也核对旧新闻文件与原公开基线逐字一致，并同步四个新闻偏好文件及AGENTS示例规则；对应三项偏好测试通过。其邮箱功能未在本轮合入或发布，其他文件保留。共享DECISIONS已记录当前用户的稳定内容隔离要求；项目状态及CHANGELOG在完成验收后追加，备份保留。

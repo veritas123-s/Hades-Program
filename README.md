@@ -4,7 +4,7 @@
 
 移除校园快讯的订阅关键词输入与匹配，旧关键词不再影响订阅结果。保留主题订阅、屏蔽设置、搜索与刷新倒计时；内置示例统一采用通用校园内容。
 
-[验证记录](docs/VALIDATION-V6.1.4.md)。四平台发行验收中。
+[下载安装包](https://github.com/veritas123-s/Medstack-Program/releases/tag/v6.1.4) · [验证记录](docs/VALIDATION-V6.1.4.md)。Windows、Android与两种Mac架构均已发布并核对SHA256。
 
 ## V6.1.3
 
