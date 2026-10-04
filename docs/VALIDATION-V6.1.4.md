@@ -4,4 +4,12 @@
 
 检查和修改 `src/modules/news/NewsPreferences.jsx`、`src/news-preferences.mjs`、既有规则与界面验证脚本、版本号和 macOS CI。公开166项规则、生产构建、源码程序订阅/屏蔽/重启/旧设置兼容/删除保留/宽度布局实测通过。私有工程与并行跨平台目录同步了上述四个已核对无冲突文件及示例规范，其他并行内容未覆盖。
 
-Windows 实际发行程序、两种原生 macOS、Android发行及线上公告验证结果待后续追加。私有服务器与管理员代码不进入公开发行。
+Windows实际发行程序的主题订阅、屏蔽、旧值丢弃、重启持久化、重置、删除保留及三种宽度检查通过；打包源码与当前偏好模块一致。当前源码、生产界面和内置文档368个文本文件未发现个人课题示例；公开Windows包139个产品文本文件及独立私有包142个产品文本文件检查无命中。私有包也通过同一实际程序界面检查，仅本机保留，不进入公开发行。
+
+生产源码提交 `f38a834973f96088f11320e5f31f22f90bfe855a`。原生macOS双架构任务[37171907187](https://github.com/veritas123-s/Medstack-Program/actions/runs/37171907187)完成DMG挂载、签名检查和实际程序启动、工作台、共享快讯与订阅界面验证；两个架构均确认关键词订阅输入不存在、旧值不写回。Android编译与lint[37171908922](https://github.com/veritas123-s/Medstack-Program/actions/runs/37171908922)通过，APK启动[37172202383](https://github.com/veritas123-s/Medstack-Program/actions/runs/37172202383)验证登录门禁、品牌、深色外观及130%字号。启动检查使用同一未签名产物的临时模拟器签名副本；公开APK在本机沿用原发布证书签名并验证，SHA256指纹为 `7eb67fe3f6360bf064840a3bb222df98ab8f00696b0f0c8f7575ac67913059a3`。没有重复声称本轮完成手机全部桌面功能对齐。
+
+执行 `npm test`、`npm run build`、`node scripts/news-preferences-ui-test.mjs`及传入实际Windows/私有程序路径的界面验证、Windows NSIS打包、`node scripts/update-package-audit.mjs`；Mac任务新增同一订阅验证脚本。Android编译、原证书签名与模拟器启动使用既有流程。检查并修改文件包括上述偏好界面/规则、对应两个既有验证文件、版本号、Android版本声明、macOS工作流、AGENTS、README、CHANGELOG、发行说明与本记录；并行目录仅同步已核对一致的四个新闻文件与示例规则。
+
+原始研究文件、已保存个人项目和真实用户数据未删除或读取，实际个人安装未替换。本轮检查针对当前源、默认文案、打包内容与合成示例；不改写历史Git提交。Mac采用ad-hoc签名，没有Apple公证；Android真机、学校会话和长期生产采集不属于本次验证。完整端侧功能对齐、顶部栏、工作文件夹与独立IMAP工作保留原边界。稳定的产品示例隔离要求已记录到共享DECISIONS，发行结果随后补记。
+
+四平台安装包已全部通过各自检查；公开发布及线上公告验证结果待后续追加。
